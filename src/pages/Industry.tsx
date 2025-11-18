@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { BuildingOffice2Icon, RocketLaunchIcon, CogIcon, CheckCircleIcon } from '@heroicons/react/24/outline'
+import { API_BASE_URL } from '../config/api.config'
 
 interface Industry {
   _id: string
@@ -19,7 +20,7 @@ const Industry = () => {
 
   const fetchIndustries = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/industries')
+      const response = await fetch(`${API_BASE_URL}/industries`)
       const data = await response.json()
       if (data.success) {
         setIndustries(data.data)

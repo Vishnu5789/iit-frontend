@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { AcademicCapIcon, NewspaperIcon, BuildingOffice2Icon } from '@heroicons/react/24/outline'
 import apiService from '../../services/api'
+import { API_BASE_URL } from '../../config/api.config'
 
 const AdminDashboard = () => {
   const navigate = useNavigate()
@@ -27,9 +28,9 @@ const AdminDashboard = () => {
   const fetchStats = async () => {
     try {
       const [courses, blogs, industries] = await Promise.all([
-        fetch('http://localhost:5000/api/courses').then(res => res.json()),
-        fetch('http://localhost:5000/api/blogs').then(res => res.json()),
-        fetch('http://localhost:5000/api/industries').then(res => res.json())
+        fetch(`${API_BASE_URL}/courses`).then(res => res.json()),
+        fetch(`${API_BASE_URL}/blogs`).then(res => res.json()),
+        fetch(`${API_BASE_URL}/industries`).then(res => res.json())
       ])
 
       setStats({

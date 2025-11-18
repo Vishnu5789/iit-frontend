@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { PlusIcon, PencilIcon, TrashIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import apiService from '../../services/api'
+import { API_BASE_URL } from '../../config/api.config'
 
 interface Blog {
   _id: string
@@ -43,7 +44,7 @@ const ManageBlogs = () => {
 
   const fetchBlogs = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/blogs')
+      const response = await fetch(`${API_BASE_URL}/blogs`)
       const data = await response.json()
       if (data.success) {
         setBlogs(data.data)
@@ -61,8 +62,8 @@ const ManageBlogs = () => {
     try {
       const token = apiService.getToken()
       const url = editingBlog 
-        ? `http://localhost:5000/api/blogs/${editingBlog._id}`
-        : 'http://localhost:5000/api/blogs'
+        ? `${API_BASE_URL}/blogs/${editingBlog._id}`
+        : `${API_BASE_URL}/blogs`
       
       const response = await fetch(url, {
         method: editingBlog ? 'PUT' : 'POST',
@@ -93,7 +94,7 @@ const ManageBlogs = () => {
 
     try {
       const token = apiService.getToken()
-      const response = await fetch(`http://localhost:5000/api/blogs/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/blogs/${id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`

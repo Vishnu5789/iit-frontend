@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { PlusIcon, PencilIcon, TrashIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import apiService from '../../services/api'
 import FileUpload from '../../components/FileUpload'
+import { API_BASE_URL } from '../../config/api.config'
 
 interface Course {
   _id: string
@@ -71,7 +72,7 @@ const ManageCourses = () => {
 
   const fetchCourses = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/courses')
+      const response = await fetch(`${API_BASE_URL}/courses`)
       const data = await response.json()
       if (data.success) {
         setCourses(data.data)
@@ -88,9 +89,9 @@ const ManageCourses = () => {
     
     try {
       const token = apiService.getToken()
-      const url = editingCourse 
-        ? `http://localhost:5000/api/courses/${editingCourse._id}`
-        : 'http://localhost:5000/api/courses'
+      const url = editingCourse
+        ? `${API_BASE_URL}/courses/${editingCourse._id}`
+        : `${API_BASE_URL}/courses`
       
       const response = await fetch(url, {
         method: editingCourse ? 'PUT' : 'POST',
@@ -121,7 +122,7 @@ const ManageCourses = () => {
 
     try {
       const token = apiService.getToken()
-      const response = await fetch(`http://localhost:5000/api/courses/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/courses/${id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`

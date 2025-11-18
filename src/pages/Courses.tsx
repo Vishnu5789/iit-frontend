@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { AcademicCapIcon, ClockIcon, ChartBarIcon, CheckCircleIcon, ArrowRightIcon } from '@heroicons/react/24/outline'
 import { useNavigate } from 'react-router-dom'
+import { API_BASE_URL } from '../config/api.config'
 
 interface Course {
   _id: string
@@ -26,7 +27,7 @@ const Courses = () => {
 
   const fetchCourses = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/courses')
+      const response = await fetch(`${API_BASE_URL}/courses`)
       const data = await response.json()
       if (data.success) {
         setCourses(data.data)

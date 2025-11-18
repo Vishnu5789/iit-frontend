@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { CloudArrowUpIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import apiService from '../services/api'
+import { API_BASE_URL } from '../config/api.config'
 
 interface FileUploadProps {
   label: string
@@ -28,7 +29,7 @@ const FileUpload = ({ label, accept, folder = 'courses', onUploadComplete, curre
       setProgress(50)
 
       const token = apiService.getToken()
-      const response = await fetch('http://localhost:5000/api/upload', {
+      const response = await fetch(`${API_BASE_URL}/upload`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`

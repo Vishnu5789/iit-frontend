@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { PlusIcon, PencilIcon, TrashIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import apiService from '../../services/api'
+import { API_BASE_URL } from '../../config/api.config'
 
 interface Industry {
   _id: string
@@ -40,7 +41,7 @@ const ManageIndustries = () => {
 
   const fetchIndustries = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/industries')
+      const response = await fetch(`${API_BASE_URL}/industries`)
       const data = await response.json()
       if (data.success) {
         setIndustries(data.data)
@@ -58,8 +59,8 @@ const ManageIndustries = () => {
     try {
       const token = apiService.getToken()
       const url = editingIndustry 
-        ? `http://localhost:5000/api/industries/${editingIndustry._id}`
-        : 'http://localhost:5000/api/industries'
+        ? `${API_BASE_URL}/industries/${editingIndustry._id}`
+        : `${API_BASE_URL}/industries`
       
       const response = await fetch(url, {
         method: editingIndustry ? 'PUT' : 'POST',
@@ -90,7 +91,7 @@ const ManageIndustries = () => {
 
     try {
       const token = apiService.getToken()
-      const response = await fetch(`http://localhost:5000/api/industries/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/industries/${id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`

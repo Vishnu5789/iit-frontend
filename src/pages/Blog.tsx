@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { NewspaperIcon, EnvelopeIcon, ArrowRightIcon } from '@heroicons/react/24/outline'
+import { API_BASE_URL } from '../config/api.config'
 
 interface Blog {
   _id: string
@@ -30,7 +31,7 @@ const Blog = () => {
 
   const fetchBlogs = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/blogs')
+      const response = await fetch(`${API_BASE_URL}/blogs`)
       const data = await response.json()
       if (data.success) {
         setBlogs(data.data)
