@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ShoppingBagIcon, ClockIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
+import { ShoppingBagIcon, ClockIcon } from '@heroicons/react/24/outline';
 import apiService from '../services/api';
 
 interface Order {

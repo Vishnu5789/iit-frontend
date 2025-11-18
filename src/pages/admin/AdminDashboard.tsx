@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { AcademicCapIcon, NewspaperIcon, BuildingOffice2Icon, UsersIcon } from '@heroicons/react/24/outline'
+import { AcademicCapIcon, NewspaperIcon, BuildingOffice2Icon } from '@heroicons/react/24/outline'
 import apiService from '../../services/api'
 
 const AdminDashboard = () => {
