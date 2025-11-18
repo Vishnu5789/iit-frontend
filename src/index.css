@@ -1,0 +1,56 @@
+@import "tailwindcss";
+
+body {
+    @apply bg-linear-to-br from-theme/20 via-theme/20 to-theme/20;
+    font-family: 'Space Grotesk', sans-serif;
+    letter-spacing: 0.025em;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    letter-spacing: 0.05em;
+}
+
+/* Custom animations for instructor cards */
+@keyframes scroll {
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(-50%);
+    }
+}
+
+.animate-scroll {
+    animation: scroll 20s linear infinite;
+}
+
+.animate-scroll-fast {
+    animation: scroll 10s linear infinite;
+}
+
+.hover\:pause-scroll:hover {
+    animation-play-state: paused;
+}
+
+.scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+    display: none;
+}
+
+/* Ensure seamless infinite scroll */
+.animate-scroll-fast {
+    width: max-content;
+}
+
+
+@theme {
+    --color-primary: #124E66;
+    --color-dark: #212A31;
+    --color-light: #D3D9D4;
+    --color-medium: #748D92;
+    --color-theme: #88BDBC
+}
