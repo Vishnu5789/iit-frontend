@@ -24,6 +24,7 @@ interface CourseContent {
     name: string
     url: string
     duration?: string
+    description?: string
     uploadedAt: string
   }>
   pdfFiles: Array<{
@@ -101,7 +102,7 @@ export default function CoursePlayer() {
     setSelectedVideo(url)
   }
 
-  const handleDownloadPdf = (url: string, name: string) => {
+  const handleDownloadPdf = (url: string) => {
     window.open(url, '_blank')
   }
 
@@ -309,7 +310,7 @@ export default function CoursePlayer() {
                           </div>
                         </div>
                         <button
-                          onClick={() => handleDownloadPdf(pdf.url, pdf.name)}
+                          onClick={() => handleDownloadPdf(pdf.url)}
                           className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition text-sm font-semibold"
                         >
                           View/Download
