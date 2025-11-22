@@ -1,0 +1,14 @@
+# Allow all crawlers
+User-agent: *
+Allow: /
+
+# Disallow admin pages
+Disallow: /admin/
+Disallow: /admin/*
+
+# Sitemap
+Sitemap: https://iit-frontend-ql6n.vercel.app/sitemap.xml
+
+# Crawl-delay
+Crawl-delay: 10
+

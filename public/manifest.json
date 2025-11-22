@@ -1,0 +1,22 @@
+{
+  "name": "Isaac Institute of Technology",
+  "short_name": "IIT",
+  "description": "Master CAD, CAE, PCB Design, and Programming with expert-led online courses",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#1e40af",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/assets/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["education", "learning", "engineering"],
+  "lang": "en",
+  "dir": "ltr"
+}
+
