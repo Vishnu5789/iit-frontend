@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { ArrowRightOnRectangleIcon, Bars3Icon, XMarkIcon, ShoppingCartIcon, ShoppingBagIcon } from '@heroicons/react/24/outline'
+import { ArrowRightOnRectangleIcon, Bars3Icon, XMarkIcon, ShoppingCartIcon, ShoppingBagIcon, AcademicCapIcon } from '@heroicons/react/24/outline'
 import apiService from '../services/api'
 
 const Navbar = () => {
@@ -120,6 +120,13 @@ const Navbar = () => {
                         {isAuthenticated && (
                             <>
                                 <button
+                                    onClick={() => navigate('/my-courses')}
+                                    className="p-2 text-dark/70 hover:text-primary transition-colors"
+                                    title="My Courses"
+                                >
+                                    <AcademicCapIcon className="h-6 w-6" />
+                                </button>
+                                <button
                                     onClick={() => navigate('/cart')}
                                     className="p-2 text-dark/70 hover:text-primary transition-colors relative"
                                     title="Shopping Cart"
@@ -198,14 +205,40 @@ const Navbar = () => {
                             {/* Mobile Auth Buttons */}
                             <div className="flex flex-col gap-2 mt-4 px-4">
                                 {isAuthenticated ? (
-                                    <button
-                                        onClick={handleLogout}
-                                        className="flex items-center justify-center gap-2 border border-red-500 hover:bg-red-500 duration-300 text-red-500
-                                        hover:text-white px-4 py-2 rounded-md cursor-pointer text-sm font-semibold"
-                                    >
-                                        <ArrowRightOnRectangleIcon className="h-4 w-4" />
-                                        Logout
-                                    </button>
+                                    <>
+                                        <button
+                                            onClick={() => handleNavClick('/my-courses')}
+                                            className="flex items-center justify-center gap-2 border border-primary hover:bg-primary duration-300 text-primary
+                                            hover:text-white px-4 py-2 rounded-md cursor-pointer text-sm font-semibold"
+                                        >
+                                            <AcademicCapIcon className="h-4 w-4" />
+                                            My Courses
+                                        </button>
+                                        <button
+                                            onClick={() => handleNavClick('/cart')}
+                                            className="flex items-center justify-center gap-2 border border-primary hover:bg-primary duration-300 text-primary
+                                            hover:text-white px-4 py-2 rounded-md cursor-pointer text-sm font-semibold"
+                                        >
+                                            <ShoppingCartIcon className="h-4 w-4" />
+                                            Cart
+                                        </button>
+                                        <button
+                                            onClick={() => handleNavClick('/my-orders')}
+                                            className="flex items-center justify-center gap-2 border border-primary hover:bg-primary duration-300 text-primary
+                                            hover:text-white px-4 py-2 rounded-md cursor-pointer text-sm font-semibold"
+                                        >
+                                            <ShoppingBagIcon className="h-4 w-4" />
+                                            My Orders
+                                        </button>
+                                        <button
+                                            onClick={handleLogout}
+                                            className="flex items-center justify-center gap-2 border border-red-500 hover:bg-red-500 duration-300 text-red-500
+                                            hover:text-white px-4 py-2 rounded-md cursor-pointer text-sm font-semibold"
+                                        >
+                                            <ArrowRightOnRectangleIcon className="h-4 w-4" />
+                                            Logout
+                                        </button>
+                                    </>
                                 ) : (
                                     <>
                                         <button

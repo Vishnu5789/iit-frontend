@@ -243,6 +243,28 @@ class ApiService {
     });
     return this.handleResponse(response);
   }
+
+  // Enrollment methods
+  async getEnrolledCourses(): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/enrollments/my-courses`, {
+      headers: this.getHeaders(true),
+    });
+    return this.handleResponse(response);
+  }
+
+  async checkEnrollment(courseId: string): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/enrollments/check/${courseId}`, {
+      headers: this.getHeaders(true),
+    });
+    return this.handleResponse(response);
+  }
+
+  async getCourseContent(courseId: string): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/enrollments/course/${courseId}/content`, {
+      headers: this.getHeaders(true),
+    });
+    return this.handleResponse(response);
+  }
 }
 
 export default new ApiService();

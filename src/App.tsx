@@ -13,6 +13,8 @@ import Cart from './pages/Cart'
 import Checkout from './pages/Checkout'
 import OrderConfirmation from './pages/OrderConfirmation'
 import MyOrders from './pages/MyOrders'
+import MyCourses from './pages/MyCourses'
+import CoursePlayer from './pages/CoursePlayer'
 import AdminDashboard from './pages/admin/AdminDashboard'
 import ManageCourses from './pages/admin/ManageCourses'
 import ManageBlogs from './pages/admin/ManageBlogs'
@@ -35,6 +37,8 @@ const App = () => {
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/order-confirmation/:id" element={<OrderConfirmation />} />
           <Route path="/my-orders" element={<MyOrders />} />
+          <Route path="/my-courses" element={<MyCourses />} />
+          <Route path="/course-player/:courseId" element={<CoursePlayer />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignUp />} />
           
