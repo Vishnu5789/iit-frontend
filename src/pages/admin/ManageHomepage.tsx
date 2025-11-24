@@ -212,102 +212,78 @@ export default function ManageHomepage() {
             {/* Hero Image */}
             <div>
               <h3 className="font-semibold text-dark mb-2">Hero Image</h3>
-              {config?.heroImage?.url && (
-                <div className="mb-2">
-                  <img src={config.heroImage.url} alt="Hero" className="w-full h-32 object-contain bg-gray-50 rounded" />
-                </div>
-              )}
               <FileUpload
                 label="Upload Hero Image"
                 accept="image/*"
                 folder="homepage"
                 onUploadComplete={(fileData) => handleImageUpload('heroImage', fileData)}
-                currentFile={config?.heroImage}
+                currentFile={config?.heroImage?.url ? { url: config.heroImage.url, name: 'Hero Image' } : undefined}
+                onRemove={() => handleImageUpload('heroImage', { url: '/assets/hero.svg', fileId: '' })}
               />
             </div>
 
             {/* Stars Image */}
             <div>
               <h3 className="font-semibold text-dark mb-2">Stars Image</h3>
-              {config?.starsImage?.url && (
-                <div className="mb-2">
-                  <img src={config.starsImage.url} alt="Stars" className="w-full h-32 object-contain bg-gray-50 rounded" />
-                </div>
-              )}
               <FileUpload
                 label="Upload Stars Image"
                 accept="image/*"
                 folder="homepage"
                 onUploadComplete={(fileData) => handleImageUpload('starsImage', fileData)}
-                currentFile={config?.starsImage}
+                currentFile={config?.starsImage?.url ? { url: config.starsImage.url, name: 'Stars Image' } : undefined}
+                onRemove={() => handleImageUpload('starsImage', { url: '/assets/stars.svg', fileId: '' })}
               />
             </div>
 
             {/* Vision Image */}
             <div>
               <h3 className="font-semibold text-dark mb-2">Vision Image</h3>
-              {config?.visionImage?.url && (
-                <div className="mb-2">
-                  <img src={config.visionImage.url} alt="Vision" className="w-full h-32 object-contain bg-gray-50 rounded" />
-                </div>
-              )}
               <FileUpload
                 label="Upload Vision Image"
                 accept="image/*"
                 folder="homepage"
                 onUploadComplete={(fileData) => handleImageUpload('visionImage', fileData)}
-                currentFile={config?.visionImage}
+                currentFile={config?.visionImage?.url ? { url: config.visionImage.url, name: 'Vision Image' } : undefined}
+                onRemove={() => handleImageUpload('visionImage', { url: '/assets/vision.svg', fileId: '' })}
               />
             </div>
 
             {/* Team Collaboration Image */}
             <div>
               <h3 className="font-semibold text-dark mb-2">Team Collaboration Image</h3>
-              {config?.teamCollaborationImage?.url && (
-                <div className="mb-2">
-                  <img src={config.teamCollaborationImage.url} alt="Team" className="w-full h-32 object-contain bg-gray-50 rounded" />
-                </div>
-              )}
               <FileUpload
                 label="Upload Team Image"
                 accept="image/*"
                 folder="homepage"
                 onUploadComplete={(fileData) => handleImageUpload('teamCollaborationImage', fileData)}
-                currentFile={config?.teamCollaborationImage}
+                currentFile={config?.teamCollaborationImage?.url ? { url: config.teamCollaborationImage.url, name: 'Team Image' } : undefined}
+                onRemove={() => handleImageUpload('teamCollaborationImage', { url: '/assets/team-collaboration.svg', fileId: '' })}
               />
             </div>
 
             {/* Goals Image */}
             <div>
               <h3 className="font-semibold text-dark mb-2">Goals Image</h3>
-              {config?.goalsImage?.url && (
-                <div className="mb-2">
-                  <img src={config.goalsImage.url} alt="Goals" className="w-full h-32 object-contain bg-gray-50 rounded" />
-                </div>
-              )}
               <FileUpload
                 label="Upload Goals Image"
                 accept="image/*"
                 folder="homepage"
                 onUploadComplete={(fileData) => handleImageUpload('goalsImage', fileData)}
-                currentFile={config?.goalsImage}
+                currentFile={config?.goalsImage?.url ? { url: config.goalsImage.url, name: 'Goals Image' } : undefined}
+                onRemove={() => handleImageUpload('goalsImage', { url: '/assets/goals.svg', fileId: '' })}
               />
             </div>
 
             {/* Journey Image */}
             <div>
               <h3 className="font-semibold text-dark mb-2">Journey Image</h3>
-              {config?.journeyImage?.url && (
-                <div className="mb-2">
-                  <img src={config.journeyImage.url} alt="Journey" className="w-full h-32 object-contain bg-gray-50 rounded" />
-                </div>
-              )}
               <FileUpload
                 label="Upload Journey Image"
                 accept="image/*"
                 folder="homepage"
                 onUploadComplete={(fileData) => handleImageUpload('journeyImage', fileData)}
-                currentFile={config?.journeyImage}
+                currentFile={config?.journeyImage?.url ? { url: config.journeyImage.url, name: 'Journey Image' } : undefined}
+                onRemove={() => handleImageUpload('journeyImage', { url: '/assets/journey.svg', fileId: '' })}
               />
             </div>
           </div>
