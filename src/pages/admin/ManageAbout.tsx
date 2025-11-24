@@ -121,7 +121,7 @@ export default function ManageAbout() {
   }
 
   return (
-    <div className="pt-16 md:pt-20 px-4 min-h-screen bg-gray-50">
+    <div className="pt-28 md:pt-32 lg:pt-36 px-4 min-h-screen bg-gradient-to-b from-light to-white">
       <div className="max-w-5xl mx-auto py-8">
         <div className="mb-8">
           <button
@@ -143,7 +143,7 @@ export default function ManageAbout() {
 
         <form onSubmit={handleSave} className="space-y-6">
           {/* Hero Section */}
-          <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
             <h2 className="text-xl font-bold text-dark mb-4">Hero Section</h2>
             <div className="space-y-4">
               <div>
@@ -185,7 +185,7 @@ export default function ManageAbout() {
           </div>
 
           {/* Statistics */}
-          <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
             <h2 className="text-xl font-bold text-dark mb-4">Statistics</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {['students', 'courses', 'rating', 'industries'].map((stat) => (
@@ -231,7 +231,7 @@ export default function ManageAbout() {
 
           {/* Mission & Vision */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="bg-white rounded-lg shadow-md p-6">
+            <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
               <h2 className="text-xl font-bold text-dark mb-4">Mission</h2>
               <div className="space-y-4">
                 <input
@@ -259,7 +259,7 @@ export default function ManageAbout() {
               </div>
             </div>
 
-            <div className="bg-white rounded-lg shadow-md p-6">
+            <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
               <h2 className="text-xl font-bold text-dark mb-4">Vision</h2>
               <div className="space-y-4">
                 <input
@@ -289,7 +289,7 @@ export default function ManageAbout() {
           </div>
 
           {/* Story */}
-          <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
             <h2 className="text-xl font-bold text-dark mb-4">Story Section</h2>
             <div className="space-y-4">
               <input
@@ -310,7 +310,7 @@ export default function ManageAbout() {
           </div>
 
           {/* Values */}
-          <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-bold text-dark">Values</h2>
               <button
@@ -355,7 +355,7 @@ export default function ManageAbout() {
           </div>
 
           {/* Team Members */}
-          <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-bold text-dark">Team Members</h2>
               <button

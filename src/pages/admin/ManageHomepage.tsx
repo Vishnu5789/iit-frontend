@@ -96,19 +96,23 @@ export default function ManageHomepage() {
   }
 
   return (
-    <div className="pt-16 md:pt-20 px-4 min-h-screen bg-gray-50">
+    <div className="pt-28 md:pt-32 lg:pt-36 px-4 min-h-screen bg-gradient-to-b from-light to-white">
       <div className="max-w-7xl mx-auto py-8">
         {/* Header */}
-        <div className="mb-8">
+        <div className="mb-8 text-center">
           <button
             onClick={() => navigate('/admin')}
-            className="flex items-center gap-2 text-primary hover:text-primary-dark mb-4 transition"
+            className="inline-flex items-center gap-2 text-primary hover:text-primary-dark mb-4 transition font-medium"
           >
             <ArrowLeftIcon className="w-5 h-5" />
             Back to Dashboard
           </button>
-          <h1 className="text-3xl font-bold text-dark">Manage Homepage</h1>
-          <p className="text-medium mt-2">Customize homepage images, stats, and content</p>
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full mb-4">
+            <span className="text-primary font-semibold text-sm">Homepage Configuration</span>
+            <span className="text-secondary">🏠</span>
+          </div>
+          <h1 className="text-3xl md:text-4xl font-bold text-dark mb-2">Manage Homepage</h1>
+          <p className="text-medium">Customize homepage images, stats, and content</p>
         </div>
 
         {/* Message */}
@@ -119,8 +123,8 @@ export default function ManageHomepage() {
         )}
 
         {/* Hero Text Section */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <h2 className="text-xl font-bold text-dark mb-4">Hero Section Text</h2>
+        <div className="bg-white rounded-xl shadow-md p-8 mb-6 border border-gray-200">
+          <h2 className="text-2xl font-bold text-dark mb-6">Hero Section Text</h2>
           <form onSubmit={handleHeroTextUpdate} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-dark mb-2">Badge Text</label>
@@ -152,7 +156,7 @@ export default function ManageHomepage() {
             <button
               type="submit"
               disabled={isSaving}
-              className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition disabled:opacity-50"
+              className="px-6 py-3 bg-gradient-to-r from-primary to-primary-dark text-white rounded-lg hover:shadow-lg transition-all duration-300 transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
             >
               {isSaving ? 'Saving...' : 'Save Hero Text'}
             </button>
@@ -160,8 +164,8 @@ export default function ManageHomepage() {
         </div>
 
         {/* Stats Section */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <h2 className="text-xl font-bold text-dark mb-4">Homepage Stats</h2>
+        <div className="bg-white rounded-xl shadow-md p-8 mb-6 border border-gray-200">
+          <h2 className="text-2xl font-bold text-dark mb-6">Homepage Stats</h2>
           <form onSubmit={handleStatsUpdate} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
@@ -198,7 +202,7 @@ export default function ManageHomepage() {
             <button
               type="submit"
               disabled={isSaving}
-              className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition disabled:opacity-50"
+              className="px-6 py-3 bg-gradient-to-r from-primary to-primary-dark text-white rounded-lg hover:shadow-lg transition-all duration-300 transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
             >
               {isSaving ? 'Saving...' : 'Save Stats'}
             </button>
@@ -206,8 +210,8 @@ export default function ManageHomepage() {
         </div>
 
         {/* Images Section */}
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-bold text-dark mb-4">Homepage Images</h2>
+        <div className="bg-white rounded-xl shadow-md p-8 border border-gray-200">
+          <h2 className="text-2xl font-bold text-dark mb-6">Homepage Images</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {/* Hero Image */}
             <div>

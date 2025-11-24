@@ -97,12 +97,16 @@ const AdminDashboard = () => {
   ]
 
   return (
-    <div className="pt-28 md:pt-32 lg:pt-36 px-4 min-h-screen">
+    <div className="pt-28 md:pt-32 lg:pt-36 px-4 min-h-screen bg-gradient-to-b from-light to-white">
       <div className="max-w-7xl mx-auto mb-16">
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-primary mb-4">Admin Dashboard</h1>
-          <p className="text-lg text-dark/70">Manage your courses, blogs, and industry content</p>
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full mb-4">
+            <span className="text-primary font-semibold text-sm">Admin Panel</span>
+            <span className="text-secondary">⚙️</span>
+          </div>
+          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-dark mb-4">Admin Dashboard</h1>
+          <p className="text-lg text-medium">Manage your courses, blogs, and industry content</p>
         </div>
 
         {/* Stats Cards */}
@@ -113,75 +117,75 @@ const AdminDashboard = () => {
               <div
                 key={index}
                 onClick={() => navigate(card.link)}
-                className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg p-8 border border-primary/10 hover:shadow-xl hover:scale-[1.02] transition-all duration-300 cursor-pointer"
+                className="group bg-white rounded-xl shadow-md hover:shadow-2xl p-6 border border-gray-200 hover:border-primary/30 transition-all duration-300 cursor-pointer transform hover:scale-105"
               >
-                <div className={`w-16 h-16 rounded-xl bg-gradient-to-br ${card.color} flex items-center justify-center mb-6 mx-auto`}>
-                  <Icon className="h-8 w-8 text-white" />
+                <div className={`w-14 h-14 rounded-lg bg-gradient-to-br ${card.color} flex items-center justify-center mb-4 mx-auto group-hover:scale-110 transition-transform duration-300`}>
+                  <Icon className="h-7 w-7 text-white" />
                 </div>
-                <h3 className="text-4xl font-bold text-primary mb-2 text-center">
+                <h3 className="text-3xl font-bold text-dark mb-1 text-center">
                   {isLoading ? '...' : card.count}
                 </h3>
-                <p className="text-dark/60 text-center font-semibold">{card.title}</p>
+                <p className="text-medium text-sm text-center font-medium">{card.title}</p>
               </div>
             )
           })}
         </div>
 
         {/* Quick Actions */}
-        <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg p-8 border border-primary/10">
-          <h2 className="text-2xl font-bold text-primary mb-6 text-center">Quick Actions</h2>
+        <div className="bg-white rounded-xl shadow-md p-8 border border-gray-200">
+          <h2 className="text-2xl font-bold text-dark mb-6 text-center">Quick Actions</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <button
               onClick={() => navigate('/admin/courses')}
-              className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-8 py-4 rounded-lg font-semibold hover:from-blue-600 hover:to-blue-700 transition-all duration-300 transform hover:scale-[1.02] shadow-md"
+              className="bg-gradient-to-r from-primary to-primary-dark text-white px-6 py-4 rounded-lg font-semibold hover:shadow-lg transition-all duration-300 transform hover:scale-[1.03]"
             >
               Manage Courses
             </button>
             <button
               onClick={() => navigate('/admin/users')}
-              className="bg-gradient-to-r from-orange-500 to-orange-600 text-white px-8 py-4 rounded-lg font-semibold hover:from-orange-600 hover:to-orange-700 transition-all duration-300 transform hover:scale-[1.02] shadow-md"
+              className="bg-gradient-to-r from-accent to-orange-600 text-white px-6 py-4 rounded-lg font-semibold hover:shadow-lg transition-all duration-300 transform hover:scale-[1.03]"
             >
               Manage Users
             </button>
             <button
               onClick={() => navigate('/admin/homepage')}
-              className="bg-gradient-to-r from-pink-500 to-pink-600 text-white px-8 py-4 rounded-lg font-semibold hover:from-pink-600 hover:to-pink-700 transition-all duration-300 transform hover:scale-[1.02] shadow-md"
+              className="bg-gradient-to-r from-pink-500 to-pink-600 text-white px-6 py-4 rounded-lg font-semibold hover:shadow-lg transition-all duration-300 transform hover:scale-[1.03]"
             >
               Manage Homepage
             </button>
             <button
               onClick={() => navigate('/admin/blogs')}
-              className="bg-gradient-to-r from-green-500 to-green-600 text-white px-8 py-4 rounded-lg font-semibold hover:from-green-600 hover:to-green-700 transition-all duration-300 transform hover:scale-[1.02] shadow-md"
+              className="bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-4 rounded-lg font-semibold hover:shadow-lg transition-all duration-300 transform hover:scale-[1.03]"
             >
               Manage Blogs
             </button>
             <button
               onClick={() => navigate('/admin/industries')}
-              className="bg-gradient-to-r from-purple-500 to-purple-600 text-white px-8 py-4 rounded-lg font-semibold hover:from-purple-600 hover:to-purple-700 transition-all duration-300 transform hover:scale-[1.02] shadow-md"
+              className="bg-gradient-to-r from-purple-500 to-purple-600 text-white px-6 py-4 rounded-lg font-semibold hover:shadow-lg transition-all duration-300 transform hover:scale-[1.03]"
             >
               Manage Industries
             </button>
             <button
               onClick={() => navigate('/admin/contact')}
-              className="bg-gradient-to-r from-cyan-500 to-cyan-600 text-white px-8 py-4 rounded-lg font-semibold hover:from-cyan-600 hover:to-cyan-700 transition-all duration-300 transform hover:scale-[1.02] shadow-md"
+              className="bg-gradient-to-r from-secondary to-blue-500 text-white px-6 py-4 rounded-lg font-semibold hover:shadow-lg transition-all duration-300 transform hover:scale-[1.03]"
             >
               Manage Contact
             </button>
             <button
               onClick={() => navigate('/admin/contact-messages')}
-              className="bg-gradient-to-r from-teal-500 to-teal-600 text-white px-8 py-4 rounded-lg font-semibold hover:from-teal-600 hover:to-teal-700 transition-all duration-300 transform hover:scale-[1.02] shadow-md"
+              className="bg-gradient-to-r from-teal-500 to-teal-600 text-white px-6 py-4 rounded-lg font-semibold hover:shadow-lg transition-all duration-300 transform hover:scale-[1.03]"
             >
               View Messages
             </button>
             <button
               onClick={() => navigate('/admin/about')}
-              className="bg-gradient-to-r from-amber-500 to-amber-600 text-white px-8 py-4 rounded-lg font-semibold hover:from-amber-600 hover:to-amber-700 transition-all duration-300 transform hover:scale-[1.02] shadow-md"
+              className="bg-gradient-to-r from-amber-500 to-amber-600 text-white px-6 py-4 rounded-lg font-semibold hover:shadow-lg transition-all duration-300 transform hover:scale-[1.03]"
             >
               Manage About
             </button>
             <button
               onClick={() => navigate('/admin/industry-page')}
-              className="bg-gradient-to-r from-lime-500 to-lime-600 text-white px-8 py-4 rounded-lg font-semibold hover:from-lime-600 hover:to-lime-700 transition-all duration-300 transform hover:scale-[1.02] shadow-md"
+              className="bg-gradient-to-r from-lime-500 to-lime-600 text-white px-6 py-4 rounded-lg font-semibold hover:shadow-lg transition-all duration-300 transform hover:scale-[1.03]"
             >
               Manage Industry Page
             </button>

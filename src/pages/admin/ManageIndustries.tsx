@@ -142,7 +142,7 @@ const ManageIndustries = () => {
   }
 
   return (
-    <div className="pt-28 md:pt-32 lg:pt-36 px-4 min-h-screen">
+    <div className="pt-28 md:pt-32 lg:pt-36 px-4 min-h-screen bg-gradient-to-b from-light to-white">
       <div className="max-w-7xl mx-auto mb-16">
         <div className="flex flex-col md:flex-row items-center justify-between mb-12 gap-4">
           <div className="text-center md:text-left">
@@ -163,7 +163,7 @@ const ManageIndustries = () => {
             <p className="text-lg text-dark/60">Loading industries...</p>
           </div>
         ) : industries.length === 0 ? (
-          <div className="text-center py-12 bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border border-primary/10">
+          <div className="text-center py-12 bg-white rounded-xl shadow-md border border-gray-200">
             <p className="text-lg text-dark/60">No industries found. Create your first industry!</p>
           </div>
         ) : (
@@ -171,7 +171,7 @@ const ManageIndustries = () => {
             {industries.map((industry) => (
               <div
                 key={industry._id}
-                className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg p-6 border border-primary/10 hover:shadow-xl hover:scale-[1.01] transition-all duration-300"
+                className="bg-white rounded-xl shadow-md p-6 border border-gray-200 hover:shadow-xl hover:scale-[1.01] transition-all duration-300"
               >
                 <div className="flex items-start justify-between">
                   <div className="flex-1">

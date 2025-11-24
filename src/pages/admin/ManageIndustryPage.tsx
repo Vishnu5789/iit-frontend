@@ -114,7 +114,7 @@ export default function ManageIndustryPage() {
   }
 
   return (
-    <div className="pt-16 md:pt-20 px-4 min-h-screen bg-gray-50">
+    <div className="pt-28 md:pt-32 lg:pt-36 px-4 min-h-screen bg-gradient-to-b from-light to-white">
       <div className="max-w-5xl mx-auto py-8">
         <div className="mb-8">
           <button
@@ -136,7 +136,7 @@ export default function ManageIndustryPage() {
 
         <form onSubmit={handleSave} className="space-y-6">
           {/* Hero Section */}
-          <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
             <h2 className="text-xl font-bold text-dark mb-4">Hero Section</h2>
             <div className="space-y-4">
               <div>
@@ -170,7 +170,7 @@ export default function ManageIndustryPage() {
           </div>
 
           {/* Real-World Projects */}
-          <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-bold text-dark">Real-World Projects</h2>
               <button
@@ -231,7 +231,7 @@ export default function ManageIndustryPage() {
           </div>
 
           {/* Workflow Section */}
-          <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
             <h2 className="text-xl font-bold text-dark mb-4">Workflow Alignment Section</h2>
             <div className="space-y-4">
               <div>
@@ -256,7 +256,7 @@ export default function ManageIndustryPage() {
           </div>
 
           {/* Industry Benefits */}
-          <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-bold text-dark">Industry Benefits</h2>
               <button
@@ -310,7 +310,7 @@ export default function ManageIndustryPage() {
           </div>
 
           {/* Companies Section */}
-          <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
             <h2 className="text-xl font-bold text-dark mb-4">Companies Section</h2>
             <div className="space-y-4">
               <div>
@@ -388,7 +388,7 @@ export default function ManageIndustryPage() {
           </div>
 
           {/* CTA Section */}
-          <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
             <h2 className="text-xl font-bold text-dark mb-4">Call-to-Action Section</h2>
             <div className="space-y-4">
               <div>

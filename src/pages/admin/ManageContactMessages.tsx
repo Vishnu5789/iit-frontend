@@ -112,7 +112,7 @@ export default function ManageContactMessages() {
   }
 
   return (
-    <div className="pt-16 md:pt-20 px-4 min-h-screen bg-gray-50">
+    <div className="pt-28 md:pt-32 lg:pt-36 px-4 min-h-screen bg-gradient-to-b from-light to-white">
       <div className="max-w-7xl mx-auto py-8">
         {/* Header */}
         <div className="mb-8">
@@ -135,7 +135,7 @@ export default function ManageContactMessages() {
         )}
 
         {/* Filter */}
-        <div className="bg-white rounded-lg shadow-md p-4 mb-6">
+        <div className="bg-white rounded-xl shadow-md border border-gray-200 p-4 mb-6">
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
@@ -157,7 +157,7 @@ export default function ManageContactMessages() {
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
               </div>
             ) : messages.length === 0 ? (
-              <div className="bg-white rounded-lg shadow-md p-12 text-center">
+              <div className="bg-white rounded-xl shadow-md border border-gray-200 p-12 text-center">
                 <EnvelopeIcon className="w-16 h-16 text-gray-300 mx-auto mb-4" />
                 <p className="text-gray-600">No messages found</p>
               </div>
@@ -165,7 +165,7 @@ export default function ManageContactMessages() {
               messages.map((message) => (
                 <div
                   key={message._id}
-                  className={`bg-white rounded-lg shadow-md p-4 cursor-pointer hover:shadow-lg transition ${
+                  className={`bg-white rounded-xl shadow-md border border-gray-200 p-4 cursor-pointer hover:shadow-lg transition ${
                     selectedMessage?._id === message._id ? 'ring-2 ring-primary' : ''
                   }`}
                   onClick={() => handleViewMessage(message)}
@@ -192,7 +192,7 @@ export default function ManageContactMessages() {
           {/* Message Detail */}
           <div className="lg:sticky lg:top-24 lg:self-start">
             {selectedMessage ? (
-              <div className="bg-white rounded-lg shadow-md p-6">
+              <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
                 <div className="flex items-start justify-between mb-4">
                   <h2 className="text-xl font-bold text-dark">Message Details</h2>
                   <button
@@ -280,7 +280,7 @@ export default function ManageContactMessages() {
                 </div>
               </div>
             ) : (
-              <div className="bg-white rounded-lg shadow-md p-12 text-center">
+              <div className="bg-white rounded-xl shadow-md border border-gray-200 p-12 text-center">
                 <EyeIcon className="w-16 h-16 text-gray-300 mx-auto mb-4" />
                 <p className="text-gray-600">Select a message to view details</p>
               </div>

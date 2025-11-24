@@ -144,19 +144,23 @@ export default function ManageUsers() {
   }
 
   return (
-    <div className="pt-16 md:pt-20 px-4 min-h-screen bg-gray-50">
+    <div className="pt-28 md:pt-32 lg:pt-36 px-4 min-h-screen bg-gradient-to-b from-light to-white">
       <div className="max-w-7xl mx-auto py-8">
         {/* Header */}
-        <div className="mb-8">
+        <div className="mb-8 text-center">
           <button
             onClick={() => navigate('/admin')}
-            className="flex items-center gap-2 text-primary hover:text-primary-dark mb-4 transition"
+            className="inline-flex items-center gap-2 text-primary hover:text-primary-dark mb-4 transition font-medium"
           >
             <ArrowLeftIcon className="w-5 h-5" />
             Back to Dashboard
           </button>
-          <h1 className="text-3xl font-bold text-dark">Manage Users</h1>
-          <p className="text-medium mt-2">View and manage all users and their course enrollments</p>
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full mb-4">
+            <span className="text-primary font-semibold text-sm">User Management</span>
+            <span className="text-secondary">👥</span>
+          </div>
+          <h1 className="text-3xl md:text-4xl font-bold text-dark mb-2">Manage Users</h1>
+          <p className="text-medium">View and manage all users and their course enrollments</p>
         </div>
 
         {/* Message */}
@@ -167,7 +171,7 @@ export default function ManageUsers() {
         )}
 
         {/* Filters */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+        <div className="bg-white rounded-xl shadow-md p-8 mb-6 border border-gray-200">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Search */}
             <div className="relative">
@@ -201,14 +205,14 @@ export default function ManageUsers() {
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
           </div>
         ) : users.length === 0 ? (
-          <div className="bg-white rounded-lg shadow-md p-12 text-center">
+          <div className="bg-white rounded-xl shadow-md p-12 text-center border border-gray-200">
             <UserIcon className="w-16 h-16 text-gray-300 mx-auto mb-4" />
             <p className="text-gray-600">No users found</p>
           </div>
         ) : (
           <div className="space-y-4">
             {users.map((user) => (
-              <div key={user._id} className="bg-white rounded-lg shadow-md p-6">
+              <div key={user._id} className="bg-white rounded-xl shadow-md p-6 border border-gray-200 hover:shadow-lg transition-shadow duration-300">
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">

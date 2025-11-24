@@ -63,7 +63,7 @@ export default function ManageContact() {
   }
 
   return (
-    <div className="pt-16 md:pt-20 px-4 min-h-screen bg-gray-50">
+    <div className="pt-28 md:pt-32 lg:pt-36 px-4 min-h-screen bg-gradient-to-b from-light to-white">
       <div className="max-w-4xl mx-auto py-8">
         {/* Header */}
         <div className="mb-8">
@@ -87,7 +87,7 @@ export default function ManageContact() {
 
         <form onSubmit={handleSave} className="space-y-6">
           {/* Page Content */}
-          <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
             <h2 className="text-xl font-bold text-dark mb-4">Page Content</h2>
             <div className="space-y-4">
               <div>
@@ -112,7 +112,7 @@ export default function ManageContact() {
           </div>
 
           {/* Contact Information */}
-          <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
             <h2 className="text-xl font-bold text-dark mb-4">Contact Information</h2>
             <div className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -139,7 +139,7 @@ export default function ManageContact() {
           </div>
 
           {/* Address */}
-          <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
             <h2 className="text-xl font-bold text-dark mb-4">Address</h2>
             <div className="space-y-4">
               <div>
@@ -193,7 +193,7 @@ export default function ManageContact() {
           </div>
 
           {/* Office Hours */}
-          <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
             <h2 className="text-xl font-bold text-dark mb-4">Office Hours</h2>
             <div className="space-y-4">
               <div>
@@ -220,7 +220,7 @@ export default function ManageContact() {
           </div>
 
           {/* Social Media */}
-          <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
             <h2 className="text-xl font-bold text-dark mb-4">Social Media</h2>
             <div className="space-y-4">
               <div>
@@ -277,7 +277,7 @@ export default function ManageContact() {
           </div>
 
           {/* Map */}
-          <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
             <h2 className="text-xl font-bold text-dark mb-4">Google Maps Embed</h2>
             <div>
               <label className="block text-sm font-medium text-dark mb-2">Map Embed URL</label>
