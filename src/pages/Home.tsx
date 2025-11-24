@@ -3,7 +3,6 @@ import apiService from '../services/api'
 
 const Home = () => {
   const [config, setConfig] = useState<any>(null)
-  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     fetchHomeConfig()
@@ -17,8 +16,6 @@ const Home = () => {
       }
     } catch (error) {
       console.error('Error fetching home config:', error)
-    } finally {
-      setIsLoading(false)
     }
   }
 
