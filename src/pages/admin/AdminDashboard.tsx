@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { AcademicCapIcon, NewspaperIcon, BuildingOffice2Icon, HomeIcon, UsersIcon } from '@heroicons/react/24/outline'
+import { AcademicCapIcon, NewspaperIcon, BuildingOffice2Icon, HomeIcon, UsersIcon, EnvelopeIcon } from '@heroicons/react/24/outline'
 import apiService from '../../services/api'
 import { API_BASE_URL } from '../../config/api.config'
 
@@ -10,7 +10,8 @@ const AdminDashboard = () => {
     coursesCount: 0,
     blogsCount: 0,
     industriesCount: 0,
-    usersCount: 0
+    usersCount: 0,
+    contactMessagesCount: 0
   })
   const [isLoading, setIsLoading] = useState(true)
 
@@ -28,18 +29,20 @@ const AdminDashboard = () => {
 
   const fetchStats = async () => {
     try {
-      const [courses, blogs, industries, users] = await Promise.all([
+      const [courses, blogs, industries, users, contact] = await Promise.all([
         fetch(`${API_BASE_URL}/courses`).then(res => res.json()),
         fetch(`${API_BASE_URL}/blogs`).then(res => res.json()),
         fetch(`${API_BASE_URL}/industries`).then(res => res.json()),
-        apiService.getUserStats()
+        apiService.getUserStats(),
+        apiService.getContactStats()
       ])
 
       setStats({
         coursesCount: courses.count || 0,
         blogsCount: blogs.count || 0,
         industriesCount: industries.count || 0,
-        usersCount: users.data?.totalUsers || 0
+        usersCount: users.data?.totalUsers || 0,
+        contactMessagesCount: contact.data?.newMessages || 0
       })
     } catch (error) {
       console.error('Error fetching stats:', error)
@@ -83,6 +86,13 @@ const AdminDashboard = () => {
       icon: HomeIcon,
       color: 'from-pink-500 to-pink-600',
       link: '/admin/homepage'
+    },
+    {
+      title: 'Messages',
+      count: stats.contactMessagesCount,
+      icon: EnvelopeIcon,
+      color: 'from-cyan-500 to-cyan-600',
+      link: '/admin/contact-messages'
     }
   ]
 
@@ -96,7 +106,7 @@ const AdminDashboard = () => {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6 mb-12">
           {dashboardCards.map((card, index) => {
             const Icon = card.icon
             return (
@@ -150,6 +160,30 @@ const AdminDashboard = () => {
               className="bg-gradient-to-r from-purple-500 to-purple-600 text-white px-8 py-4 rounded-lg font-semibold hover:from-purple-600 hover:to-purple-700 transition-all duration-300 transform hover:scale-[1.02] shadow-md"
             >
               Manage Industries
+            </button>
+            <button
+              onClick={() => navigate('/admin/contact')}
+              className="bg-gradient-to-r from-cyan-500 to-cyan-600 text-white px-8 py-4 rounded-lg font-semibold hover:from-cyan-600 hover:to-cyan-700 transition-all duration-300 transform hover:scale-[1.02] shadow-md"
+            >
+              Manage Contact
+            </button>
+            <button
+              onClick={() => navigate('/admin/contact-messages')}
+              className="bg-gradient-to-r from-teal-500 to-teal-600 text-white px-8 py-4 rounded-lg font-semibold hover:from-teal-600 hover:to-teal-700 transition-all duration-300 transform hover:scale-[1.02] shadow-md"
+            >
+              View Messages
+            </button>
+            <button
+              onClick={() => navigate('/admin/about')}
+              className="bg-gradient-to-r from-amber-500 to-amber-600 text-white px-8 py-4 rounded-lg font-semibold hover:from-amber-600 hover:to-amber-700 transition-all duration-300 transform hover:scale-[1.02] shadow-md"
+            >
+              Manage About
+            </button>
+            <button
+              onClick={() => navigate('/admin/industry-page')}
+              className="bg-gradient-to-r from-lime-500 to-lime-600 text-white px-8 py-4 rounded-lg font-semibold hover:from-lime-600 hover:to-lime-700 transition-all duration-300 transform hover:scale-[1.02] shadow-md"
+            >
+              Manage Industry Page
             </button>
           </div>
         </div>

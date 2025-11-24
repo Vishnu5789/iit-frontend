@@ -368,6 +368,105 @@ class ApiService {
     });
     return this.handleResponse(response);
   }
+
+  // Contact methods
+  async getContactConfig(): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/contact/config`);
+    return this.handleResponse(response);
+  }
+
+  async updateContactConfig(configData: any): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/contact/config`, {
+      method: 'PUT',
+      headers: this.getHeaders(true),
+      body: JSON.stringify(configData),
+    });
+    return this.handleResponse(response);
+  }
+
+  async submitContactForm(formData: any): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/contact/submit`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(formData),
+    });
+    return this.handleResponse(response);
+  }
+
+  async getContactMessages(params?: { status?: string; page?: number; limit?: number }): Promise<ApiResponse> {
+    const queryParams = new URLSearchParams();
+    if (params?.status) queryParams.append('status', params.status);
+    if (params?.page) queryParams.append('page', params.page.toString());
+    if (params?.limit) queryParams.append('limit', params.limit.toString());
+    
+    const response = await fetch(`${API_BASE_URL}/contact/messages?${queryParams}`, {
+      headers: this.getHeaders(true),
+    });
+    return this.handleResponse(response);
+  }
+
+  async getContactMessage(id: string): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/contact/messages/${id}`, {
+      headers: this.getHeaders(true),
+    });
+    return this.handleResponse(response);
+  }
+
+  async updateMessageStatus(id: string, statusData: { status: string; adminNotes?: string }): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/contact/messages/${id}`, {
+      method: 'PUT',
+      headers: this.getHeaders(true),
+      body: JSON.stringify(statusData),
+    });
+    return this.handleResponse(response);
+  }
+
+  async deleteContactMessage(id: string): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/contact/messages/${id}`, {
+      method: 'DELETE',
+      headers: this.getHeaders(true),
+    });
+    return this.handleResponse(response);
+  }
+
+  async getContactStats(): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/contact/stats`, {
+      headers: this.getHeaders(true),
+    });
+    return this.handleResponse(response);
+  }
+
+  // About page methods
+  async getAboutConfig(): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/about/config`);
+    return this.handleResponse(response);
+  }
+
+  async updateAboutConfig(configData: any): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/about/config`, {
+      method: 'PUT',
+      headers: this.getHeaders(true),
+      body: JSON.stringify(configData),
+    });
+    return this.handleResponse(response);
+  }
+
+  // Industry page methods
+  async getIndustryConfig(): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/industry/config`);
+    return this.handleResponse(response);
+  }
+
+  async updateIndustryConfig(configData: any): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/industry/config`, {
+      method: 'PUT',
+      headers: this.getHeaders(true),
+      body: JSON.stringify(configData),
+    });
+    return this.handleResponse(response);
+  }
 }
 
 export default new ApiService();

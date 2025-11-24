@@ -21,6 +21,11 @@ import ManageBlogs from './pages/admin/ManageBlogs'
 import ManageIndustries from './pages/admin/ManageIndustries'
 import ManageHomepage from './pages/admin/ManageHomepage'
 import ManageUsers from './pages/admin/ManageUsers'
+import ManageContact from './pages/admin/ManageContact'
+import ManageContactMessages from './pages/admin/ManageContactMessages'
+import ManageAbout from './pages/admin/ManageAbout'
+import ManageIndustryPage from './pages/admin/ManageIndustryPage'
+import AuthCallback from './pages/AuthCallback'
 
 const App = () => {
   return (
@@ -43,6 +48,7 @@ const App = () => {
           <Route path="/course-player/:courseId" element={<CoursePlayer />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignUp />} />
+          <Route path="/auth/callback" element={<AuthCallback />} />
           
           {/* Admin Routes */}
           <Route path="/admin" element={<AdminDashboard />} />
@@ -51,6 +57,10 @@ const App = () => {
           <Route path="/admin/industries" element={<ManageIndustries />} />
           <Route path="/admin/homepage" element={<ManageHomepage />} />
           <Route path="/admin/users" element={<ManageUsers />} />
+          <Route path="/admin/contact" element={<ManageContact />} />
+          <Route path="/admin/contact-messages" element={<ManageContactMessages />} />
+          <Route path="/admin/about" element={<ManageAbout />} />
+          <Route path="/admin/industry-page" element={<ManageIndustryPage />} />
         </Routes>
       </div>
     </Router>
