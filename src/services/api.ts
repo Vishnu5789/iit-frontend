@@ -265,6 +265,109 @@ class ApiService {
     });
     return this.handleResponse(response);
   }
+
+  // Home Config methods
+  async getHomeConfig(): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/home-config`);
+    return this.handleResponse(response);
+  }
+
+  async updateHomeConfig(configData: any): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/home-config`, {
+      method: 'PUT',
+      headers: this.getHeaders(true),
+      body: JSON.stringify(configData),
+    });
+    return this.handleResponse(response);
+  }
+
+  async updateHomeImage(imageType: string, imageData: { url: string; fileId: string }): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/home-config/image/${imageType}`, {
+      method: 'PUT',
+      headers: this.getHeaders(true),
+      body: JSON.stringify(imageData),
+    });
+    return this.handleResponse(response);
+  }
+
+  async updateHomeStats(statsData: any): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/home-config/stats`, {
+      method: 'PUT',
+      headers: this.getHeaders(true),
+      body: JSON.stringify(statsData),
+    });
+    return this.handleResponse(response);
+  }
+
+  async updateHeroText(heroData: any): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/home-config/hero-text`, {
+      method: 'PUT',
+      headers: this.getHeaders(true),
+      body: JSON.stringify(heroData),
+    });
+    return this.handleResponse(response);
+  }
+
+  // User Management methods (Admin only)
+  async getAllUsers(params?: { search?: string; role?: string; page?: number; limit?: number }): Promise<ApiResponse> {
+    const queryParams = new URLSearchParams();
+    if (params?.search) queryParams.append('search', params.search);
+    if (params?.role) queryParams.append('role', params.role);
+    if (params?.page) queryParams.append('page', params.page.toString());
+    if (params?.limit) queryParams.append('limit', params.limit.toString());
+    
+    const response = await fetch(`${API_BASE_URL}/admin/users?${queryParams}`, {
+      headers: this.getHeaders(true),
+    });
+    return this.handleResponse(response);
+  }
+
+  async getUserById(userId: string): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/admin/users/${userId}`, {
+      headers: this.getHeaders(true),
+    });
+    return this.handleResponse(response);
+  }
+
+  async enrollUser(userId: string, courseId: string): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/admin/users/${userId}/enroll/${courseId}`, {
+      method: 'POST',
+      headers: this.getHeaders(true),
+    });
+    return this.handleResponse(response);
+  }
+
+  async unenrollUser(userId: string, courseId: string): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/admin/users/${userId}/enroll/${courseId}`, {
+      method: 'DELETE',
+      headers: this.getHeaders(true),
+    });
+    return this.handleResponse(response);
+  }
+
+  async updateUserRole(userId: string, role: string): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/admin/users/${userId}/role`, {
+      method: 'PUT',
+      headers: this.getHeaders(true),
+      body: JSON.stringify({ role }),
+    });
+    return this.handleResponse(response);
+  }
+
+  async deleteUser(userId: string): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/admin/users/${userId}`, {
+      method: 'DELETE',
+      headers: this.getHeaders(true),
+    });
+    return this.handleResponse(response);
+  }
+
+  async getUserStats(): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/admin/users/stats`, {
+      headers: this.getHeaders(true),
+    });
+    return this.handleResponse(response);
+  }
 }
 
 export default new ApiService();

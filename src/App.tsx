@@ -19,6 +19,8 @@ import AdminDashboard from './pages/admin/AdminDashboard'
 import ManageCourses from './pages/admin/ManageCourses'
 import ManageBlogs from './pages/admin/ManageBlogs'
 import ManageIndustries from './pages/admin/ManageIndustries'
+import ManageHomepage from './pages/admin/ManageHomepage'
+import ManageUsers from './pages/admin/ManageUsers'
 
 const App = () => {
   return (
@@ -47,6 +49,8 @@ const App = () => {
           <Route path="/admin/courses" element={<ManageCourses />} />
           <Route path="/admin/blogs" element={<ManageBlogs />} />
           <Route path="/admin/industries" element={<ManageIndustries />} />
+          <Route path="/admin/homepage" element={<ManageHomepage />} />
+          <Route path="/admin/users" element={<ManageUsers />} />
         </Routes>
       </div>
     </Router>

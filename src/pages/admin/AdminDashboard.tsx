@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { AcademicCapIcon, NewspaperIcon, BuildingOffice2Icon } from '@heroicons/react/24/outline'
+import { AcademicCapIcon, NewspaperIcon, BuildingOffice2Icon, HomeIcon, UsersIcon } from '@heroicons/react/24/outline'
 import apiService from '../../services/api'
 import { API_BASE_URL } from '../../config/api.config'
 
@@ -9,7 +9,8 @@ const AdminDashboard = () => {
   const [stats, setStats] = useState({
     coursesCount: 0,
     blogsCount: 0,
-    industriesCount: 0
+    industriesCount: 0,
+    usersCount: 0
   })
   const [isLoading, setIsLoading] = useState(true)
 
@@ -27,16 +28,18 @@ const AdminDashboard = () => {
 
   const fetchStats = async () => {
     try {
-      const [courses, blogs, industries] = await Promise.all([
+      const [courses, blogs, industries, users] = await Promise.all([
         fetch(`${API_BASE_URL}/courses`).then(res => res.json()),
         fetch(`${API_BASE_URL}/blogs`).then(res => res.json()),
-        fetch(`${API_BASE_URL}/industries`).then(res => res.json())
+        fetch(`${API_BASE_URL}/industries`).then(res => res.json()),
+        apiService.getUserStats()
       ])
 
       setStats({
         coursesCount: courses.count || 0,
         blogsCount: blogs.count || 0,
-        industriesCount: industries.count || 0
+        industriesCount: industries.count || 0,
+        usersCount: users.data?.totalUsers || 0
       })
     } catch (error) {
       console.error('Error fetching stats:', error)
@@ -54,6 +57,13 @@ const AdminDashboard = () => {
       link: '/admin/courses'
     },
     {
+      title: 'Users',
+      count: stats.usersCount,
+      icon: UsersIcon,
+      color: 'from-orange-500 to-orange-600',
+      link: '/admin/users'
+    },
+    {
       title: 'Blog Posts',
       count: stats.blogsCount,
       icon: NewspaperIcon,
@@ -66,6 +76,13 @@ const AdminDashboard = () => {
       icon: BuildingOffice2Icon,
       color: 'from-purple-500 to-purple-600',
       link: '/admin/industries'
+    },
+    {
+      title: 'Homepage',
+      count: '✓',
+      icon: HomeIcon,
+      color: 'from-pink-500 to-pink-600',
+      link: '/admin/homepage'
     }
   ]
 
@@ -79,7 +96,7 @@ const AdminDashboard = () => {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6 mb-12">
           {dashboardCards.map((card, index) => {
             const Icon = card.icon
             return (
@@ -103,12 +120,24 @@ const AdminDashboard = () => {
         {/* Quick Actions */}
         <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg p-8 border border-primary/10">
           <h2 className="text-2xl font-bold text-primary mb-6 text-center">Quick Actions</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <button
               onClick={() => navigate('/admin/courses')}
               className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-8 py-4 rounded-lg font-semibold hover:from-blue-600 hover:to-blue-700 transition-all duration-300 transform hover:scale-[1.02] shadow-md"
             >
               Manage Courses
+            </button>
+            <button
+              onClick={() => navigate('/admin/users')}
+              className="bg-gradient-to-r from-orange-500 to-orange-600 text-white px-8 py-4 rounded-lg font-semibold hover:from-orange-600 hover:to-orange-700 transition-all duration-300 transform hover:scale-[1.02] shadow-md"
+            >
+              Manage Users
+            </button>
+            <button
+              onClick={() => navigate('/admin/homepage')}
+              className="bg-gradient-to-r from-pink-500 to-pink-600 text-white px-8 py-4 rounded-lg font-semibold hover:from-pink-600 hover:to-pink-700 transition-all duration-300 transform hover:scale-[1.02] shadow-md"
+            >
+              Manage Homepage
             </button>
             <button
               onClick={() => navigate('/admin/blogs')}
