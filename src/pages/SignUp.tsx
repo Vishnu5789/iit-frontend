@@ -207,7 +207,7 @@ const SignUp = () => {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer"
                 >
                   {showPassword ? (
                     <EyeSlashIcon className="h-5 w-5 text-dark/40 hover:text-dark/60 transition-colors" />
@@ -244,7 +244,7 @@ const SignUp = () => {
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer"
                 >
                   {showConfirmPassword ? (
                     <EyeSlashIcon className="h-5 w-5 text-dark/40 hover:text-dark/60 transition-colors" />
@@ -268,9 +268,9 @@ const SignUp = () => {
               />
               <label htmlFor="terms" className="ml-2 text-xs text-dark/60">
                 I agree to the{' '}
-                <button type="button" className="text-primary hover:underline">Terms of Service</button>
+                <button type="button" className="text-primary hover:underline cursor-pointer">Terms of Service</button>
                 {' '}and{' '}
-                <button type="button" className="text-primary hover:underline">Privacy Policy</button>
+                <button type="button" className="text-primary hover:underline cursor-pointer">Privacy Policy</button>
               </label>
             </div>
 
@@ -278,7 +278,7 @@ const SignUp = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className={`w-full bg-primary text-light py-3 rounded-lg font-semibold 
+              className={`w-full bg-primary text-light py-3 rounded-lg font-semibold cursor-pointer 
                 ${isLoading 
                   ? 'opacity-70 cursor-not-allowed' 
                   : 'hover:bg-primary/90 transform hover:scale-[1.02]'
@@ -313,7 +313,7 @@ const SignUp = () => {
             <button
               type="button"
               onClick={handleGoogleSignup}
-              className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors shadow-sm"
+              className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors shadow-sm cursor-pointer"
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24">
                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -332,7 +332,7 @@ const SignUp = () => {
               <button
                 type="button"
                 onClick={() => navigate('/login')}
-                className="text-primary hover:text-primary/80 transition-colors font-semibold"
+                className="text-primary hover:text-primary/80 transition-colors font-semibold cursor-pointer"
               >
                 Sign in
               </button>

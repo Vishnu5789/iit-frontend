@@ -91,11 +91,11 @@ const Navbar = () => {
 
     return (
         <nav className="fixed top-0 left-0 right-0 z-50 bg-dark shadow-lg border-b border-dark-alt">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 py-2">
                 <div className="flex items-center justify-between h-16 md:h-20">
                     {/* Logo */}
                     <div className="flex items-center cursor-pointer" onClick={() => navigate('/')}>
-                        <img src="/assets/icon.svg" alt="Isaac Institute of Technology" className="h-12 md:h-14 w-auto brightness-0 invert" />
+                        <img src="/assets/icon.svg" alt="Isaac Institute of Technology" className="h-14 md:h-24 lg:h-28 w-auto invert" />
                     </div>
 
                     {/* Desktop Navigation */}
@@ -104,7 +104,7 @@ const Navbar = () => {
                             <button
                                 key={link.name}
                                 onClick={() => handleNavClick(link.link)}
-                                className={`text-sm font-medium transition-all duration-200 py-1 ${
+                                className={`text-sm font-medium transition-all duration-200 py-1 cursor-pointer ${
                                     location.pathname === link.link
                                         ? 'text-light'
                                         : 'text-light/70 hover:text-light'
@@ -121,21 +121,21 @@ const Navbar = () => {
                             <>
                                 <button
                                     onClick={() => navigate('/my-courses')}
-                                    className="p-2 text-light/70 hover:text-light transition-colors"
+                                    className="p-2 text-light/70 hover:text-light transition-colors cursor-pointer"
                                     title="My Courses"
                                 >
                                     <AcademicCapIcon className="h-5 w-5" />
                                 </button>
                                 <button
                                     onClick={() => navigate('/cart')}
-                                    className="p-2 text-light/70 hover:text-light transition-colors relative"
+                                    className="p-2 text-light/70 hover:text-light transition-colors relative cursor-pointer"
                                     title="Shopping Cart"
                                 >
                                     <ShoppingCartIcon className="h-5 w-5" />
                                 </button>
                                 <button
                                     onClick={() => navigate('/my-orders')}
-                                    className="p-2 text-light/70 hover:text-light transition-colors"
+                                    className="p-2 text-light/70 hover:text-light transition-colors cursor-pointer"
                                     title="My Orders"
                                 >
                                     <ShoppingBagIcon className="h-5 w-5" />
@@ -173,7 +173,7 @@ const Navbar = () => {
 
                     {/* Mobile Menu Button */}
                     <button
-                        className="lg:hidden text-light p-2"
+                        className="lg:hidden text-light p-2 cursor-pointer"
                         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                     >
                         {isMobileMenuOpen ? (
@@ -192,7 +192,7 @@ const Navbar = () => {
                                 <button
                                     key={link.name}
                                     onClick={() => handleNavClick(link.link)}
-                                    className={`text-left px-4 py-3 text-sm font-medium transition-colors duration-200 rounded ${
+                                    className={`text-left px-4 py-3 text-sm font-medium transition-colors duration-200 rounded cursor-pointer ${
                                         location.pathname === link.link
                                             ? 'bg-primary text-white'
                                             : 'text-light/80 hover:bg-light/5 hover:text-light'
