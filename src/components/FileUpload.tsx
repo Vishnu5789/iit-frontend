@@ -42,7 +42,7 @@ const FileUpload = ({ label, accept, folder = 'courses', onUploadComplete, curre
 
       if (data.success) {
         onUploadComplete({
-          url: data.data.presignedUrl || data.data.url, // Use presigned URL if available, fallback to public URL
+          url: data.data.url, // Use public URL (presignedUrl is only for private content)
           fileId: data.data.fileId,
           name: data.data.name
         })

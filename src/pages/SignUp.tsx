@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import toast from 'react-hot-toast'
 import { EyeIcon, EyeSlashIcon, EnvelopeIcon, LockClosedIcon, UserIcon } from '@heroicons/react/24/outline'
 import apiService from '../services/api'
 import { API_SERVER_URL } from '../config/api.config'
@@ -14,7 +15,7 @@ const SignUp = () => {
   })
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-  const [errors, setErrors] = useState<{fullName?: string, email?: string, password?: string, confirmPassword?: string, general?: string}>({})
+  const [errors, setErrors] = useState<{fullName?: string, email?: string, password?: string, confirmPassword?: string}>({})
   const [isLoading, setIsLoading] = useState(false)
 
   const validateForm = () => {
@@ -71,12 +72,16 @@ const SignUp = () => {
         // Don't save token/user - redirect to login instead
         // This ensures users verify their credentials by logging in
         
+        toast.success('Account created successfully! Redirecting to login...')
+        
         // Navigate to login after successful signup
-        navigate('/login', { 
-          state: { 
-            message: 'Account created successfully! Please log in.' 
-          } 
-        })
+        setTimeout(() => {
+          navigate('/login', { 
+            state: { 
+              message: 'Account created successfully! Please log in.' 
+            } 
+          })
+        }, 1500)
       }
     } catch (error: any) {
       console.error('Sign up error:', error)
@@ -88,11 +93,10 @@ const SignUp = () => {
           newErrors[err.field] = err.message
         })
         setErrors(newErrors)
+        toast.error('Please check the form fields and try again.')
       } else {
         // Handle general error
-        setErrors({
-          general: error.message || 'Sign up failed. Please try again.'
-        })
+        toast.error(error.message || 'Sign up failed. Please try again.')
       }
     } finally {
       setIsLoading(false)
@@ -125,13 +129,6 @@ const SignUp = () => {
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-5">
-            {/* General Error Message */}
-            {errors.general && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
-                {errors.general}
-              </div>
-            )}
-
             {/* Full Name Field */}
             <div>
               <label htmlFor="fullName" className="block text-sm font-semibold text-primary mb-2">
