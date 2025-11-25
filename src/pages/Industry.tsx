@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { BuildingOffice2Icon, RocketLaunchIcon, CogIcon, CheckCircleIcon } from '@heroicons/react/24/outline'
 import { API_BASE_URL } from '../config/api.config'
 import apiService from '../services/api'
@@ -12,6 +13,7 @@ interface Industry {
 }
 
 const Industry = () => {
+  const navigate = useNavigate()
   const [industries, setIndustries] = useState<Industry[]>([])
   const [config, setConfig] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -77,10 +79,17 @@ const Industry = () => {
               {industries.map((industry) => (
                 <div
                   key={industry._id}
-                  className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg p-6 border border-primary/10 hover:shadow-xl transition-all duration-300"
+                  onClick={() => navigate(`/industry/${industry._id}`)}
+                  className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg p-6 border border-primary/10 hover:shadow-xl hover:scale-[1.02] transition-all duration-300 cursor-pointer"
                 >
-                  <h3 className="text-xl font-bold text-primary mb-3">{industry.name}</h3>
-                  <p className="text-dark/70 text-sm leading-relaxed">{industry.description}</p>
+                  <h3 className="text-xl font-bold text-primary mb-3 hover:text-primary/80 transition-colors">{industry.name}</h3>
+                  <p className="text-dark/70 text-sm leading-relaxed line-clamp-3">{industry.description}</p>
+                  <div className="mt-4 text-primary font-semibold text-sm flex items-center gap-2">
+                    Learn More
+                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </div>
                 </div>
               ))}
             </div>

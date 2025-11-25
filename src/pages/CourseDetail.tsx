@@ -7,6 +7,11 @@ interface Course {
   _id: string;
   title: string;
   description: string;
+  syllabus?: {
+    url: string;
+    fileId: string;
+    name: string;
+  };
   duration: string;
   level: string;
   category: string;
@@ -154,6 +159,43 @@ export default function CourseDetail() {
 
               <p className="text-gray-700 leading-relaxed">{course.description}</p>
             </div>
+
+            {/* Course Syllabus */}
+            {course.syllabus?.url && (
+              <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border border-primary/10 p-8">
+                <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+                  <AcademicCapIcon className="h-6 w-6 text-primary" />
+                  Course Syllabus
+                </h2>
+                <div className="flex items-center justify-between bg-gray-50 p-6 rounded-lg border border-gray-200">
+                  <div className="flex items-center gap-4">
+                    <div className="p-3 bg-primary/10 rounded-lg">
+                      <svg className="h-8 w-8 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <p className="font-semibold text-gray-900">Course Syllabus Document</p>
+                      <p className="text-sm text-gray-500">{course.syllabus.name || 'Syllabus.pdf'}</p>
+                    </div>
+                  </div>
+                  <a
+                    href={course.syllabus.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-primary/90 transition-all"
+                  >
+                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    </svg>
+                    Download Syllabus
+                  </a>
+                </div>
+                <p className="text-sm text-gray-600 mt-4">
+                  📄 Click the button above to download and view the complete course syllabus
+                </p>
+              </div>
+            )}
 
             {/* Sample Videos */}
             {course.sampleVideos && course.sampleVideos.length > 0 && (

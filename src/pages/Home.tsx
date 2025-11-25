@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import apiService from '../services/api'
 
 const Home = () => {
+  const navigate = useNavigate()
   const [config, setConfig] = useState<any>(null)
 
   useEffect(() => {
@@ -292,13 +294,22 @@ const Home = () => {
               Whether you're an aspiring engineer, a seasoned professional looking to specialize, or a manager aiming to upskill your team, Isaac Institute of Technology is your partner in professional growth.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 mt-4 w-full">
-              <button className="w-full sm:w-auto border border-primary hover:bg-primary duration-300 text-primary hover:text-light px-4 py-2 rounded-md cursor-pointer text-xs md:text-sm">
+              <button 
+                onClick={() => navigate('/courses')}
+                className="w-full sm:w-auto border border-primary hover:bg-primary duration-300 text-primary hover:text-light px-4 py-2 rounded-md cursor-pointer text-xs md:text-sm"
+              >
                 Explore Our Courses
               </button>
-              <button className="w-full sm:w-auto border border-primary hover:bg-primary duration-300 text-primary hover:text-light px-4 py-2 rounded-md cursor-pointer text-xs md:text-sm">
+              <button 
+                onClick={() => navigate('/about')}
+                className="w-full sm:w-auto border border-primary hover:bg-primary duration-300 text-primary hover:text-light px-4 py-2 rounded-md cursor-pointer text-xs md:text-sm"
+              >
                 View Our Instructor Team
               </button>
-              <button className="w-full sm:w-auto border border-dark bg-theme text-dark hover:bg-dark hover:text-light duration-300 px-4 py-2 rounded-md cursor-pointer text-xs md:text-sm">
+              <button 
+                onClick={() => navigate('/contact')}
+                className="w-full sm:w-auto border border-dark bg-theme text-dark hover:bg-dark hover:text-light duration-300 px-4 py-2 rounded-md cursor-pointer text-xs md:text-sm"
+              >
                 Contact Us for Team Training
               </button>
             </div>

@@ -91,6 +91,26 @@ class ApiService {
     return this.handleResponse(response);
   }
 
+  async forgotPassword(email: string): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/auth/forgot-password`, {
+      method: 'POST',
+      headers: this.getHeaders(),
+      body: JSON.stringify({ email }),
+    });
+
+    return this.handleResponse(response);
+  }
+
+  async resetPassword(resetToken: string, password: string): Promise<ApiResponse<AuthResponse>> {
+    const response = await fetch(`${API_BASE_URL}/auth/reset-password/${resetToken}`, {
+      method: 'PUT',
+      headers: this.getHeaders(),
+      body: JSON.stringify({ password }),
+    });
+
+    return this.handleResponse<AuthResponse>(response);
+  }
+
   async getCurrentUser(): Promise<ApiResponse> {
     const response = await fetch(`${API_BASE_URL}/auth/me`, {
       method: 'GET',

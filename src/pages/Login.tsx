@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
+import toast from 'react-hot-toast'
 import { EyeIcon, EyeSlashIcon, EnvelopeIcon, LockClosedIcon } from '@heroicons/react/24/outline'
 import apiService from '../services/api'
 import { API_SERVER_URL } from '../config/api.config'
@@ -12,19 +13,13 @@ const Login = () => {
     password: ''
   })
   const [showPassword, setShowPassword] = useState(false)
-  const [errors, setErrors] = useState<{email?: string, password?: string, general?: string}>({})
+  const [errors, setErrors] = useState<{email?: string, password?: string}>({})
   const [isLoading, setIsLoading] = useState(false)
-  const [successMessage, setSuccessMessage] = useState<string>('')
 
   useEffect(() => {
     // Check if there's a success message from navigation state
     if (location.state && (location.state as any).message) {
-      setSuccessMessage((location.state as any).message)
-      // Clear the message after 5 seconds
-      const timer = setTimeout(() => {
-        setSuccessMessage('')
-      }, 5000)
-      return () => clearTimeout(timer)
+      toast.success((location.state as any).message)
     }
   }, [location])
 
@@ -72,6 +67,8 @@ const Login = () => {
         // Dispatch custom event to notify navbar of auth state change
         window.dispatchEvent(new Event('authStateChanged'))
         
+        toast.success('Welcome back! Login successful.')
+        
         // Navigate to home after successful login
         navigate('/')
       }
@@ -85,11 +82,10 @@ const Login = () => {
           newErrors[err.field] = err.message
         })
         setErrors(newErrors)
+        toast.error('Please check the form fields and try again.')
       } else {
         // Handle general error
-        setErrors({
-          general: error.message || 'Login failed. Please check your credentials and try again.'
-        })
+        toast.error(error.message || 'Login failed. Please check your credentials and try again.')
       }
     } finally {
       setIsLoading(false)
@@ -122,20 +118,6 @@ const Login = () => {
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Success Message */}
-            {successMessage && (
-              <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg text-sm">
-                {successMessage}
-              </div>
-            )}
-
-            {/* General Error Message */}
-            {errors.general && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
-                {errors.general}
-              </div>
-            )}
-
             {/* Email Field */}
             <div>
               <label htmlFor="email" className="block text-sm font-semibold text-primary mb-2">
@@ -210,6 +192,7 @@ const Login = () => {
               </label>
               <button
                 type="button"
+                onClick={() => navigate('/forgot-password')}
                 className="text-sm text-primary hover:text-primary/80 transition-colors font-medium cursor-pointer"
               >
                 Forgot password?

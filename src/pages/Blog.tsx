@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { NewspaperIcon, EnvelopeIcon, ArrowRightIcon } from '@heroicons/react/24/outline'
 import { API_BASE_URL } from '../config/api.config'
 
@@ -13,6 +14,7 @@ interface Blog {
 }
 
 const Blog = () => {
+  const navigate = useNavigate()
   const [blogs, setBlogs] = useState<Blog[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
@@ -96,7 +98,8 @@ const Blog = () => {
               {blogs.map((blog) => (
                 <div
                   key={blog._id}
-                  className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg p-6 md:p-8 border border-primary/10 hover:shadow-xl transition-all duration-300"
+                  onClick={() => navigate(`/blog/${blog._id}`)}
+                  className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg p-6 md:p-8 border border-primary/10 hover:shadow-xl hover:scale-[1.01] transition-all duration-300 cursor-pointer"
                 >
                   <div className="flex flex-wrap items-center gap-3 mb-4">
                     <span className="bg-primary/10 text-primary text-xs font-semibold px-3 py-1 rounded-full">
@@ -112,7 +115,7 @@ const Blog = () => {
                     <span className="text-sm text-dark/60">•</span>
                     <span className="text-sm text-dark/60">{blog.readTime}</span>
                   </div>
-                  <h3 className="text-xl md:text-2xl font-bold text-primary mb-4 hover:text-primary/80 transition-colors cursor-pointer">
+                  <h3 className="text-xl md:text-2xl font-bold text-primary mb-4 hover:text-primary/80 transition-colors">
                     {blog.title}
                   </h3>
                   <p className="text-dark/70 text-sm md:text-base leading-relaxed mb-4">

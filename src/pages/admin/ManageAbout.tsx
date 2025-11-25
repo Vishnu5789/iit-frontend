@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import toast from 'react-hot-toast'
 import { ArrowLeftIcon, PlusIcon, TrashIcon } from '@heroicons/react/24/outline'
 import apiService from '../../services/api'
 import FileUpload from '../../components/FileUpload'
@@ -9,7 +10,6 @@ export default function ManageAbout() {
   const [config, setConfig] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
-  const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
 
   useEffect(() => {
     checkAdminAccess()
@@ -101,12 +101,10 @@ export default function ManageAbout() {
       const response = await apiService.updateAboutConfig(config)
       if (response.success) {
         setConfig(response.data)
-        setMessage({ type: 'success', text: 'About page updated successfully!' })
-        setTimeout(() => setMessage(null), 3000)
+        toast.success('About page updated successfully!')
       }
     } catch (error: any) {
-      setMessage({ type: 'error', text: error.message || 'Failed to update' })
-      setTimeout(() => setMessage(null), 3000)
+      toast.error(error.message || 'Failed to update')
     } finally {
       setIsSaving(false)
     }
@@ -134,12 +132,6 @@ export default function ManageAbout() {
           <h1 className="text-3xl font-bold text-dark">Manage About Page</h1>
           <p className="text-medium mt-2">Customize the about page content and images</p>
         </div>
-
-        {message && (
-          <div className={`mb-6 p-4 rounded-lg ${message.type === 'success' ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'}`}>
-            {message.text}
-          </div>
-        )}
 
         <form onSubmit={handleSave} className="space-y-6">
           {/* Hero Section */}
@@ -178,7 +170,7 @@ export default function ManageAbout() {
                 accept="image/*"
                 folder="about"
                 onUploadComplete={(file) => handleImageUpload('heroImage', file)}
-                currentFile={config?.heroImage}
+                currentFile={config?.heroImage?.url ? config.heroImage : undefined}
                 onRemove={() => handleImageRemove('heroImage')}
               />
             </div>
@@ -253,7 +245,7 @@ export default function ManageAbout() {
                   accept="image/*"
                   folder="about"
                   onUploadComplete={(file) => handleImageUpload('missionImage', file)}
-                  currentFile={config?.missionImage}
+                  currentFile={config?.missionImage?.url ? config.missionImage : undefined}
                   onRemove={() => handleImageRemove('missionImage')}
                 />
               </div>
@@ -281,7 +273,7 @@ export default function ManageAbout() {
                   accept="image/*"
                   folder="about"
                   onUploadComplete={(file) => handleImageUpload('visionImage', file)}
-                  currentFile={config?.visionImage}
+                  currentFile={config?.visionImage?.url ? config.visionImage : undefined}
                   onRemove={() => handleImageRemove('visionImage')}
                 />
               </div>
@@ -423,7 +415,7 @@ export default function ManageAbout() {
                       accept="image/*"
                       folder="team"
                       onUploadComplete={(file) => updateTeamMember(index, 'image', { url: file.url, fileId: file.fileId })}
-                      currentFile={member.image}
+                      currentFile={member.image?.url ? member.image : undefined}
                       onRemove={() => updateTeamMember(index, 'image', { url: '', fileId: '' })}
                     />
                   </div>

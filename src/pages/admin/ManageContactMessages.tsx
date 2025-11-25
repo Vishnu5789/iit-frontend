@@ -27,7 +27,6 @@ export default function ManageContactMessages() {
   const [selectedMessage, setSelectedMessage] = useState<Message | null>(null)
   const [statusFilter, setStatusFilter] = useState('')
   const [isLoading, setIsLoading] = useState(true)
-  const [alert, setAlert] = useState<{ type: 'success' | 'error', text: string } | null>(null)
 
   useEffect(() => {
     checkAdminAccess()
@@ -71,14 +70,12 @@ export default function ManageContactMessages() {
     try {
       const response = await apiService.updateMessageStatus(messageId, { status, adminNotes })
       if (response.success) {
-        setAlert({ type: 'success', text: 'Status updated successfully!' })
-        setTimeout(() => setAlert(null), 3000)
+        toast.success('Status updated successfully!')
         fetchMessages()
         setSelectedMessage(null)
       }
     } catch (error: any) {
-      setAlert({ type: 'error', text: error.message || 'Failed to update status' })
-      setTimeout(() => setAlert(null), 3000)
+      toast.error(error.message || 'Failed to update status')
     }
   }
 
@@ -88,16 +85,14 @@ export default function ManageContactMessages() {
     try {
       const response = await apiService.deleteContactMessage(messageId)
       if (response.success) {
-        setAlert({ type: 'success', text: 'Message deleted successfully!' })
-        setTimeout(() => setAlert(null), 3000)
+        toast.success('Message deleted successfully!')
         fetchMessages()
         if (selectedMessage?._id === messageId) {
           setSelectedMessage(null)
         }
       }
     } catch (error: any) {
-      setAlert({ type: 'error', text: error.message || 'Failed to delete message' })
-      setTimeout(() => setAlert(null), 3000)
+      toast.error(error.message || 'Failed to delete message')
     }
   }
 
@@ -126,13 +121,6 @@ export default function ManageContactMessages() {
           <h1 className="text-3xl font-bold text-dark">Contact Messages</h1>
           <p className="text-medium mt-2">View and manage contact form submissions</p>
         </div>
-
-        {/* Alert */}
-        {alert && (
-          <div className={`mb-6 p-4 rounded-lg ${alert.type === 'success' ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'}`}>
-            {alert.text}
-          </div>
-        )}
 
         {/* Filter */}
         <div className="bg-white rounded-xl shadow-md border border-gray-200 p-4 mb-6">

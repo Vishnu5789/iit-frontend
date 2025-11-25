@@ -9,6 +9,11 @@ interface Course {
   _id: string
   title: string
   description: string
+  syllabus?: {
+    url: string
+    fileId: string
+    name: string
+  }
   duration: string
   level: string
   category: string
@@ -46,6 +51,7 @@ const ManageCourses = () => {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
+    syllabus: { url: '', fileId: '', name: '' },
     duration: '',
     level: 'Beginner',
     category: 'CAD',
@@ -86,6 +92,12 @@ const ManageCourses = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    // Validate syllabus is uploaded
+    if (!formData.syllabus.url) {
+      alert('Please upload course syllabus PDF')
+      return
+    }
     
     try {
       const token = apiService.getToken()
@@ -148,6 +160,7 @@ const ManageCourses = () => {
     setFormData({
       title: '',
       description: '',
+      syllabus: { url: '', fileId: '', name: '' },
       duration: '',
       level: 'Beginner',
       category: 'CAD',
@@ -167,6 +180,7 @@ const ManageCourses = () => {
     setFormData({
       title: course.title,
       description: course.description,
+      syllabus: course.syllabus || { url: '', fileId: '', name: '' },
       duration: course.duration,
       level: course.level,
       category: course.category,
@@ -300,6 +314,37 @@ const ManageCourses = () => {
                     />
                   </div>
 
+                  <div>
+                    <FileUpload
+                      label="Course Syllabus (PDF/DOC) *"
+                      accept=".pdf,.doc,.docx"
+                      folder="syllabus"
+                      onUploadComplete={(fileData) => {
+                        setFormData({
+                          ...formData,
+                          syllabus: {
+                            url: fileData.url,
+                            fileId: fileData.fileId,
+                            name: fileData.name
+                          }
+                        })
+                      }}
+                      currentFile={formData.syllabus.url ? {
+                        url: formData.syllabus.url,
+                        name: formData.syllabus.name
+                      } : undefined}
+                      onRemove={() => {
+                        setFormData({
+                          ...formData,
+                          syllabus: { url: '', fileId: '', name: '' }
+                        })
+                      }}
+                    />
+                    {!formData.syllabus.url && (
+                      <p className="text-xs text-red-500 mt-1">* Syllabus PDF is required</p>
+                    )}
+                  </div>
+
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-semibold text-primary mb-2">
@@ -323,6 +368,7 @@ const ManageCourses = () => {
                         value={formData.level}
                         onChange={(e) => setFormData({...formData, level: e.target.value})}
                         className="w-full px-4 py-3 border border-primary/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50"
+                        required
                       >
                         <option>Beginner</option>
                         <option>Intermediate</option>
@@ -342,6 +388,7 @@ const ManageCourses = () => {
                       value={formData.category}
                       onChange={(e) => setFormData({...formData, category: e.target.value})}
                       className="w-full px-4 py-3 border border-primary/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50"
+                      required
                     >
                       <option>CAD</option>
                       <option>CAE</option>

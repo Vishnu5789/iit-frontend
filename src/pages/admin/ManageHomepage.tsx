@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import toast from 'react-hot-toast'
 import { ArrowLeftIcon } from '@heroicons/react/24/outline'
 import apiService from '../../services/api'
 import FileUpload from '../../components/FileUpload'
@@ -9,7 +10,6 @@ export default function ManageHomepage() {
   const [config, setConfig] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
-  const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
 
   useEffect(() => {
     checkAdminAccess()
@@ -42,12 +42,23 @@ export default function ManageHomepage() {
       const response = await apiService.updateHomeImage(imageType, fileData)
       if (response.success) {
         setConfig(response.data)
-        setMessage({ type: 'success', text: 'Image updated successfully!' })
-        setTimeout(() => setMessage(null), 3000)
+        toast.success('Image updated successfully!')
       }
     } catch (error: any) {
-      setMessage({ type: 'error', text: error.message || 'Failed to update image' })
-      setTimeout(() => setMessage(null), 3000)
+      toast.error(error.message || 'Failed to update image')
+    }
+  }
+
+  const handleImageRemove = async (imageType: string) => {
+    try {
+      // Set to empty to allow re-upload
+      const response = await apiService.updateHomeImage(imageType, { url: '', fileId: '' })
+      if (response.success) {
+        setConfig(response.data)
+        toast.success('Image removed successfully!')
+      }
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to remove image')
     }
   }
 
@@ -58,12 +69,10 @@ export default function ManageHomepage() {
       const response = await apiService.updateHomeStats(config.stats)
       if (response.success) {
         setConfig(response.data)
-        setMessage({ type: 'success', text: 'Stats updated successfully!' })
-        setTimeout(() => setMessage(null), 3000)
+        toast.success('Stats updated successfully!')
       }
     } catch (error: any) {
-      setMessage({ type: 'error', text: error.message || 'Failed to update stats' })
-      setTimeout(() => setMessage(null), 3000)
+      toast.error(error.message || 'Failed to update stats')
     } finally {
       setIsSaving(false)
     }
@@ -76,12 +85,10 @@ export default function ManageHomepage() {
       const response = await apiService.updateHeroText(config.heroText)
       if (response.success) {
         setConfig(response.data)
-        setMessage({ type: 'success', text: 'Hero text updated successfully!' })
-        setTimeout(() => setMessage(null), 3000)
+        toast.success('Hero text updated successfully!')
       }
     } catch (error: any) {
-      setMessage({ type: 'error', text: error.message || 'Failed to update hero text' })
-      setTimeout(() => setMessage(null), 3000)
+      toast.error(error.message || 'Failed to update hero text')
     } finally {
       setIsSaving(false)
     }
@@ -114,13 +121,6 @@ export default function ManageHomepage() {
           <h1 className="text-3xl md:text-4xl font-bold text-dark mb-2">Manage Homepage</h1>
           <p className="text-medium">Customize homepage images, stats, and content</p>
         </div>
-
-        {/* Message */}
-        {message && (
-          <div className={`mb-6 p-4 rounded-lg ${message.type === 'success' ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'}`}>
-            {message.text}
-          </div>
-        )}
 
         {/* Hero Text Section */}
         <div className="bg-white rounded-xl shadow-md p-8 mb-6 border border-gray-200">
@@ -222,7 +222,7 @@ export default function ManageHomepage() {
                 folder="homepage"
                 onUploadComplete={(fileData) => handleImageUpload('heroImage', fileData)}
                 currentFile={config?.heroImage?.url ? { url: config.heroImage.url, name: 'Hero Image' } : undefined}
-                onRemove={() => handleImageUpload('heroImage', { url: '/assets/hero.svg', fileId: '' })}
+                onRemove={() => handleImageRemove('heroImage')}
               />
             </div>
 
@@ -235,7 +235,7 @@ export default function ManageHomepage() {
                 folder="homepage"
                 onUploadComplete={(fileData) => handleImageUpload('starsImage', fileData)}
                 currentFile={config?.starsImage?.url ? { url: config.starsImage.url, name: 'Stars Image' } : undefined}
-                onRemove={() => handleImageUpload('starsImage', { url: '/assets/stars.svg', fileId: '' })}
+                onRemove={() => handleImageRemove('starsImage')}
               />
             </div>
 
@@ -248,7 +248,7 @@ export default function ManageHomepage() {
                 folder="homepage"
                 onUploadComplete={(fileData) => handleImageUpload('visionImage', fileData)}
                 currentFile={config?.visionImage?.url ? { url: config.visionImage.url, name: 'Vision Image' } : undefined}
-                onRemove={() => handleImageUpload('visionImage', { url: '/assets/vision.svg', fileId: '' })}
+                onRemove={() => handleImageRemove('visionImage')}
               />
             </div>
 
@@ -261,7 +261,7 @@ export default function ManageHomepage() {
                 folder="homepage"
                 onUploadComplete={(fileData) => handleImageUpload('teamCollaborationImage', fileData)}
                 currentFile={config?.teamCollaborationImage?.url ? { url: config.teamCollaborationImage.url, name: 'Team Image' } : undefined}
-                onRemove={() => handleImageUpload('teamCollaborationImage', { url: '/assets/team-collaboration.svg', fileId: '' })}
+                onRemove={() => handleImageRemove('teamCollaborationImage')}
               />
             </div>
 
@@ -274,7 +274,7 @@ export default function ManageHomepage() {
                 folder="homepage"
                 onUploadComplete={(fileData) => handleImageUpload('goalsImage', fileData)}
                 currentFile={config?.goalsImage?.url ? { url: config.goalsImage.url, name: 'Goals Image' } : undefined}
-                onRemove={() => handleImageUpload('goalsImage', { url: '/assets/goals.svg', fileId: '' })}
+                onRemove={() => handleImageRemove('goalsImage')}
               />
             </div>
 
@@ -287,7 +287,7 @@ export default function ManageHomepage() {
                 folder="homepage"
                 onUploadComplete={(fileData) => handleImageUpload('journeyImage', fileData)}
                 currentFile={config?.journeyImage?.url ? { url: config.journeyImage.url, name: 'Journey Image' } : undefined}
-                onRemove={() => handleImageUpload('journeyImage', { url: '/assets/journey.svg', fileId: '' })}
+                onRemove={() => handleImageRemove('journeyImage')}
               />
             </div>
           </div>
