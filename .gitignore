@@ -34,3 +34,7 @@ build/
 coverage/
 .nyc_output/
 
+# Large media files (but allow README)
+public/homepage/*
+!public/homepage/README.md
+
