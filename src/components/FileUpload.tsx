@@ -15,44 +15,116 @@ interface FileUploadProps {
 const FileUpload = ({ label, accept, folder = 'courses', onUploadComplete, currentFile, onRemove }: FileUploadProps) => {
   const [uploading, setUploading] = useState(false)
   const [progress, setProgress] = useState(0)
+  
+  const LARGE_FILE_THRESHOLD = 50 * 1024 * 1024; // 50MB
+
+  // Direct S3 upload for large files
+  const uploadDirectToS3 = async (file: File) => {
+    try {
+      setProgress(10)
+
+      // Step 1: Get presigned URL from backend
+      const token = apiService.getToken()
+      const presignedResponse = await fetch(`${API_BASE_URL}/upload/presigned-upload`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          filename: file.name,
+          folder: folder,
+          contentType: file.type
+        })
+      })
+
+      const presignedData = await presignedResponse.json()
+      
+      if (!presignedData.success) {
+        throw new Error(presignedData.message || 'Failed to get upload URL')
+      }
+
+      setProgress(30)
+
+      // Step 2: Upload directly to S3 using presigned URL
+      const uploadResponse = await fetch(presignedData.data.uploadUrl, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': file.type || 'application/octet-stream'
+        },
+        body: file
+      })
+
+      if (!uploadResponse.ok) {
+        throw new Error('Failed to upload to S3')
+      }
+
+      setProgress(100)
+
+      // Return the file data
+      onUploadComplete({
+        url: presignedData.data.url,
+        fileId: presignedData.data.fileId,
+        name: file.name
+      })
+
+    } catch (error) {
+      console.error('Direct S3 upload error:', error)
+      throw error
+    }
+  }
+
+  // Regular upload through backend (for small files)
+  const uploadViaBackend = async (file: File) => {
+    const formData = new FormData()
+    formData.append('file', file)
+    formData.append('folder', folder)
+
+    setProgress(50)
+
+    const token = apiService.getToken()
+    const response = await fetch(`${API_BASE_URL}/upload`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      },
+      body: formData
+    })
+
+    setProgress(90)
+    const data = await response.json()
+
+    if (data.success) {
+      onUploadComplete({
+        url: data.data.url,
+        fileId: data.data.fileId,
+        name: data.data.name
+      })
+      setProgress(100)
+    } else {
+      throw new Error(data.message || 'Upload failed')
+    }
+  }
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
 
-    const formData = new FormData()
-    formData.append('file', file)
-    formData.append('folder', folder)
-
     try {
       setUploading(true)
-      setProgress(50)
+      setProgress(5)
 
-      const token = apiService.getToken()
-      const response = await fetch(`${API_BASE_URL}/upload`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        },
-        body: formData
-      })
-
-      setProgress(90)
-      const data = await response.json()
-
-      if (data.success) {
-        onUploadComplete({
-          url: data.data.url, // Use public URL (presignedUrl is only for private content)
-          fileId: data.data.fileId,
-          name: data.data.name
-        })
-        setProgress(100)
+      // Use direct S3 upload for files larger than threshold
+      if (file.size > LARGE_FILE_THRESHOLD) {
+        console.log(`Large file detected (${Math.round(file.size / 1024 / 1024)}MB). Using direct S3 upload...`)
+        await uploadDirectToS3(file)
       } else {
-        alert(data.message || 'Upload failed')
+        await uploadViaBackend(file)
       }
-    } catch (error) {
+
+    } catch (error: any) {
       console.error('Upload error:', error)
-      alert('Upload failed. Please try again.')
+      alert(error.message || 'Upload failed. Please try again.')
     } finally {
       setUploading(false)
       setProgress(0)
