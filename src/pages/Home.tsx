@@ -10,57 +10,60 @@ const Home = () => {
   const [showVideo, setShowVideo] = useState(true)
   const videoRef = useRef<HTMLVideoElement>(null)
 
+  // Base URL for homepage assets - uses S3 in production, local in development
+  const baseUrl = import.meta.env.VITE_HOMEPAGE_ASSETS_URL || '/homepage';
+
   // All images from homepage folder
   const heroImages = [
-    '/homepage/82fed7ddfe19a40b50dc1508d9371408.jpg',
-    '/homepage/6acb473884b3e7aa7a83467b628f3921.jpg',
-    '/homepage/4addc37503cbf4e69b8672af2b4ec9af.jpg',
-    '/homepage/1bd94ca3acb92c76890de8dfc3b1e297.jpg',
-    '/homepage/0b82803feda096bb75082e8942bb0f2d.jpg',
-    '/homepage/Ceaser-768x658-1.jpg',
-    '/homepage/1d823051d52c1a387612fb3ddf88910e.jpg',
-    '/homepage/0e1e014bc9213484c85003b7e02f5d8d.jpg',
-    '/homepage/95201ff5525ef6a006e4abf982ff97a5.jpg',
-    '/homepage/1ba7a05d2d7b27c02a0221457ff15693.jpg',
-    '/homepage/8e24b19fe59a7a2a863999d088207cd1 (1).jpg',
-    '/homepage/666953facea59abe605d0983258b91e5.jpg',
-    '/homepage/ddb90b8f49bfbefa5e377a8e266d7765 (1).jpg',
-    '/homepage/559e262d6cb39ee495ecfdcaecb0c057.jpg',
-    '/homepage/b666d7bca15acfcc9aecc7dff3c17c90.jpg',
-    '/homepage/f1456503d372b765fa8b36a056548d11.jpg',
-    '/homepage/9bd8936f196534110b61f4c132d51dac.jpg',
-    '/homepage/26997984e76c16d4cbecb81836e10d01.jpg',
-    '/homepage/a2e6f96be47c17a3df0a3f3ec0a8fd96.jpg',
-    '/homepage/a6ba1ccce64fd8fa49b817da8fd2106e.jpg',
-    '/homepage/c36d900e75ca51ab251e81935210cdac.jpg',
-    '/homepage/e53a6d22949ba0cda8ff547e1e85bad8.jpg',
-    '/homepage/e132e1c924d5088912c91eefabf1a823.jpg',
-    '/homepage/f9081e9da41c470112bcf3634e2acf69.jpg',
-    '/homepage/fc83566263c169159d3b237ad2b2e5a4.jpg',
-    '/homepage/crop_69325bcbb010898c6b160b693ecb2bda.jpg',
-    '/homepage/csm-infrastructureandsystemsengineering-banner.jpg',
-    '/homepage/GhUPwWagjW6uM59FCeYsiuwwxTgrke871634558728.jpg',
-    '/homepage/Hexagon-Intergraph-Smart3D-UseCase4-592x304.jpg',
-    '/homepage/Hexagon-Smart3D-UseCase1New-624x704.jpg',
-    '/homepage/WhatsApp Image 2025-10-27 at 7.52.16 PM.jpeg',
-    '/homepage/WhatsApp Image 2025-10-27 at 7.52.17 PM (1).jpeg',
-    '/homepage/WhatsApp Image 2025-10-27 at 7.52.17 PM.jpeg',
-    '/homepage/WhatsApp Image 2025-10-27 at 7.53.07 PM.jpeg',
-    '/homepage/WhatsApp Image 2025-10-27 at 7.53.08 PM (1).jpeg',
-    '/homepage/WhatsApp Image 2025-10-27 at 7.53.08 PM (3).jpeg',
-    '/homepage/WhatsApp Image 2025-10-27 at 7.53.08 PM (2).jpeg',
-    '/homepage/WhatsApp Image 2025-10-27 at 7.53.08 PM.jpeg',
-    '/homepage/WhatsApp Image 2025-10-27 at 7.53.09 PM (1).jpeg',
-    '/homepage/WhatsApp Image 2025-10-27 at 7.53.09 PM (2).jpeg',
-    '/homepage/WhatsApp Image 2025-10-27 at 7.53.09 PM (3).jpeg',
-    '/homepage/WhatsApp Image 2025-10-27 at 7.53.09 PM.jpeg',
-    '/homepage/WhatsApp Image 2025-10-27 at 7.53.10 PM (1).jpeg',
-    '/homepage/WhatsApp Image 2025-10-27 at 7.53.10 PM (2).jpeg',
-    '/homepage/WhatsApp Image 2025-10-27 at 7.53.10 PM.jpeg',
-    '/homepage/WhatsApp Image 2025-10-27 at 7.53.11 PM (1).jpeg',
-    '/homepage/WhatsApp Image 2025-10-27 at 7.53.11 PM (2).jpeg',
-    '/homepage/WhatsApp Image 2025-10-27 at 7.53.11 PM (3).jpeg',
-    '/homepage/WhatsApp Image 2025-10-27 at 7.53.11 PM.jpeg'
+    `${baseUrl}/82fed7ddfe19a40b50dc1508d9371408.jpg`,
+    `${baseUrl}/6acb473884b3e7aa7a83467b628f3921.jpg`,
+    `${baseUrl}/4addc37503cbf4e69b8672af2b4ec9af.jpg`,
+    `${baseUrl}/1bd94ca3acb92c76890de8dfc3b1e297.jpg`,
+    `${baseUrl}/0b82803feda096bb75082e8942bb0f2d.jpg`,
+    `${baseUrl}/Ceaser-768x658-1.jpg`,
+    `${baseUrl}/1d823051d52c1a387612fb3ddf88910e.jpg`,
+    `${baseUrl}/0e1e014bc9213484c85003b7e02f5d8d.jpg`,
+    `${baseUrl}/95201ff5525ef6a006e4abf982ff97a5.jpg`,
+    `${baseUrl}/1ba7a05d2d7b27c02a0221457ff15693.jpg`,
+    `${baseUrl}/8e24b19fe59a7a2a863999d088207cd1 (1).jpg`,
+    `${baseUrl}/666953facea59abe605d0983258b91e5.jpg`,
+    `${baseUrl}/ddb90b8f49bfbefa5e377a8e266d7765 (1).jpg`,
+    `${baseUrl}/559e262d6cb39ee495ecfdcaecb0c057.jpg`,
+    `${baseUrl}/b666d7bca15acfcc9aecc7dff3c17c90.jpg`,
+    `${baseUrl}/f1456503d372b765fa8b36a056548d11.jpg`,
+    `${baseUrl}/9bd8936f196534110b61f4c132d51dac.jpg`,
+    `${baseUrl}/26997984e76c16d4cbecb81836e10d01.jpg`,
+    `${baseUrl}/a2e6f96be47c17a3df0a3f3ec0a8fd96.jpg`,
+    `${baseUrl}/a6ba1ccce64fd8fa49b817da8fd2106e.jpg`,
+    `${baseUrl}/c36d900e75ca51ab251e81935210cdac.jpg`,
+    `${baseUrl}/e53a6d22949ba0cda8ff547e1e85bad8.jpg`,
+    `${baseUrl}/e132e1c924d5088912c91eefabf1a823.jpg`,
+    `${baseUrl}/f9081e9da41c470112bcf3634e2acf69.jpg`,
+    `${baseUrl}/fc83566263c169159d3b237ad2b2e5a4.jpg`,
+    `${baseUrl}/crop_69325bcbb010898c6b160b693ecb2bda.jpg`,
+    `${baseUrl}/csm-infrastructureandsystemsengineering-banner.jpg`,
+    `${baseUrl}/GhUPwWagjW6uM59FCeYsiuwwxTgrke871634558728.jpg`,
+    `${baseUrl}/Hexagon-Intergraph-Smart3D-UseCase4-592x304.jpg`,
+    `${baseUrl}/Hexagon-Smart3D-UseCase1New-624x704.jpg`,
+    `${baseUrl}/WhatsApp Image 2025-10-27 at 7.52.16 PM.jpeg`,
+    `${baseUrl}/WhatsApp Image 2025-10-27 at 7.52.17 PM (1).jpeg`,
+    `${baseUrl}/WhatsApp Image 2025-10-27 at 7.52.17 PM.jpeg`,
+    `${baseUrl}/WhatsApp Image 2025-10-27 at 7.53.07 PM.jpeg`,
+    `${baseUrl}/WhatsApp Image 2025-10-27 at 7.53.08 PM (1).jpeg`,
+    `${baseUrl}/WhatsApp Image 2025-10-27 at 7.53.08 PM (3).jpeg`,
+    `${baseUrl}/WhatsApp Image 2025-10-27 at 7.53.08 PM (2).jpeg`,
+    `${baseUrl}/WhatsApp Image 2025-10-27 at 7.53.08 PM.jpeg`,
+    `${baseUrl}/WhatsApp Image 2025-10-27 at 7.53.09 PM (1).jpeg`,
+    `${baseUrl}/WhatsApp Image 2025-10-27 at 7.53.09 PM (2).jpeg`,
+    `${baseUrl}/WhatsApp Image 2025-10-27 at 7.53.09 PM (3).jpeg`,
+    `${baseUrl}/WhatsApp Image 2025-10-27 at 7.53.09 PM.jpeg`,
+    `${baseUrl}/WhatsApp Image 2025-10-27 at 7.53.10 PM (1).jpeg`,
+    `${baseUrl}/WhatsApp Image 2025-10-27 at 7.53.10 PM (2).jpeg`,
+    `${baseUrl}/WhatsApp Image 2025-10-27 at 7.53.10 PM.jpeg`,
+    `${baseUrl}/WhatsApp Image 2025-10-27 at 7.53.11 PM (1).jpeg`,
+    `${baseUrl}/WhatsApp Image 2025-10-27 at 7.53.11 PM (2).jpeg`,
+    `${baseUrl}/WhatsApp Image 2025-10-27 at 7.53.11 PM (3).jpeg`,
+    `${baseUrl}/WhatsApp Image 2025-10-27 at 7.53.11 PM.jpeg`
   ]
 
   useEffect(() => {
@@ -163,7 +166,7 @@ const Home = () => {
               muted
               playsInline
             >
-              <source src="/homepage/ISAAC INSTITUTE OF TECHNOLOGY (2).mp4" type="video/mp4" />
+              <source src={`${baseUrl}/ISAAC INSTITUTE OF TECHNOLOGY (2).mp4`} type="video/mp4" />
             </video>
             
             {/* Skip Video Button */}
