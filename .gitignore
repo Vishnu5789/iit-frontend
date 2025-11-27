@@ -37,4 +37,5 @@ coverage/
 # Large media files (but allow README)
 public/homepage/*
 !public/homepage/README.md
+src/homepage/
 
