@@ -1,14 +1,102 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline'
 import apiService from '../services/api'
 
 const Home = () => {
   const navigate = useNavigate()
   const [config, setConfig] = useState<any>(null)
+  const [currentSlide, setCurrentSlide] = useState(0)
+  const [showVideo, setShowVideo] = useState(true)
+  const videoRef = useRef<HTMLVideoElement>(null)
+
+  // All images from homepage folder
+  const heroImages = [
+    '/homepage/82fed7ddfe19a40b50dc1508d9371408.jpg',
+    '/homepage/6acb473884b3e7aa7a83467b628f3921.jpg',
+    '/homepage/4addc37503cbf4e69b8672af2b4ec9af.jpg',
+    '/homepage/1bd94ca3acb92c76890de8dfc3b1e297.jpg',
+    '/homepage/0b82803feda096bb75082e8942bb0f2d.jpg',
+    '/homepage/Ceaser-768x658-1.jpg',
+    '/homepage/1d823051d52c1a387612fb3ddf88910e.jpg',
+    '/homepage/0e1e014bc9213484c85003b7e02f5d8d.jpg',
+    '/homepage/95201ff5525ef6a006e4abf982ff97a5.jpg',
+    '/homepage/1ba7a05d2d7b27c02a0221457ff15693.jpg',
+    '/homepage/8e24b19fe59a7a2a863999d088207cd1 (1).jpg',
+    '/homepage/666953facea59abe605d0983258b91e5.jpg',
+    '/homepage/ddb90b8f49bfbefa5e377a8e266d7765 (1).jpg',
+    '/homepage/559e262d6cb39ee495ecfdcaecb0c057.jpg',
+    '/homepage/b666d7bca15acfcc9aecc7dff3c17c90.jpg',
+    '/homepage/f1456503d372b765fa8b36a056548d11.jpg',
+    '/homepage/9bd8936f196534110b61f4c132d51dac.jpg',
+    '/homepage/26997984e76c16d4cbecb81836e10d01.jpg',
+    '/homepage/a2e6f96be47c17a3df0a3f3ec0a8fd96.jpg',
+    '/homepage/a6ba1ccce64fd8fa49b817da8fd2106e.jpg',
+    '/homepage/c36d900e75ca51ab251e81935210cdac.jpg',
+    '/homepage/e53a6d22949ba0cda8ff547e1e85bad8.jpg',
+    '/homepage/e132e1c924d5088912c91eefabf1a823.jpg',
+    '/homepage/f9081e9da41c470112bcf3634e2acf69.jpg',
+    '/homepage/fc83566263c169159d3b237ad2b2e5a4.jpg',
+    '/homepage/crop_69325bcbb010898c6b160b693ecb2bda.jpg',
+    '/homepage/csm-infrastructureandsystemsengineering-banner.jpg',
+    '/homepage/GhUPwWagjW6uM59FCeYsiuwwxTgrke871634558728.jpg',
+    '/homepage/Hexagon-Intergraph-Smart3D-UseCase4-592x304.jpg',
+    '/homepage/Hexagon-Smart3D-UseCase1New-624x704.jpg',
+    '/homepage/WhatsApp Image 2025-10-27 at 7.52.16 PM.jpeg',
+    '/homepage/WhatsApp Image 2025-10-27 at 7.52.17 PM (1).jpeg',
+    '/homepage/WhatsApp Image 2025-10-27 at 7.52.17 PM.jpeg',
+    '/homepage/WhatsApp Image 2025-10-27 at 7.53.07 PM.jpeg',
+    '/homepage/WhatsApp Image 2025-10-27 at 7.53.08 PM (1).jpeg',
+    '/homepage/WhatsApp Image 2025-10-27 at 7.53.08 PM (3).jpeg',
+    '/homepage/WhatsApp Image 2025-10-27 at 7.53.08 PM (2).jpeg',
+    '/homepage/WhatsApp Image 2025-10-27 at 7.53.08 PM.jpeg',
+    '/homepage/WhatsApp Image 2025-10-27 at 7.53.09 PM (1).jpeg',
+    '/homepage/WhatsApp Image 2025-10-27 at 7.53.09 PM (2).jpeg',
+    '/homepage/WhatsApp Image 2025-10-27 at 7.53.09 PM (3).jpeg',
+    '/homepage/WhatsApp Image 2025-10-27 at 7.53.09 PM.jpeg',
+    '/homepage/WhatsApp Image 2025-10-27 at 7.53.10 PM (1).jpeg',
+    '/homepage/WhatsApp Image 2025-10-27 at 7.53.10 PM (2).jpeg',
+    '/homepage/WhatsApp Image 2025-10-27 at 7.53.10 PM.jpeg',
+    '/homepage/WhatsApp Image 2025-10-27 at 7.53.11 PM (1).jpeg',
+    '/homepage/WhatsApp Image 2025-10-27 at 7.53.11 PM (2).jpeg',
+    '/homepage/WhatsApp Image 2025-10-27 at 7.53.11 PM (3).jpeg',
+    '/homepage/WhatsApp Image 2025-10-27 at 7.53.11 PM.jpeg'
+  ]
 
   useEffect(() => {
     fetchHomeConfig()
   }, [])
+
+  useEffect(() => {
+    // When video ends, start image carousel
+    const video = videoRef.current
+    if (video) {
+      const handleVideoEnd = () => {
+        setShowVideo(false)
+        setCurrentSlide(0)
+      }
+      video.addEventListener('ended', handleVideoEnd)
+      return () => video.removeEventListener('ended', handleVideoEnd)
+    }
+  }, [])
+
+  useEffect(() => {
+    // Auto-advance slides every 5 seconds when showing images
+    if (!showVideo) {
+      const interval = setInterval(() => {
+        setCurrentSlide((prev) => (prev + 1) % heroImages.length)
+      }, 5000)
+      return () => clearInterval(interval)
+    }
+  }, [showVideo, heroImages.length])
+
+  const nextSlide = () => {
+    setCurrentSlide((prev) => (prev + 1) % heroImages.length)
+  }
+
+  const prevSlide = () => {
+    setCurrentSlide((prev) => (prev - 1 + heroImages.length) % heroImages.length)
+  }
 
   const fetchHomeConfig = async () => {
     try {
@@ -62,58 +150,111 @@ const Home = () => {
   ];
 
   return (
-    <div className="pt-16 md:pt-20 px-4 min-h-screen bg-gradient-to-b from-light to-white">
-      <div className="max-w-7xl mx-auto w-full">
-        {/* Hero Section - Engineering is Future */}
-        <div className="flex flex-col-reverse md:flex-row items-center justify-between gap-8 md:gap-16 mb-20 md:mb-32 py-12 md:py-20">
-          <div className="flex flex-col gap-6 items-start justify-center flex-1">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full">
-              <span className="text-primary font-semibold text-sm">
-                {config?.heroText?.badge || 'Engineering is Future'}
-              </span>
-              <span className="text-secondary">⚡</span>
-            </div>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-dark leading-tight">
-              {config?.heroText?.headline || 'Master the Skills That Build Tomorrow'}
-            </h1>
-            <p className="text-lg md:text-xl text-medium max-w-2xl leading-relaxed">
-              {config?.heroText?.description || 'Learn CAD, CAE, PCB Design, and Programming from industry experts. Join thousands of engineers shaping the future of technology.'}
-            </p>
-            <div className="flex flex-wrap gap-4 mt-4">
-              <button 
-                onClick={() => window.location.href = '/courses'}
-                className="px-8 py-4 bg-primary text-white font-semibold rounded hover:bg-primary-dark transition shadow-lg hover:shadow-xl"
+    <div className="min-h-screen bg-gradient-to-b from-light to-white">
+      {/* Hero Video/Image Carousel Section */}
+      <div className="relative w-full h-[90vh] overflow-hidden">
+        {/* Video */}
+        {showVideo && (
+          <>
+            <video
+              ref={videoRef}
+              className="absolute inset-0 w-full h-full object-cover"
+              autoPlay
+              muted
+              playsInline
+            >
+              <source src="/homepage/ISAAC INSTITUTE OF TECHNOLOGY (2).mp4" type="video/mp4" />
+            </video>
+            
+            {/* Skip Video Button */}
+            <button
+              onClick={() => {
+                setShowVideo(false)
+                setCurrentSlide(0)
+              }}
+              className="absolute bottom-8 right-8 bg-white/20 hover:bg-white/40 backdrop-blur-sm text-white px-6 py-3 rounded-full font-semibold transition-all duration-300 hover:scale-105 z-10 flex items-center gap-2"
+            >
+              Skip Video
+              <ChevronRightIcon className="h-5 w-5" />
+            </button>
+          </>
+        )}
+
+        {/* Image Carousel */}
+        {!showVideo && (
+          <div className="absolute inset-0 w-full h-full">
+            {heroImages.map((image, index) => (
+              <div
+                key={index}
+                className={`absolute inset-0 w-full h-full transition-opacity duration-1000 ${
+                  index === currentSlide ? 'opacity-100' : 'opacity-0'
+                }`}
               >
-                Explore Courses
-              </button>
-              <button 
-                onClick={() => window.location.href = '/about'}
-                className="px-8 py-4 border-2 border-dark text-dark font-semibold rounded hover:bg-dark hover:text-white transition"
-              >
-                Learn More
-              </button>
-            </div>
-            <div className="flex items-center gap-8 mt-6">
-              <div>
-                <div className="text-3xl font-bold text-dark">{config?.stats?.studentsCount || '10K+'}</div>
-                <div className="text-sm text-medium">Students</div>
+                <img
+                  src={image}
+                  alt={`Hero slide ${index + 1}`}
+                  className="w-full h-full object-cover"
+                />
               </div>
-              <div className="h-12 w-px bg-medium/30"></div>
-              <div>
-                <div className="text-3xl font-bold text-dark">{config?.stats?.coursesCount || '50+'}</div>
-                <div className="text-sm text-medium">Courses</div>
-              </div>
-              <div className="h-12 w-px bg-medium/30"></div>
-              <div>
-                <div className="text-3xl font-bold text-dark">{config?.stats?.averageRating || '4.8★'}</div>
-                <div className="text-sm text-medium">Average Rating</div>
-              </div>
-            </div>
+            ))}
+
+            {/* Navigation Arrows */}
+            <button
+              onClick={prevSlide}
+              className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/40 backdrop-blur-sm text-white p-3 rounded-full transition-all duration-300 hover:scale-110 z-10"
+              aria-label="Previous slide"
+            >
+              <ChevronLeftIcon className="h-8 w-8" />
+            </button>
+            <button
+              onClick={nextSlide}
+              className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/40 backdrop-blur-sm text-white p-3 rounded-full transition-all duration-300 hover:scale-110 z-10"
+              aria-label="Next slide"
+            >
+              <ChevronRightIcon className="h-8 w-8" />
+            </button>
           </div>
-          <div className="flex items-center justify-center flex-1">
-            <img src={getImage('heroImage', '/assets/hero.svg')} alt="Engineering is Future" className="w-full max-w-md md:max-w-lg object-contain drop-shadow-2xl" />
+        )}
+
+        {/* Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-r from-[#1a1f71]/50 to-[#2d3192]/40"></div>
+
+        {/* Content Overlay */}
+        <div className="absolute inset-0 flex items-center justify-start px-8 md:px-16 lg:px-24">
+          <div className="max-w-3xl text-white">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6 drop-shadow-lg" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.5)' }}>
+              Isaac Institute of Technology, Master Software And Technical skills with Industry Experts !
+            </h1>
+            <button
+              onClick={() => navigate('/about')}
+              className="bg-gradient-to-r from-[#4a5ba8] to-[#5c6bb8] hover:from-[#3a4b98] hover:to-[#4c5ba8] text-white px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-300 shadow-lg hover:shadow-xl"
+            >
+              READ MORE
+            </button>
           </div>
         </div>
+
+        {/* Slide Indicators */}
+        {!showVideo && (
+          <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex gap-2">
+            {heroImages.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentSlide(index)}
+                className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                  index === currentSlide
+                    ? 'bg-white w-8'
+                    : 'bg-white/50 hover:bg-white/75'
+                }`}
+                aria-label={`Go to slide ${index + 1}`}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Rest of the content */}
+      <div className="max-w-7xl mx-auto w-full px-4">
 
         {/* Why Choose Us Section */}
         <div className="bg-white rounded-2xl shadow-lg p-8 md:p-12 mb-20">
@@ -287,7 +428,7 @@ const Home = () => {
         </div>
 
         {/* Seventh Section - Join the Journey */}
-        <div className="flex flex-col-reverse md:flex-row items-center justify-between gap-6 md:gap-12">
+        <div className="flex flex-col-reverse md:flex-row items-center justify-between gap-6 md:gap-12 mb-16">
           <div className="flex flex-col gap-3 items-start justify-center flex-1 px-2 md:px-6">
             <h1 className="text-xl md:text-2xl font-bold text-primary">Ready to Redefine What You Can Design?</h1>
             <p className="text-xs md:text-sm font-medium text-dark/60 max-w-md md:max-w-2xl">

@@ -1,5 +1,14 @@
 import { useEffect, useState } from 'react'
-import { AcademicCapIcon, ClockIcon, ChartBarIcon, CheckCircleIcon, ArrowRightIcon } from '@heroicons/react/24/outline'
+import { 
+  AcademicCapIcon, 
+  ClockIcon, 
+  ChartBarIcon, 
+  CheckCircleIcon, 
+  ArrowRightIcon,
+  PhoneIcon,
+  EnvelopeIcon
+} from '@heroicons/react/24/outline'
+import { ChatBubbleLeftRightIcon } from '@heroicons/react/24/solid'
 import { useNavigate } from 'react-router-dom'
 import { API_BASE_URL } from '../config/api.config'
 
@@ -20,6 +29,7 @@ const Courses = () => {
   const navigate = useNavigate()
   const [courses, setCourses] = useState<Course[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [selectedCategory, setSelectedCategory] = useState('All Programs')
 
   useEffect(() => {
     fetchCourses()
@@ -133,8 +143,14 @@ const Courses = () => {
     }
   ]
 
+  const filteredCourses = selectedCategory === 'All Programs' 
+    ? courses 
+    : courses.filter(course => course.category === selectedCategory);
+
+  const categories = ['All Programs', ...Array.from(new Set(courses.map(c => c.category)))];
+
   return (
-    <div className="pt-28 md:pt-32 lg:pt-36 px-4 min-h-screen">
+    <div className="pt-28 md:pt-32 lg:pt-36 px-4 min-h-screen bg-light">
       {/* Hero Section */}
       <div className="max-w-7xl mx-auto mb-16">
         <div className="text-center mb-12">
@@ -151,59 +167,93 @@ const Courses = () => {
           </div>
         </div>
 
+        {/* Filter Dropdown */}
+        <div className="mb-8 flex justify-center">
+          <div className="relative w-full max-w-2xl">
+            <select
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              className="w-full px-6 py-4 bg-gradient-to-br from-blue-50 to-purple-50 border-2 border-primary/20 rounded-full text-lg font-medium text-dark appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
+              style={{ paddingRight: '3rem' }}
+            >
+              {categories.map(category => (
+                <option key={category} value={category}>{category}</option>
+              ))}
+            </select>
+            <div className="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none">
+              <svg className="h-6 w-6 text-dark" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
+          </div>
+        </div>
+
         {/* Courses Grid */}
         <div className="mb-20">
-          <h2 className="text-2xl md:text-3xl font-bold text-primary mb-8 text-center">Our Courses</h2>
           {isLoading ? (
             <div className="text-center py-12">
               <p className="text-lg text-dark/60">Loading courses...</p>
             </div>
-          ) : courses.length === 0 ? (
-            <div className="text-center py-12 bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border border-primary/10">
-              <p className="text-lg text-dark/60">No courses available at the moment. Check back soon!</p>
+          ) : filteredCourses.length === 0 ? (
+            <div className="text-center py-12 bg-white rounded-xl shadow-lg">
+              <p className="text-lg text-dark/60">No courses available in this category.</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {courses.map((course) => (
-              <div
-                key={course._id}
-                className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg overflow-hidden border border-primary/10 hover:shadow-xl hover:scale-[1.02] transition-all duration-300 cursor-pointer"
-                onClick={() => navigate(`/courses/${course._id}`)}
-              >
-                {course.thumbnail?.url && (
-                  <div className="w-full h-48 overflow-hidden bg-gradient-to-br from-primary/10 to-primary/5">
-                    <img 
-                      src={course.thumbnail.url} 
-                      alt={course.title}
-                      className="w-full h-full object-cover"
-                    />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {filteredCourses.map((course) => (
+                <div
+                  key={course._id}
+                  className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 cursor-pointer group flex flex-col h-full"
+                  onClick={() => navigate(`/courses/${course._id}`)}
+                >
+                  {/* Course Image - Fixed Height */}
+                  <div className="w-full h-56 overflow-hidden bg-gray-100 flex-shrink-0">
+                    {course.thumbnail?.url ? (
+                      <img 
+                        src={course.thumbnail.url} 
+                        alt={course.title}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
+                        <AcademicCapIcon className="h-20 w-20 text-primary/40" />
+                      </div>
+                    )}
                   </div>
-                )}
-                <div className="p-6">
-                  <h3 className="text-xl font-bold text-primary mb-3">{course.title}</h3>
-                  <p className="text-dark/70 text-sm leading-relaxed mb-4">{course.description}</p>
-                  <div className="flex flex-wrap gap-4 text-sm mb-4">
-                    <div className="flex items-center gap-2 text-dark/60">
-                      <ClockIcon className="h-5 w-5 text-primary" />
-                      <span className="font-semibold">{course.duration}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-dark/60">
-                      <ChartBarIcon className="h-5 w-5 text-primary" />
-                      <span className="font-semibold">{course.level}</span>
+                  
+                  {/* Course Content - Flexible Height */}
+                  <div className="bg-gradient-to-r from-[#1a1f71] to-[#2d3192] p-6 flex-grow flex flex-col">
+                    <h3 className="text-xl font-bold text-white mb-4 h-[3.5rem] line-clamp-2">
+                      {course.title}
+                    </h3>
+                    
+                    {/* Course Details */}
+                    <div className="space-y-2 mt-auto">
+                      <div className="flex items-center gap-2 text-white/90">
+                        <ClockIcon className="h-5 w-5 text-[#f4e500]" />
+                        <span className="text-sm">{course.duration}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-white/90">
+                        <ChartBarIcon className="h-5 w-5 text-[#f4e500]" />
+                        <span className="text-sm">{course.level}</span>
+                      </div>
                     </div>
                   </div>
-                  <button 
-                    className="w-full bg-gradient-to-r from-primary to-secondary text-white py-2 px-4 rounded-lg font-semibold hover:shadow-lg transition-all flex items-center justify-center gap-2"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      navigate(`/courses/${course._id}`)
-                    }}
-                  >
-                    View Details
-                    <ArrowRightIcon className="h-4 w-4" />
-                  </button>
+
+                  {/* Know More Button - Fixed at Bottom */}
+                  <div className="bg-[#f4e500] px-6 py-4 flex-shrink-0">
+                    <button 
+                      className="w-full flex items-center justify-between text-dark font-bold text-lg group-hover:translate-x-1 transition-transform"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        navigate(`/courses/${course._id}`)
+                      }}
+                    >
+                      <span>Know More</span>
+                      <ArrowRightIcon className="h-5 w-5" />
+                    </button>
+                  </div>
                 </div>
-              </div>
               ))}
             </div>
           )}
@@ -279,10 +329,40 @@ const Courses = () => {
           <p className="text-lg mb-6 max-w-2xl mx-auto">
             Join thousands of engineers who have transformed their careers with our industry-leading courses.
           </p>
-          <button className="bg-white text-primary px-8 py-3 rounded-lg font-semibold hover:bg-light/90 transition-all duration-300 transform hover:scale-105">
+          <button 
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            className="bg-white text-primary px-8 py-3 rounded-lg font-semibold hover:bg-light/90 transition-all duration-300 transform hover:scale-105"
+          >
             Explore Courses
           </button>
         </div>
+      </div>
+
+      {/* Fixed Contact Icons */}
+      <div className="fixed right-6 bottom-6 flex flex-col gap-3 z-50">
+        <a
+          href="https://wa.me/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="bg-[#25D366] text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all hover:scale-110"
+          title="WhatsApp"
+        >
+          <ChatBubbleLeftRightIcon className="h-6 w-6" />
+        </a>
+        <a
+          href="tel:"
+          className="bg-primary text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all hover:scale-110"
+          title="Call Us"
+        >
+          <PhoneIcon className="h-6 w-6" />
+        </a>
+        <a
+          href="mailto:"
+          className="bg-accent text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all hover:scale-110"
+          title="Email Us"
+        >
+          <EnvelopeIcon className="h-6 w-6" />
+        </a>
       </div>
     </div>
   )

@@ -40,6 +40,10 @@ interface Course {
     url: string
     fileId: string
   }>
+  keyPoints?: string[]
+  aboutCourse?: string
+  eligibility?: string[]
+  objectives?: string[]
 }
 
 const ManageCourses = () => {
@@ -61,7 +65,11 @@ const ManageCourses = () => {
     thumbnail: { url: '', fileId: '' },
     sampleVideos: [] as Array<{ name: string; url: string; fileId: string; description?: string }>,
     pdfFiles: [] as Array<{ name: string; url: string; fileId: string }>,
-    videoFiles: [] as Array<{ name: string; url: string; fileId: string }>
+    videoFiles: [] as Array<{ name: string; url: string; fileId: string }>,
+    keyPoints: '',
+    aboutCourse: '',
+    eligibility: '',
+    objectives: ''
   })
 
   useEffect(() => {
@@ -93,10 +101,58 @@ const ManageCourses = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    // Validate syllabus is uploaded
+    // Validate required fields
     if (!formData.syllabus.url) {
       alert('Please upload course syllabus PDF')
       return
+    }
+    
+    if (!formData.thumbnail.url) {
+      alert('Please upload course thumbnail image')
+      return
+    }
+    
+    if (!formData.keyPoints.trim()) {
+      alert('Please enter at least one key point')
+      return
+    }
+    
+    if (!formData.aboutCourse.trim()) {
+      alert('Please provide information about the course')
+      return
+    }
+    
+    if (!formData.eligibility.trim()) {
+      alert('Please enter at least one eligibility criterion')
+      return
+    }
+    
+    if (!formData.objectives.trim()) {
+      alert('Please enter at least one course objective')
+      return
+    }
+    
+    if (formData.sampleVideos.length === 0) {
+      alert('Please upload at least one sample video')
+      return
+    }
+    
+    if (formData.pdfFiles.length === 0) {
+      alert('Please upload at least one PDF material for the course')
+      return
+    }
+    
+    if (formData.videoFiles.length === 0) {
+      alert('Please upload at least one video lesson for the course')
+      return
+    }
+    
+    // Convert text fields to arrays
+    const submissionData = {
+      ...formData,
+      keyPoints: formData.keyPoints.split('\n').filter(point => point.trim() !== ''),
+      eligibility: formData.eligibility.split('\n').filter(item => item.trim() !== ''),
+      objectives: formData.objectives.split('\n').filter(obj => obj.trim() !== '')
     }
     
     try {
@@ -111,7 +167,7 @@ const ManageCourses = () => {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(submissionData)
       })
 
       const data = await response.json()
@@ -170,7 +226,11 @@ const ManageCourses = () => {
       thumbnail: { url: '', fileId: '' },
       sampleVideos: [],
       pdfFiles: [],
-      videoFiles: []
+      videoFiles: [],
+      keyPoints: '',
+      aboutCourse: '',
+      eligibility: '',
+      objectives: ''
     })
     setShowModal(true)
   }
@@ -190,7 +250,11 @@ const ManageCourses = () => {
       thumbnail: course.thumbnail || { url: '', fileId: '' },
       sampleVideos: course.sampleVideos || [],
       pdfFiles: course.pdfFiles || [],
-      videoFiles: course.videoFiles || []
+      videoFiles: course.videoFiles || [],
+      keyPoints: course.keyPoints?.join('\n') || '',
+      aboutCourse: course.aboutCourse || '',
+      eligibility: course.eligibility?.join('\n') || '',
+      objectives: course.objectives?.join('\n') || ''
     })
     setShowModal(true)
   }
@@ -312,6 +376,66 @@ const ManageCourses = () => {
                       className="w-full px-4 py-3 border border-primary/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50"
                       required
                     />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-primary mb-2">
+                      About Course *
+                    </label>
+                    <textarea
+                      value={formData.aboutCourse}
+                      onChange={(e) => setFormData({...formData, aboutCourse: e.target.value})}
+                      rows={6}
+                      placeholder="Provide detailed information about the course..."
+                      className="w-full px-4 py-3 border border-primary/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50"
+                      required
+                    />
+                    <p className="text-xs text-gray-500 mt-1">Detailed course information for the About Course tab</p>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-primary mb-2">
+                      Key Points * (One per line)
+                    </label>
+                    <textarea
+                      value={formData.keyPoints}
+                      onChange={(e) => setFormData({...formData, keyPoints: e.target.value})}
+                      rows={8}
+                      placeholder="Competent Trainer with more than 20+ years' experience&#10;More than 100 recruiters&#10;100% Placement assistance&#10;Hands on experience to work on live projects"
+                      className="w-full px-4 py-3 border border-primary/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 font-mono text-sm"
+                      required
+                    />
+                    <p className="text-xs text-gray-500 mt-1">Enter each key point on a new line. Minimum 3 points required.</p>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-primary mb-2">
+                      Eligibility Criteria * (One per line)
+                    </label>
+                    <textarea
+                      value={formData.eligibility}
+                      onChange={(e) => setFormData({...formData, eligibility: e.target.value})}
+                      rows={5}
+                      placeholder="Engineering graduates (Mechanical, Civil, Chemical, etc.)&#10;Diploma holders in relevant engineering fields&#10;Working professionals seeking career advancement"
+                      className="w-full px-4 py-3 border border-primary/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 font-mono text-sm"
+                      required
+                    />
+                    <p className="text-xs text-gray-500 mt-1">Enter each eligibility criterion on a new line</p>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-primary mb-2">
+                      Course Objectives * (One per line)
+                    </label>
+                    <textarea
+                      value={formData.objectives}
+                      onChange={(e) => setFormData({...formData, objectives: e.target.value})}
+                      rows={6}
+                      placeholder="Develop comprehensive knowledge of industry standards&#10;Gain hands-on experience with real-world projects&#10;Master the technical skills required for professional excellence"
+                      className="w-full px-4 py-3 border border-primary/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 font-mono text-sm"
+                      required
+                    />
+                    <p className="text-xs text-gray-500 mt-1">Enter each objective on a new line. Minimum 3 objectives required.</p>
                   </div>
 
                   <div>
@@ -437,25 +561,33 @@ const ManageCourses = () => {
                     
                     <div className="space-y-4">
                       {/* Thumbnail Upload */}
-                      <FileUpload
-                        label="Course Thumbnail"
-                        accept=".jpg,.jpeg,.png,.webp"
-                        folder="courses/thumbnails"
-                        onUploadComplete={(fileData) => setFormData({
-                          ...formData,
-                          thumbnail: { url: fileData.url, fileId: fileData.fileId }
-                        })}
-                        currentFile={formData.thumbnail?.url ? formData.thumbnail : undefined}
-                        onRemove={() => setFormData({
-                          ...formData,
-                          thumbnail: { url: '', fileId: '' }
-                        })}
-                      />
+                      <div>
+                        <FileUpload
+                          label="Course Thumbnail *"
+                          accept=".jpg,.jpeg,.png,.webp"
+                          folder="courses/thumbnails"
+                          onUploadComplete={(fileData) => setFormData({
+                            ...formData,
+                            thumbnail: { url: fileData.url, fileId: fileData.fileId }
+                          })}
+                          currentFile={formData.thumbnail?.url ? formData.thumbnail : undefined}
+                          onRemove={() => setFormData({
+                            ...formData,
+                            thumbnail: { url: '', fileId: '' }
+                          })}
+                        />
+                        {!formData.thumbnail.url && (
+                          <p className="text-xs text-red-500 mt-1">* Course thumbnail is required</p>
+                        )}
+                        {formData.thumbnail.url && (
+                          <p className="text-xs text-green-600 mt-1 font-semibold">✓ Thumbnail uploaded</p>
+                        )}
+                      </div>
 
                       {/* Sample Videos Upload */}
                       <div>
                         <label className="block text-sm font-semibold text-primary mb-2">
-                          Sample Videos (Preview for users before purchase)
+                          Sample Videos * (Preview for users before purchase)
                         </label>
                         <FileUpload
                           label="Add Sample Video"
@@ -466,10 +598,14 @@ const ManageCourses = () => {
                             sampleVideos: [...formData.sampleVideos, fileData]
                           })}
                         />
+                        <p className="text-xs text-red-500 mt-1">* At least one sample video is required</p>
                         
                         {/* Display uploaded sample videos */}
                         {formData.sampleVideos.length > 0 && (
                           <div className="mt-3 space-y-2">
+                            <p className="text-xs text-green-600 font-semibold">
+                              ✓ {formData.sampleVideos.length} sample video(s) uploaded
+                            </p>
                             {formData.sampleVideos.map((video, index) => (
                               <div key={index} className="flex items-center justify-between bg-gray-50 p-2 rounded">
                                 <span className="text-sm text-gray-700 truncate flex-1">{video.name}</span>
@@ -491,6 +627,9 @@ const ManageCourses = () => {
 
                       {/* PDF Upload */}
                       <div>
+                        <label className="block text-sm font-semibold text-primary mb-2">
+                          PDF Study Materials * (Course content for enrolled students)
+                        </label>
                         <FileUpload
                           label="Add PDF Materials"
                           accept=".pdf"
@@ -500,8 +639,12 @@ const ManageCourses = () => {
                             pdfFiles: [...formData.pdfFiles, fileData]
                           })}
                         />
+                        <p className="text-xs text-red-500 mt-1">* At least one PDF material is required</p>
                         {formData.pdfFiles.length > 0 && (
-                          <div className="mt-2 space-y-2">
+                          <div className="mt-3 space-y-2">
+                            <p className="text-xs text-green-600 font-semibold">
+                              ✓ {formData.pdfFiles.length} PDF file(s) uploaded
+                            </p>
                             {formData.pdfFiles.map((pdf, index) => (
                               <div key={index} className="flex items-center justify-between bg-gray-50 p-2 rounded">
                                 <span className="text-sm text-dark/70">{pdf.name}</span>
@@ -523,6 +666,9 @@ const ManageCourses = () => {
 
                       {/* Video Upload */}
                       <div>
+                        <label className="block text-sm font-semibold text-primary mb-2">
+                          Video Lessons * (Full course videos for enrolled students)
+                        </label>
                         <FileUpload
                           label="Add Video Lessons"
                           accept=".mp4,.mov,.avi,.mkv"
@@ -532,8 +678,12 @@ const ManageCourses = () => {
                             videoFiles: [...formData.videoFiles, fileData]
                           })}
                         />
+                        <p className="text-xs text-red-500 mt-1">* At least one video lesson is required</p>
                         {formData.videoFiles.length > 0 && (
-                          <div className="mt-2 space-y-2">
+                          <div className="mt-3 space-y-2">
+                            <p className="text-xs text-green-600 font-semibold">
+                              ✓ {formData.videoFiles.length} video lesson(s) uploaded
+                            </p>
                             {formData.videoFiles.map((video, index) => (
                               <div key={index} className="flex items-center justify-between bg-gray-50 p-2 rounded">
                                 <span className="text-sm text-dark/70">{video.name}</span>
