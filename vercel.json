@@ -1,6 +1,9 @@
 {
     "rewrites": [
       { "source": "/(.*)", "destination": "/index.html" }
-    ]
+    ],
+    "env": {
+      "VITE_HOMEPAGE_ASSETS_URL": "https://iit-file-storage.s3.us-east-1.amazonaws.com/homepage"
+    }
   }
   
