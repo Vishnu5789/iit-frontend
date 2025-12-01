@@ -683,6 +683,15 @@ class ApiService {
     return this.handleResponse(response);
   }
 
+  // Admin self-enrollment
+  async adminSelfEnroll(courseId: string): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/enrollments/admin-enroll/${courseId}`, {
+      method: 'POST',
+      headers: this.getHeaders(true),
+    });
+    return this.handleResponse(response);
+  }
+
   // Certificate methods
   async generateCertificate(courseId: string): Promise<ApiResponse> {
     const response = await fetch(`${API_BASE_URL}/certificates/generate/${courseId}`, {
@@ -713,6 +722,67 @@ class ApiService {
 
   async downloadCertificate(certificateId: string): Promise<ApiResponse> {
     const response = await fetch(`${API_BASE_URL}/certificates/${certificateId}/download`, {
+      headers: this.getHeaders(true),
+    });
+    return this.handleResponse(response);
+  }
+
+  // About Section methods
+  async getAboutSections(): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/about-sections`);
+    return this.handleResponse(response);
+  }
+
+  async getAboutSectionsAdmin(): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/about-sections/admin/all`, {
+      headers: this.getHeaders(true),
+    });
+    return this.handleResponse(response);
+  }
+
+  async getAboutSection(id: string): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/about-sections/${id}`);
+    return this.handleResponse(response);
+  }
+
+  async createAboutSection(sectionData: any): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/about-sections/admin`, {
+      method: 'POST',
+      headers: this.getHeaders(true),
+      body: JSON.stringify(sectionData),
+    });
+    return this.handleResponse(response);
+  }
+
+  async updateAboutSection(id: string, sectionData: any): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/about-sections/admin/${id}`, {
+      method: 'PUT',
+      headers: this.getHeaders(true),
+      body: JSON.stringify(sectionData),
+    });
+    return this.handleResponse(response);
+  }
+
+  async deleteAboutSection(id: string): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/about-sections/admin/${id}`, {
+      method: 'DELETE',
+      headers: this.getHeaders(true),
+    });
+    return this.handleResponse(response);
+  }
+
+  async reorderAboutSections(sections: Array<{ id: string; order: number }>): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/about-sections/admin/reorder`, {
+      method: 'POST',
+      headers: this.getHeaders(true),
+      body: JSON.stringify({ sections }),
+    });
+    return this.handleResponse(response);
+  }
+
+  async initializeAboutSections(): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/about-sections/admin/initialize`, {
+      method: 'POST',
       headers: this.getHeaders(true),
     });
     return this.handleResponse(response);

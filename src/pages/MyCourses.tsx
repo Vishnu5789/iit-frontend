@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { AcademicCapIcon, ClockIcon, DocumentTextIcon, TrophyIcon, PlayIcon } from '@heroicons/react/24/outline'
+import { AcademicCapIcon, ClockIcon, DocumentTextIcon, TrophyIcon, PlayIcon, CheckIcon, LockClosedIcon } from '@heroicons/react/24/outline'
 import apiService from '../services/api'
 import toast from 'react-hot-toast'
 
@@ -63,9 +63,40 @@ export default function MyCourses() {
                 ? certsRes.data?.filter((cert: any) => cert.course?._id === course._id) || []
                 : [];
               
+              // Fetch attempts for each quiz
+              const quizzesData = quizzesRes.success ? quizzesRes.data : [];
+              const quizzesWithAttempts = await Promise.all(
+                quizzesData.map(async (quiz: any) => {
+                  try {
+                    const attemptsResponse = await apiService.getUserAttempts(quiz._id);
+                    if (attemptsResponse.success) {
+                      const attempts = attemptsResponse.data || [];
+                      const completedAttempts = attempts.filter((a: any) => a.status === 'completed');
+                      const passedAttempt = completedAttempts.find((a: any) => a.passed);
+                      const bestAttempt = completedAttempts.reduce((best: any, current: any) => 
+                        !best || current.percentage > best.percentage ? current : best
+                      , null);
+                      
+                      return {
+                        ...quiz,
+                        attempts: completedAttempts,
+                        attemptsUsed: completedAttempts.length,
+                        hasPassed: !!passedAttempt,
+                        bestAttempt: bestAttempt,
+                        maxAttemptsReached: quiz.attemptsAllowed !== -1 && completedAttempts.length >= quiz.attemptsAllowed
+                      };
+                    }
+                    return { ...quiz, attempts: [], attemptsUsed: 0, hasPassed: false, maxAttemptsReached: false };
+                  } catch (error) {
+                    console.error('Error fetching attempts for quiz:', quiz._id, error);
+                    return { ...quiz, attempts: [], attemptsUsed: 0, hasPassed: false, maxAttemptsReached: false };
+                  }
+                })
+              );
+              
               return {
                 ...course,
-                quizzes: quizzesRes.success ? quizzesRes.data : [],
+                quizzes: quizzesWithAttempts,
                 certificates: courseCerts
               };
             } catch (err) {
@@ -328,16 +359,85 @@ export default function MyCourses() {
                                   {quiz.type}
                                 </span>
                               </div>
-                              <div className="text-xs text-gray-600 space-y-1">
+                              <div className="text-xs text-gray-600 space-y-1 mb-2">
                                 <div>⏱️ {quiz.timeLimit} min • {quiz.questions?.length || 0} questions</div>
                                 <div>✅ Pass: {quiz.passingScore}%</div>
+                                <div>🔄 {quiz.attemptsAllowed === -1 ? 'Unlimited' : `${quiz.attemptsUsed || 0}/${quiz.attemptsAllowed} used`}</div>
                               </div>
-                              <button 
-                                onClick={() => navigate(`/quiz/${quiz._id}`, { state: { courseId: course._id } })}
-                                className="w-full mt-3 text-xs bg-primary/10 text-primary py-2 rounded font-semibold hover:bg-primary/20 transition-all cursor-pointer"
-                              >
-                                Start Quiz →
-                              </button>
+                              
+                              {/* Show different UI based on user's quiz status */}
+                              {quiz.hasPassed ? (
+                                <div className="bg-green-50 border border-green-500 rounded p-2 mt-2">
+                                  <div className="flex items-center gap-1 text-green-700 text-xs font-semibold mb-1">
+                                    <CheckIcon className="w-4 h-4" />
+                                    <span>Passed!</span>
+                                  </div>
+                                  <div className="text-xs text-green-600">
+                                    Score: {quiz.bestAttempt?.percentage?.toFixed(1)}%
+                                  </div>
+                                  <button 
+                                    onClick={() => navigate(`/quiz/${quiz._id}/results`, { 
+                                      state: { 
+                                        results: {
+                                          attemptId: quiz.bestAttempt?._id,
+                                          pointsEarned: quiz.bestAttempt?.pointsEarned,
+                                          totalPoints: quiz.totalPoints,
+                                          percentage: quiz.bestAttempt?.percentage,
+                                          passed: true,
+                                          passingScore: quiz.passingScore,
+                                          answers: quiz.bestAttempt?.answers
+                                        },
+                                        quizTitle: quiz.title,
+                                        courseId: course._id
+                                      } 
+                                    })}
+                                    className="w-full mt-2 text-xs bg-green-600 text-white py-2 rounded font-semibold hover:bg-green-700 transition-all cursor-pointer"
+                                  >
+                                    View Results →
+                                  </button>
+                                </div>
+                              ) : quiz.maxAttemptsReached ? (
+                                <div className="bg-red-50 border border-red-500 rounded p-2 mt-2">
+                                  <div className="flex items-center gap-1 text-red-700 text-xs font-semibold mb-1">
+                                    <LockClosedIcon className="w-4 h-4" />
+                                    <span>Max Attempts</span>
+                                  </div>
+                                  {quiz.bestAttempt && (
+                                    <>
+                                      <div className="text-xs text-red-600">
+                                        Best: {quiz.bestAttempt.percentage?.toFixed(1)}%
+                                      </div>
+                                      <button 
+                                        onClick={() => navigate(`/quiz/${quiz._id}/results`, { 
+                                          state: { 
+                                            results: {
+                                              attemptId: quiz.bestAttempt?._id,
+                                              pointsEarned: quiz.bestAttempt?.pointsEarned,
+                                              totalPoints: quiz.totalPoints,
+                                              percentage: quiz.bestAttempt?.percentage,
+                                              passed: false,
+                                              passingScore: quiz.passingScore,
+                                              answers: quiz.bestAttempt?.answers
+                                            },
+                                            quizTitle: quiz.title,
+                                            courseId: course._id
+                                          } 
+                                        })}
+                                        className="w-full mt-2 text-xs bg-red-600 text-white py-2 rounded font-semibold hover:bg-red-700 transition-all cursor-pointer"
+                                      >
+                                        View Last Attempt →
+                                      </button>
+                                    </>
+                                  )}
+                                </div>
+                              ) : (
+                                <button 
+                                  onClick={() => navigate(`/quiz/${quiz._id}`, { state: { courseId: course._id } })}
+                                  className="w-full mt-3 text-xs bg-primary/10 text-primary py-2 rounded font-semibold hover:bg-primary/20 transition-all cursor-pointer"
+                                >
+                                  Start Quiz →
+                                </button>
+                              )}
                             </div>
                           ))}
                         </div>

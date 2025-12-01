@@ -142,7 +142,39 @@ export default function CourseDetail() {
       console.log('📝 Quizzes response:', response);
       if (response.success) {
         console.log('📝 Quizzes data:', response.data);
-        setQuizzes(response.data || []);
+        const quizzesData = response.data || [];
+        
+        // Fetch attempts for each quiz
+        const quizzesWithAttempts = await Promise.all(
+          quizzesData.map(async (quiz: any) => {
+            try {
+              const attemptsResponse = await apiService.getUserAttempts(quiz._id);
+              if (attemptsResponse.success) {
+                const attempts = attemptsResponse.data || [];
+                const completedAttempts = attempts.filter((a: any) => a.status === 'completed');
+                const passedAttempt = completedAttempts.find((a: any) => a.passed);
+                const bestAttempt = completedAttempts.reduce((best: any, current: any) => 
+                  !best || current.percentage > best.percentage ? current : best
+                , null);
+                
+                return {
+                  ...quiz,
+                  attempts: completedAttempts,
+                  attemptsUsed: completedAttempts.length,
+                  hasPassed: !!passedAttempt,
+                  bestAttempt: bestAttempt,
+                  maxAttemptsReached: quiz.attemptsAllowed !== -1 && completedAttempts.length >= quiz.attemptsAllowed
+                };
+              }
+              return { ...quiz, attempts: [], attemptsUsed: 0, hasPassed: false, maxAttemptsReached: false };
+            } catch (error) {
+              console.error('Error fetching attempts for quiz:', quiz._id, error);
+              return { ...quiz, attempts: [], attemptsUsed: 0, hasPassed: false, maxAttemptsReached: false };
+            }
+          })
+        );
+        
+        setQuizzes(quizzesWithAttempts);
       } else {
         console.error('❌ Failed to fetch quizzes:', response);
       }
@@ -210,6 +242,31 @@ export default function CourseDetail() {
       } else {
         toast.error(error.message || 'Failed to add course to cart');
       }
+    } finally {
+      setAddingToCart(false);
+    }
+  };
+
+  const handleAdminEnroll = async () => {
+    if (!apiService.isAuthenticated()) {
+      navigate('/login', { state: { from: `/courses/${id}` } });
+      return;
+    }
+
+    try {
+      setAddingToCart(true);
+      const response = await apiService.adminSelfEnroll(id!);
+      if (response.success) {
+        toast.success('Successfully enrolled in course!');
+        // Refresh enrollment status
+        await checkEnrollment();
+        // Reload the page to show enrolled content
+        window.location.reload();
+      } else {
+        toast.error(response.message || 'Failed to enroll in course');
+      }
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to enroll in course');
     } finally {
       setAddingToCart(false);
     }
@@ -344,7 +401,17 @@ This is an enquiry from the course detail page.
 
               {/* CTA Buttons */}
               <div className="flex flex-wrap items-center gap-4">
-                {course.price && course.price > 0 && (
+                {!isEnrolled && apiService.getUser()?.role === 'admin' && (
+                  <button
+                    onClick={handleAdminEnroll}
+                    disabled={addingToCart}
+                    className="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-lg flex items-center gap-2 transition-all disabled:opacity-50"
+                  >
+                    {addingToCart ? 'ENROLLING...' : 'ENROLL AS ADMIN (FREE)'}
+                    <CheckIcon className="h-5 w-5" />
+                  </button>
+                )}
+                {!isEnrolled && course.price && course.price > 0 && (
                   <button
                     onClick={handleAddToCart}
                     disabled={addingToCart}
@@ -353,6 +420,12 @@ This is an enquiry from the course detail page.
                     {addingToCart ? 'ADDING...' : 'APPLY NOW'}
                     <ChevronRightIcon className="h-5 w-5" />
                   </button>
+                )}
+                {isEnrolled && (
+                  <div className="bg-green-100 border-2 border-green-600 text-green-800 font-bold py-3 px-8 rounded-lg flex items-center gap-2">
+                    <CheckIcon className="h-5 w-5" />
+                    ENROLLED
+                  </div>
                 )}
                 <button
                   onClick={() => {
@@ -970,14 +1043,86 @@ This is an enquiry from the course detail page.
                           </div>
                           <div>📝 {quiz.questions?.length || 0} questions • {quiz.totalPoints} points</div>
                           <div>✅ Passing: {quiz.passingScore}%</div>
-                          <div>🔄 {quiz.attemptsAllowed === -1 ? 'Unlimited attempts' : `${quiz.attemptsAllowed} attempts`}</div>
+                          <div>🔄 {quiz.attemptsAllowed === -1 ? 'Unlimited attempts' : `${quiz.attemptsUsed || 0}/${quiz.attemptsAllowed} attempts used`}</div>
                         </div>
-                        <button
-                          onClick={() => navigate(`/quiz/${quiz._id}`, { state: { courseId: id } })}
-                          className="w-full bg-primary text-white px-4 py-2 rounded-lg font-semibold hover:bg-primary/90 transition-all"
-                        >
-                          Start {quiz.type === 'quiz' ? 'Quiz' : 'Test'}
-                        </button>
+                        
+                        {/* Show different UI based on user's quiz status */}
+                        {quiz.hasPassed ? (
+                          <div className="bg-green-50 border-2 border-green-500 rounded-lg p-4">
+                            <div className="flex items-center gap-2 text-green-700 mb-2">
+                              <CheckIcon className="w-5 h-5 font-bold" />
+                              <span className="font-bold">Quiz Passed!</span>
+                            </div>
+                            <div className="text-sm text-green-600 space-y-1">
+                              <div>Score: <span className="font-semibold">{quiz.bestAttempt?.percentage?.toFixed(1)}%</span></div>
+                              <div>Points: <span className="font-semibold">{quiz.bestAttempt?.pointsEarned}/{quiz.totalPoints}</span></div>
+                            </div>
+                            <button
+                              onClick={() => navigate(`/quiz/${quiz._id}/results`, { 
+                                state: { 
+                                  results: {
+                                    attemptId: quiz.bestAttempt?._id,
+                                    pointsEarned: quiz.bestAttempt?.pointsEarned,
+                                    totalPoints: quiz.totalPoints,
+                                    percentage: quiz.bestAttempt?.percentage,
+                                    passed: true,
+                                    passingScore: quiz.passingScore,
+                                    answers: quiz.bestAttempt?.answers
+                                  },
+                                  quizTitle: quiz.title,
+                                  courseId: id
+                                } 
+                              })}
+                              className="w-full mt-3 bg-green-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-green-700 transition-all"
+                            >
+                              View Results
+                            </button>
+                          </div>
+                        ) : quiz.maxAttemptsReached ? (
+                          <div className="bg-red-50 border-2 border-red-500 rounded-lg p-4">
+                            <div className="flex items-center gap-2 text-red-700 mb-2">
+                              <LockClosedIcon className="w-5 h-5" />
+                              <span className="font-bold">Maximum Attempts Reached</span>
+                            </div>
+                            <div className="text-sm text-red-600">
+                              {quiz.bestAttempt && (
+                                <div className="space-y-1">
+                                  <div>Best Score: <span className="font-semibold">{quiz.bestAttempt.percentage?.toFixed(1)}%</span></div>
+                                  <div>Required: <span className="font-semibold">{quiz.passingScore}%</span></div>
+                                </div>
+                              )}
+                            </div>
+                            {quiz.bestAttempt && (
+                              <button
+                                onClick={() => navigate(`/quiz/${quiz._id}/results`, { 
+                                  state: { 
+                                    results: {
+                                      attemptId: quiz.bestAttempt?._id,
+                                      pointsEarned: quiz.bestAttempt?.pointsEarned,
+                                      totalPoints: quiz.totalPoints,
+                                      percentage: quiz.bestAttempt?.percentage,
+                                      passed: false,
+                                      passingScore: quiz.passingScore,
+                                      answers: quiz.bestAttempt?.answers
+                                    },
+                                    quizTitle: quiz.title,
+                                    courseId: id
+                                  } 
+                                })}
+                                className="w-full mt-3 bg-red-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-700 transition-all"
+                              >
+                                View Last Attempt
+                              </button>
+                            )}
+                          </div>
+                        ) : (
+                          <button
+                            onClick={() => navigate(`/quiz/${quiz._id}`, { state: { courseId: id } })}
+                            className="w-full bg-primary text-white px-4 py-2 rounded-lg font-semibold hover:bg-primary/90 transition-all"
+                          >
+                            Start {quiz.type === 'quiz' ? 'Quiz' : 'Test'}
+                          </button>
+                        )}
                       </div>
                     ))}
                   </div>

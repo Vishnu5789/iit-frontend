@@ -1,256 +1,188 @@
-import { useEffect, useState } from 'react'
-import { 
-  AcademicCapIcon,
-  RocketLaunchIcon,
-  HeartIcon,
-  CheckCircleIcon,
-  UsersIcon
-} from '@heroicons/react/24/outline'
-import apiService from '../services/api'
+import { useEffect, useState } from 'react';
+import apiService from '../services/api';
+
+interface AboutSection {
+  _id: string;
+  key: string;
+  title: string;
+  content: string;
+  order: number;
+  isActive: boolean;
+  sectionType: 'hero' | 'text' | 'list' | 'card';
+  metadata?: {
+    subtitle?: string;
+    items?: string[];
+    imageUrl?: string;
+  };
+  image?: {
+    url: string;
+    fileId: string;
+  };
+}
 
 export default function About() {
-  const [config, setConfig] = useState<any>(null)
-  const [isLoading, setIsLoading] = useState(true)
+  const [sections, setSections] = useState<AboutSection[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    fetchConfig()
-  }, [])
+    fetchSections();
+  }, []);
 
-  const fetchConfig = async () => {
+  const fetchSections = async () => {
     try {
-      const response = await apiService.getAboutConfig()
+      setIsLoading(true);
+      const response = await apiService.getAboutSections();
       if (response.success) {
-        setConfig(response.data)
+        setSections(response.data);
       }
     } catch (error) {
-      console.error('Error fetching about config:', error)
+      console.error('Error fetching sections:', error);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
+
+  const renderSection = (section: AboutSection) => {
+    // Split content by double newlines for paragraphs
+    const paragraphs = section.content.split('\n\n').filter(p => p.trim());
+
+    switch (section.sectionType) {
+      case 'hero':
+        return (
+          <div key={section._id} className="bg-gradient-to-br from-primary to-primary-dark text-white py-20">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              {section.image?.url && (
+                <div className="flex justify-center mb-8">
+                  <img
+                    src={section.image.url}
+                    alt={section.title}
+                    className="rounded-xl shadow-2xl max-w-2xl w-full h-auto object-cover"
+                  />
+                </div>
+              )}
+              <div className="text-center">
+                <h1 className="text-5xl font-bold mb-6">{section.title}</h1>
+                {paragraphs.map((para, idx) => (
+                  <p key={idx} className="text-2xl mb-4 last:mb-0">{para}</p>
+                ))}
+              </div>
+            </div>
+          </div>
+        );
+
+      case 'list':
+        return (
+          <section key={section._id} className="py-12 bg-white">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className={`${section.image?.url ? 'grid grid-cols-1 md:grid-cols-2 gap-8 items-start' : ''}`}>
+                <div>
+                  <h2 className="text-3xl font-bold text-gray-900 mb-6">{section.title}</h2>
+                  {paragraphs.map((para, idx) => (
+                    <p key={idx} className="text-gray-700 text-lg mb-6 leading-relaxed">{para}</p>
+                  ))}
+                  {section.metadata?.items && section.metadata.items.length > 0 && (
+                    <ul className="space-y-4 mt-6">
+                      {section.metadata.items.map((item, idx) => (
+                        <li key={idx} className="flex items-start gap-3">
+                          <span className="flex-shrink-0 w-6 h-6 bg-primary text-white rounded-full flex items-center justify-center text-sm font-bold mt-1">
+                            {idx + 1}
+                          </span>
+                          <span className="text-gray-700 text-lg">{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+                {section.image?.url && (
+                  <div>
+                    <img
+                      src={section.image.url}
+                      alt={section.title}
+                      className="rounded-xl shadow-lg w-full h-auto object-cover sticky top-28"
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
+          </section>
+        );
+
+      case 'card':
+        return (
+          <section key={section._id} className="py-12 bg-gray-50">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="bg-white rounded-xl shadow-md p-8">
+                {section.image?.url && (
+                  <div className="mb-6">
+                    <img
+                      src={section.image.url}
+                      alt={section.title}
+                      className="rounded-lg w-full h-64 object-cover"
+                    />
+                  </div>
+                )}
+                <h2 className="text-3xl font-bold text-gray-900 mb-6">{section.title}</h2>
+                {paragraphs.map((para, idx) => (
+                  <p key={idx} className="text-gray-700 text-lg mb-4 last:mb-0 leading-relaxed">{para}</p>
+                ))}
+              </div>
+            </div>
+          </section>
+        );
+
+      case 'text':
+      default:
+        return (
+          <section key={section._id} className="py-12 bg-white odd:bg-gray-50">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className={`${section.image?.url ? 'grid grid-cols-1 md:grid-cols-2 gap-8 items-center' : ''}`}>
+                {section.image?.url && (
+                  <div className="order-2 md:order-1">
+                    <img
+                      src={section.image.url}
+                      alt={section.title}
+                      className="rounded-xl shadow-lg w-full h-auto object-cover"
+                    />
+                  </div>
+                )}
+                <div className={section.image?.url ? 'order-1 md:order-2' : ''}>
+                  <h2 className="text-3xl font-bold text-gray-900 mb-6">{section.title}</h2>
+                  {paragraphs.map((para, idx) => (
+                    <p key={idx} className="text-gray-700 text-lg mb-6 last:mb-0 leading-relaxed">{para}</p>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </section>
+        );
+    }
+  };
 
   if (isLoading) {
     return (
-      <div className="pt-28 md:pt-32 lg:pt-36 px-4 min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      <div className="min-h-screen bg-gray-50 pt-28 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading...</p>
+        </div>
       </div>
-    )
+    );
+  }
+
+  if (sections.length === 0) {
+    return (
+      <div className="min-h-screen bg-gray-50 pt-28">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">About Us</h1>
+          <p className="text-gray-600">Content coming soon...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="pt-28 md:pt-32 lg:pt-36 px-4 min-h-screen">
-      <div className="max-w-7xl mx-auto mb-16">
-        {/* Hero Section */}
-        <div className="text-center mb-16">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-primary mb-4">
-            {config?.heroHeading || 'About Isaac Institute of Technology'}
-          </h1>
-          <p className="text-xl md:text-2xl text-dark/80 font-medium mb-4">
-            {config?.heroSubheading || 'Empowering Engineers for Tomorrow\'s Challenges'}
-          </p>
-          <p className="text-lg text-dark/70 max-w-3xl mx-auto">
-            {config?.heroDescription || 'Learn more about our company and mission.'}
-          </p>
-          {config?.heroImage?.url && (
-            <div className="mt-8 flex justify-center">
-              <img 
-                src={config.heroImage.url} 
-                alt="About Hero" 
-                className="max-w-2xl w-full rounded-xl shadow-lg"
-              />
-            </div>
-          )}
-        </div>
-
-        {/* Statistics */}
-        {config?.stats && (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-20">
-            <div className="bg-gradient-to-br from-primary/10 to-primary/5 rounded-xl p-6 text-center border border-primary/20">
-              <p className="text-4xl font-bold text-primary mb-2">
-                {config.stats.students?.value?.toLocaleString() || '10,000'}+
-              </p>
-              <p className="text-sm text-dark/70 font-medium">
-                {config.stats.students?.label || 'Students Worldwide'}
-              </p>
-            </div>
-            <div className="bg-gradient-to-br from-secondary/10 to-secondary/5 rounded-xl p-6 text-center border border-secondary/20">
-              <p className="text-4xl font-bold text-secondary mb-2">
-                {config.stats.courses?.value || '50'}+
-              </p>
-              <p className="text-sm text-dark/70 font-medium">
-                {config.stats.courses?.label || 'Expert-Led Courses'}
-              </p>
-            </div>
-            <div className="bg-gradient-to-br from-accent/10 to-accent/5 rounded-xl p-6 text-center border border-accent/20">
-              <p className="text-4xl font-bold text-accent mb-2">
-                {config.stats.rating?.value || '4.8'}★
-              </p>
-              <p className="text-sm text-dark/70 font-medium">
-                {config.stats.rating?.label || 'Average Rating'}
-              </p>
-            </div>
-            <div className="bg-gradient-to-br from-green-500/10 to-green-500/5 rounded-xl p-6 text-center border border-green-500/20">
-              <p className="text-4xl font-bold text-green-600 mb-2">
-                {config.stats.industries?.value || '15'}+
-              </p>
-              <p className="text-sm text-dark/70 font-medium">
-                {config.stats.industries?.label || 'Industries Served'}
-              </p>
-            </div>
-          </div>
-        )}
-
-        {/* Mission & Vision */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-20">
-          {/* Mission */}
-          <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg p-8 border border-primary/10">
-            <div className="flex items-center gap-3 mb-4">
-              <AcademicCapIcon className="h-10 w-10 text-primary" />
-              <h2 className="text-2xl font-bold text-primary">
-                {config?.missionHeading || 'Our Mission'}
-              </h2>
-            </div>
-            <p className="text-dark/70 leading-relaxed mb-4">
-              {config?.missionContent || 'To empower every design engineer with the practical skills, theoretical depth, and innovative mindset required to solve complex challenges and lead the future of product development.'}
-            </p>
-            {config?.missionImage?.url && (
-              <img 
-                src={config.missionImage.url} 
-                alt="Mission" 
-                className="w-full rounded-lg mt-4"
-              />
-            )}
-          </div>
-
-          {/* Vision */}
-          <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg p-8 border border-primary/10">
-            <div className="flex items-center gap-3 mb-4">
-              <RocketLaunchIcon className="h-10 w-10 text-secondary" />
-              <h2 className="text-2xl font-bold text-primary">
-                {config?.visionHeading || 'Our Vision'}
-              </h2>
-            </div>
-            <p className="text-dark/70 leading-relaxed mb-4">
-              {config?.visionContent || 'A world where engineering education is no longer a barrier to innovation, but its catalyst. We envision a global community where engineers can continuously learn, apply, and excel throughout their careers.'}
-            </p>
-            {config?.visionImage?.url && (
-              <img 
-                src={config.visionImage.url} 
-                alt="Vision" 
-                className="w-full rounded-lg mt-4"
-              />
-            )}
-          </div>
-        </div>
-
-        {/* Story Section */}
-        {config?.storyHeading && (
-          <div className="bg-gradient-to-r from-primary/10 to-primary/5 rounded-2xl p-8 md:p-12 mb-20 border border-primary/20">
-            <div className="flex items-center justify-center gap-3 mb-6">
-              <HeartIcon className="h-10 w-10 text-primary" />
-              <h2 className="text-3xl font-bold text-primary">
-                {config.storyHeading}
-              </h2>
-            </div>
-            <p className="text-dark/70 text-lg leading-relaxed max-w-4xl mx-auto text-center">
-              {config?.storyContent || 'Isaac Institute of Technology was born from a disconnect. In a world of rapid technological advancement, design engineers were often left with theoretical knowledge or shallow software tutorials, but little guidance on how to bridge the gap to practical, robust, and manufacturable design.'}
-            </p>
-          </div>
-        )}
-
-        {/* Values */}
-        {config?.values && config.values.length > 0 && (
-          <div className="mb-20">
-            <h2 className="text-3xl font-bold text-primary mb-8 text-center">Our Values</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {config.values.map((value: any, index: number) => (
-                <div
-                  key={index}
-                  className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg p-6 border border-primary/10 hover:shadow-xl transition-all duration-300"
-                >
-                  <CheckCircleIcon className="h-10 w-10 text-primary mb-4" />
-                  <h3 className="text-xl font-bold text-dark mb-3">{value.title}</h3>
-                  <p className="text-dark/70 leading-relaxed">{value.description}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Team */}
-        {config?.team && config.team.length > 0 && (
-          <div className="mb-20">
-            <div className="text-center mb-10">
-              <UsersIcon className="h-12 w-12 text-primary mx-auto mb-4" />
-              <h2 className="text-3xl font-bold text-primary mb-3">Meet Our Team</h2>
-              <p className="text-lg text-dark/70">
-                The passionate people behind Isaac Institute of Technology
-              </p>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {config.team.map((member: any, index: number) => (
-                <div
-                  key={index}
-                  className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg overflow-hidden border border-primary/10 hover:shadow-xl transition-all duration-300"
-                >
-                  {member.image?.url && (
-                    <img 
-                      src={member.image.url} 
-                      alt={member.name}
-                      className="w-full h-64 object-cover"
-                    />
-                  )}
-                  <div className="p-6">
-                    <h3 className="text-xl font-bold text-dark mb-1">{member.name}</h3>
-                    <p className="text-primary font-semibold mb-3">{member.role}</p>
-                    {member.bio && (
-                      <p className="text-dark/70 text-sm leading-relaxed mb-4">{member.bio}</p>
-                    )}
-                    <div className="flex gap-3">
-                      {member.linkedin && (
-                        <a
-                          href={member.linkedin}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-blue-700 hover:text-blue-900 transition"
-                        >
-                          <span className="text-sm font-semibold">LinkedIn</span>
-                        </a>
-                      )}
-                      {member.twitter && (
-                        <a
-                          href={member.twitter}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-sky-500 hover:text-sky-700 transition"
-                        >
-                          <span className="text-sm font-semibold">Twitter</span>
-                        </a>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* CTA */}
-        <div className="bg-gradient-to-r from-primary to-primary/80 rounded-2xl p-8 md:p-12 text-white text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Join Our Learning Community
-          </h2>
-          <p className="text-lg leading-relaxed max-w-3xl mx-auto mb-8">
-            Start your journey to becoming an industry-ready engineer. Explore our courses and take the first step toward your engineering future.
-          </p>
-          <button
-            onClick={() => window.location.href = '/courses'}
-            className="bg-white text-primary px-8 py-4 rounded-lg font-semibold text-lg hover:bg-light/90 transition-all duration-300 transform hover:scale-105"
-          >
-            Explore Courses
-          </button>
-        </div>
-      </div>
+    <div className="min-h-screen bg-gray-50 pt-20">
+      {sections.map(section => renderSection(section))}
     </div>
-  )
+  );
 }

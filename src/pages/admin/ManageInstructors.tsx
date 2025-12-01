@@ -94,6 +94,11 @@ export default function ManageInstructors() {
   const openModal = (instructor?: Instructor) => {
     console.log('Opening modal', instructor ? 'for editing' : 'for new instructor');
     if (instructor) {
+      // Prevent editing user-based instructors
+      if ((instructor as any).isFromUserCollection) {
+        toast.error('Cannot edit user-based instructors here. Please use Manage Users to modify their profile.');
+        return;
+      }
       setEditingInstructor(instructor);
       setFormData({
         name: instructor.name,
@@ -166,7 +171,12 @@ export default function ManageInstructors() {
     }
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (id: string, isFromUserCollection?: boolean) => {
+    if (isFromUserCollection) {
+      toast.error('Cannot delete user-based instructors. Please change their role in Manage Users.');
+      return;
+    }
+
     if (!window.confirm('Are you sure you want to delete this instructor?')) {
       return;
     }
@@ -264,6 +274,30 @@ export default function ManageInstructors() {
           </div>
         </div>
 
+        {/* Info Notice */}
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+          <div className="flex items-start gap-3">
+            <div className="flex-shrink-0">
+              <svg className="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <div className="flex-1">
+              <h4 className="text-sm font-semibold text-blue-900 mb-1">Two Types of Instructors</h4>
+              <p className="text-sm text-blue-800">
+                <strong>Instructor Profiles:</strong> Created here with full details (education, experience, etc.) for public display.<br />
+                <strong>User Accounts:</strong> Users with "Instructor" role from Manage Users. To modify them, use the "Manage in Users" button or go to{' '}
+                <button
+                  onClick={() => navigate('/admin/users')}
+                  className="underline font-semibold hover:text-blue-900"
+                >
+                  Manage Users
+                </button>.
+              </p>
+            </div>
+          </div>
+        </div>
+
         {/* Instructors Grid */}
         {instructors.length === 0 ? (
           <div className="bg-white rounded-xl shadow-md p-12 text-center">
@@ -295,24 +329,43 @@ export default function ManageInstructors() {
                       )}
                     </div>
                     <div className="flex gap-2">
-                      <button
-                        onClick={() => openModal(instructor)}
-                        className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
-                      >
-                        <PencilIcon className="h-5 w-5" />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(instructor._id)}
-                        className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-all"
-                      >
-                        <TrashIcon className="h-5 w-5" />
-                      </button>
+                      {!(instructor as any).isFromUserCollection ? (
+                        <>
+                          <button
+                            onClick={() => openModal(instructor)}
+                            className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
+                            title="Edit instructor"
+                          >
+                            <PencilIcon className="h-5 w-5" />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(instructor._id)}
+                            className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-all"
+                            title="Delete instructor"
+                          >
+                            <TrashIcon className="h-5 w-5" />
+                          </button>
+                        </>
+                      ) : (
+                        <button
+                          onClick={() => navigate('/admin/users')}
+                          className="p-2 text-primary hover:bg-primary/10 rounded-lg transition-all text-xs font-semibold"
+                          title="Manage in Users"
+                        >
+                          Manage in Users →
+                        </button>
+                      )}
                     </div>
                   </div>
                   <h3 className="text-xl font-bold text-gray-900 mb-2">{instructor.name}</h3>
                   <p className="text-primary text-sm font-semibold mb-3">{instructor.title}</p>
                   <p className="text-gray-600 text-sm line-clamp-3">{instructor.description}</p>
-                  <div className="mt-4 flex items-center gap-2">
+                  <div className="mt-4 flex items-center gap-2 flex-wrap">
+                    {(instructor as any).isFromUserCollection && (
+                      <span className="px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">
+                        User Account
+                      </span>
+                    )}
                     <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
                       instructor.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
                     }`}>
