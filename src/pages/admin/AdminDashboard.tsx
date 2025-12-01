@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { AcademicCapIcon, NewspaperIcon, BuildingOffice2Icon, HomeIcon, UsersIcon, EnvelopeIcon } from '@heroicons/react/24/outline'
+import { AcademicCapIcon, NewspaperIcon, BuildingOffice2Icon, HomeIcon, UsersIcon, EnvelopeIcon, ChatBubbleLeftRightIcon, UserGroupIcon, PhotoIcon } from '@heroicons/react/24/outline'
 import apiService from '../../services/api'
 import { API_BASE_URL } from '../../config/api.config'
 
@@ -93,6 +93,27 @@ const AdminDashboard = () => {
       icon: EnvelopeIcon,
       color: 'from-cyan-500 to-cyan-600',
       link: '/admin/contact-messages'
+    },
+    {
+      title: 'Widget',
+      count: '⚙️',
+      icon: ChatBubbleLeftRightIcon,
+      color: 'from-indigo-500 to-indigo-600',
+      link: '/admin/contact-widget'
+    },
+    {
+      title: 'Instructors',
+      count: '👨‍🏫',
+      icon: UserGroupIcon,
+      color: 'from-emerald-500 to-emerald-600',
+      link: '/admin/instructors'
+    },
+    {
+      title: 'Hero Slides',
+      count: '🎬',
+      icon: PhotoIcon,
+      color: 'from-rose-500 to-rose-600',
+      link: '/admin/hero-slides'
     }
   ]
 
@@ -188,6 +209,18 @@ const AdminDashboard = () => {
               className="bg-gradient-to-r from-lime-500 to-lime-600 text-white px-6 py-4 rounded-lg font-semibold hover:shadow-lg transition-all duration-300 transform hover:scale-[1.03]"
             >
               Manage Industry Page
+            </button>
+            <button
+              onClick={() => navigate('/admin/contact-widget')}
+              className="bg-gradient-to-r from-indigo-500 to-indigo-600 text-white px-6 py-4 rounded-lg font-semibold hover:shadow-lg transition-all duration-300 transform hover:scale-[1.03]"
+            >
+              Manage Contact Widget
+            </button>
+            <button
+              onClick={() => navigate('/admin/instructors')}
+              className="bg-gradient-to-r from-emerald-500 to-emerald-600 text-white px-6 py-4 rounded-lg font-semibold hover:shadow-lg transition-all duration-300 transform hover:scale-[1.03]"
+            >
+              Manage Instructors
             </button>
           </div>
         </div>

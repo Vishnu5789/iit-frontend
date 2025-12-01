@@ -1,15 +1,16 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { 
   PlayIcon, 
   ClockIcon, 
   AcademicCapIcon, 
   CheckIcon,
-  PhoneIcon,
-  EnvelopeIcon,
-  ChevronRightIcon
+  ChevronRightIcon,
+  DocumentTextIcon,
+  LinkIcon,
+  LockClosedIcon,
+  TrophyIcon
 } from '@heroicons/react/24/outline';
-import { ChatBubbleLeftRightIcon } from '@heroicons/react/24/solid';
 import apiService from '../services/api';
 import toast from 'react-hot-toast';
 
@@ -44,6 +45,20 @@ interface Course {
     name: string;
     url: string;
   }>;
+  images?: Array<{
+    url: string;
+    fileId: string;
+  }>;
+  textContent?: Array<{
+    title: string;
+    content: string;
+  }>;
+  externalVideoLinks?: Array<{
+    title: string;
+    url: string;
+    description: string;
+    platform: string;
+  }>;
   keyPoints?: string[];
   aboutCourse?: string;
   eligibility?: string[];
@@ -53,12 +68,16 @@ interface Course {
 export default function CourseDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const [course, setCourse] = useState<Course | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [addingToCart, setAddingToCart] = useState(false);
   const [selectedVideo, setSelectedVideo] = useState<any>(null);
   const [error, setError] = useState('');
-  const [activeTab, setActiveTab] = useState<'keyPoints' | 'about' | 'eligibility' | 'syllabus' | 'objective'>('keyPoints');
+  const [isEnrolled, setIsEnrolled] = useState(false);
+  const [quizzes, setQuizzes] = useState<any[]>([]);
+  const [certificates, setCertificates] = useState<any[]>([]);
+  const [activeTab, setActiveTab] = useState<'keyPoints' | 'about' | 'eligibility' | 'syllabus' | 'objective' | 'videos' | 'pdfs' | 'images' | 'textContent' | 'externalLinks' | 'quizzes' | 'certificates'>('keyPoints');
   const [formData, setFormData] = useState({
     firstName: '',
     email: '',
@@ -70,25 +89,105 @@ export default function CourseDetail() {
   const [submittingForm, setSubmittingForm] = useState(false);
 
   useEffect(() => {
+    console.log('🎯 CourseDetail mounted/updated, Course ID:', id);
     fetchCourse();
+    checkEnrollment();
   }, [id]);
+
+  useEffect(() => {
+    if (isEnrolled) {
+      fetchQuizzes();
+      fetchCertificates();
+    }
+  }, [isEnrolled]);
+
+  // Handle opening specific tab from navigation state
+  useEffect(() => {
+    const state = location.state as any;
+    if (state?.openTab) {
+      console.log('📑 Opening tab from navigation:', state.openTab);
+      setActiveTab(state.openTab);
+      // Clear the state after processing
+      window.history.replaceState({}, document.title);
+    }
+  }, [id]);
+
+  const checkEnrollment = async () => {
+    try {
+      const user = apiService.getUser();
+      console.log('👤 Current user:', user);
+      if (!user) {
+        console.log('❌ No user logged in');
+        setIsEnrolled(false);
+        return;
+      }
+      
+      // Check if user is enrolled in this course
+      console.log('🔍 Checking enrollment for course:', id);
+      const response = await apiService.checkEnrollment(id!);
+      console.log('🔍 Enrollment response:', response);
+      const enrolled = response.success && response.data?.isEnrolled;
+      console.log('✅ Is enrolled?', enrolled);
+      setIsEnrolled(enrolled);
+    } catch (error) {
+      console.error('❌ Error checking enrollment:', error);
+      setIsEnrolled(false);
+    }
+  };
+
+  const fetchQuizzes = async () => {
+    try {
+      console.log('📝 Fetching quizzes for course:', id);
+      const response = await apiService.getCourseQuizzes(id!);
+      console.log('📝 Quizzes response:', response);
+      if (response.success) {
+        console.log('📝 Quizzes data:', response.data);
+        setQuizzes(response.data || []);
+      } else {
+        console.error('❌ Failed to fetch quizzes:', response);
+      }
+    } catch (error: any) {
+      console.error('❌ Error fetching quizzes:', error);
+      console.error('❌ Error details:', error.message, error.status);
+    }
+  };
+
+  const fetchCertificates = async () => {
+    try {
+      const response = await apiService.getUserCertificates();
+      if (response.success) {
+        // Filter certificates for this course
+        const courseCerts = response.data?.filter((cert: any) => cert.course._id === id) || [];
+        setCertificates(courseCerts);
+      }
+    } catch (error) {
+      console.error('Error fetching certificates:', error);
+    }
+  };
 
   const fetchCourse = async () => {
     try {
+      console.log('📚 Fetching course data for ID:', id);
       setIsLoading(true);
       const response = await apiService.getCourse(id!);
+      console.log('📚 Course data response:', response);
       if (response.success && response.data) {
+        console.log('✅ Course data loaded successfully');
         setCourse(response.data);
         setFormData(prev => ({ ...prev, courseName: response.data.title }));
         if (response.data.sampleVideos?.length > 0) {
           setSelectedVideo(response.data.sampleVideos[0]);
         }
+      } else {
+        console.error('❌ Failed to fetch course:', response);
+        setError(response.message || 'Failed to load course details');
       }
     } catch (error: any) {
-      console.error('Error fetching course:', error);
+      console.error('❌ Error fetching course:', error);
       setError('Failed to load course details');
     } finally {
       setIsLoading(false);
+      console.log('📚 Course loading complete');
     }
   };
 
@@ -422,6 +521,93 @@ This is an enquiry from the course detail page.
             >
               Objective
         </button>
+            
+            {/* Premium Content Tabs - Only for Enrolled Users */}
+            {isEnrolled ? (
+              <>
+                <button
+                  onClick={() => setActiveTab('videos')}
+                  className={`px-6 py-3 rounded-lg font-semibold transition-all whitespace-nowrap ${
+                    activeTab === 'videos'
+                      ? 'bg-white text-dark shadow-md'
+                      : 'text-gray-600 hover:text-dark'
+                  }`}
+                >
+                  Video Library
+                </button>
+                <button
+                  onClick={() => setActiveTab('pdfs')}
+                  className={`px-6 py-3 rounded-lg font-semibold transition-all whitespace-nowrap ${
+                    activeTab === 'pdfs'
+                      ? 'bg-white text-dark shadow-md'
+                      : 'text-gray-600 hover:text-dark'
+                  }`}
+                >
+                  PDF Library
+                </button>
+                <button
+                  onClick={() => setActiveTab('images')}
+                  className={`px-6 py-3 rounded-lg font-semibold transition-all whitespace-nowrap ${
+                    activeTab === 'images'
+                      ? 'bg-white text-dark shadow-md'
+                      : 'text-gray-600 hover:text-dark'
+                  }`}
+                >
+                  Images Library
+                </button>
+                <button
+                  onClick={() => setActiveTab('textContent')}
+                  className={`px-6 py-3 rounded-lg font-semibold transition-all whitespace-nowrap ${
+                    activeTab === 'textContent'
+                      ? 'bg-white text-dark shadow-md'
+                      : 'text-gray-600 hover:text-dark'
+                  }`}
+                >
+                  Text Content
+                </button>
+                <button
+                  onClick={() => setActiveTab('externalLinks')}
+                  className={`px-6 py-3 rounded-lg font-semibold transition-all whitespace-nowrap ${
+                    activeTab === 'externalLinks'
+                      ? 'bg-white text-dark shadow-md'
+                      : 'text-gray-600 hover:text-dark'
+                  }`}
+                >
+                  External Videos
+                </button>
+                <button
+                  onClick={() => setActiveTab('quizzes')}
+                  className={`px-6 py-3 rounded-lg font-semibold transition-all whitespace-nowrap ${
+                    activeTab === 'quizzes'
+                      ? 'bg-white text-dark shadow-md'
+                      : 'text-gray-600 hover:text-dark'
+                  }`}
+                >
+                  📝 Quizzes & Tests ({quizzes.length})
+                </button>
+                <button
+                  onClick={() => setActiveTab('certificates')}
+                  className={`px-6 py-3 rounded-lg font-semibold transition-all whitespace-nowrap ${
+                    activeTab === 'certificates'
+                      ? 'bg-white text-dark shadow-md'
+                      : 'text-gray-600 hover:text-dark'
+                  }`}
+                >
+                  🏆 Certificates ({certificates.length})
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  disabled
+                  className="px-6 py-3 rounded-lg font-semibold transition-all whitespace-nowrap text-gray-400 cursor-not-allowed flex items-center gap-2 bg-gray-50"
+                  title="Purchase course to access"
+                >
+                  <LockClosedIcon className="w-4 h-4" />
+                  Premium Content
+                </button>
+              </>
+            )}
           </div>
               </div>
               
@@ -608,34 +794,308 @@ This is an enquiry from the course detail page.
               )}
             </div>
           )}
+
+          {/* Video Library Tab */}
+          {activeTab === 'videos' && isEnrolled && (
+            <div>
+              <h3 className="text-2xl font-bold text-dark mb-4">Video Library</h3>
+              {course.videoFiles && course.videoFiles.length > 0 ? (
+                <div className="grid grid-cols-1 gap-4">
+                  {course.videoFiles.map((video, index) => (
+                    <div key={index} className="border border-gray-200 rounded-lg p-4 hover:border-primary transition-all">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <PlayIcon className="h-6 w-6 text-primary" />
+                          <div>
+                            <p className="font-semibold text-gray-900">{video.name}</p>
         </div>
       </div>
-
-      {/* Fixed Contact Icons */}
-      <div className="fixed right-6 bottom-6 flex flex-col gap-3 z-50">
         <a
-          href="https://wa.me/"
+                          href={video.url}
           target="_blank"
           rel="noopener noreferrer"
-          className="bg-[#25D366] text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all hover:scale-110"
-          title="WhatsApp"
-        >
-          <ChatBubbleLeftRightIcon className="h-6 w-6" />
-        </a>
-        <a
-          href="tel:"
-          className="bg-primary text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all hover:scale-110"
-          title="Call Us"
-        >
-          <PhoneIcon className="h-6 w-6" />
-        </a>
-        <a
-          href="mailto:"
-          className="bg-accent text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all hover:scale-110"
-          title="Email Us"
-        >
-          <EnvelopeIcon className="h-6 w-6" />
-        </a>
+                          className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-all"
+                        >
+                          Watch
+                        </a>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-gray-600">No video content available for this course yet.</p>
+              )}
+            </div>
+          )}
+
+          {/* PDF Library Tab */}
+          {activeTab === 'pdfs' && isEnrolled && (
+            <div>
+              <h3 className="text-2xl font-bold text-dark mb-4">PDF Library</h3>
+              {course.pdfFiles && course.pdfFiles.length > 0 ? (
+                <div className="grid grid-cols-1 gap-4">
+                  {course.pdfFiles.map((pdf, index) => (
+                    <div key={index} className="border border-gray-200 rounded-lg p-4 hover:border-primary transition-all">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <DocumentTextIcon className="h-6 w-6 text-primary" />
+                          <div>
+                            <p className="font-semibold text-gray-900">{pdf.name}</p>
+                          </div>
+                        </div>
+                        <a
+                          href={pdf.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-all"
+                        >
+                          Download
+                        </a>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-gray-600">No PDF materials available for this course yet.</p>
+              )}
+            </div>
+          )}
+
+          {/* Images Library Tab */}
+          {activeTab === 'images' && isEnrolled && (
+            <div>
+              <h3 className="text-2xl font-bold text-dark mb-4">Images Library</h3>
+              {course.images && course.images.length > 0 ? (
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                  {course.images.map((image, index) => (
+                    <div key={index} className="border border-gray-200 rounded-lg overflow-hidden hover:border-primary transition-all">
+                      <img 
+                        src={image.url} 
+                        alt={`Course image ${index + 1}`}
+                        className="w-full h-48 object-cover"
+                      />
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-gray-600">No images available for this course yet.</p>
+              )}
+            </div>
+          )}
+
+          {/* Text Content Tab */}
+          {activeTab === 'textContent' && isEnrolled && (
+            <div>
+              <h3 className="text-2xl font-bold text-dark mb-4">Text Content</h3>
+              {course.textContent && course.textContent.length > 0 ? (
+                <div className="space-y-6">
+                  {course.textContent.map((text, index) => (
+                    <div key={index} className="border-l-4 border-primary pl-6 py-2">
+                      <h4 className="text-xl font-semibold text-gray-900 mb-3">{text.title}</h4>
+                      <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">{text.content}</p>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-gray-600">No text content available for this course yet.</p>
+              )}
+            </div>
+          )}
+
+          {/* External Video Links Tab */}
+          {activeTab === 'externalLinks' && isEnrolled && (
+            <div>
+              <h3 className="text-2xl font-bold text-dark mb-4">External Video Links</h3>
+              {course.externalVideoLinks && course.externalVideoLinks.length > 0 ? (
+                <div className="grid grid-cols-1 gap-4">
+                  {course.externalVideoLinks.map((link, index) => (
+                    <div key={index} className="border border-gray-200 rounded-lg p-4 hover:border-primary transition-all">
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex items-start gap-3 flex-1">
+                          <LinkIcon className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
+                          <div className="flex-1">
+                            <p className="font-semibold text-gray-900 mb-1">{link.title}</p>
+                            {link.description && (
+                              <p className="text-sm text-gray-600 mb-2">{link.description}</p>
+                            )}
+                            <span className="inline-block px-2 py-1 bg-primary/10 text-primary text-xs rounded">
+                              {link.platform}
+                            </span>
+                          </div>
+                        </div>
+                        <a
+                          href={link.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-all whitespace-nowrap"
+                        >
+                          Watch
+                        </a>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-gray-600">No external video links available for this course yet.</p>
+              )}
+            </div>
+          )}
+
+          {/* Quizzes & Tests Tab - Only for Enrolled Users */}
+          {activeTab === 'quizzes' && (
+            isEnrolled ? (
+              <div>
+                <h3 className="text-2xl font-bold text-dark mb-4">Quizzes & Tests</h3>
+                {quizzes.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {quizzes.map((quiz) => (
+                      <div key={quiz._id} className="bg-white rounded-lg shadow-md p-6 border border-gray-200 hover:shadow-lg transition-all">
+                        <div className="flex justify-between items-start mb-4">
+                          <div className="flex-1">
+                            <h4 className="font-bold text-dark text-lg mb-2">{quiz.title}</h4>
+                            <p className="text-sm text-medium line-clamp-2">{quiz.description}</p>
+                          </div>
+                          <span className={`px-2 py-1 rounded text-xs font-semibold ml-3 ${
+                            quiz.type === 'quiz' ? 'bg-blue-100 text-blue-700' :
+                            quiz.type === 'test' ? 'bg-purple-100 text-purple-700' :
+                            'bg-red-100 text-red-700'
+                          }`}>
+                            {quiz.type === 'quiz' ? 'Quiz' : quiz.type === 'test' ? 'Test' : 'Final Exam'}
+                          </span>
+                        </div>
+                        <div className="space-y-2 mb-4 text-sm text-gray-600">
+                          <div className="flex items-center gap-2">
+                            <ClockIcon className="w-4 h-4" />
+                            <span>{quiz.timeLimit} minutes</span>
+                          </div>
+                          <div>📝 {quiz.questions?.length || 0} questions • {quiz.totalPoints} points</div>
+                          <div>✅ Passing: {quiz.passingScore}%</div>
+                          <div>🔄 {quiz.attemptsAllowed === -1 ? 'Unlimited attempts' : `${quiz.attemptsAllowed} attempts`}</div>
+                        </div>
+                        <button
+                          onClick={() => navigate(`/quiz/${quiz._id}`, { state: { courseId: id } })}
+                          className="w-full bg-primary text-white px-4 py-2 rounded-lg font-semibold hover:bg-primary/90 transition-all"
+                        >
+                          Start {quiz.type === 'quiz' ? 'Quiz' : 'Test'}
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-16 bg-gray-50 rounded-lg">
+                    <DocumentTextIcon className="w-20 h-20 text-gray-300 mx-auto mb-4" />
+                    <p className="text-gray-600 mb-4">No quizzes or tests available yet</p>
+                    <p className="text-sm text-gray-500">Your instructor will add assessments soon.</p>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="text-center py-16 bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl border-2 border-dashed border-gray-300">
+                <LockClosedIcon className="w-20 h-20 text-gray-400 mx-auto mb-6" />
+                <h3 className="text-2xl font-bold text-dark mb-3">Assessments Locked</h3>
+                <p className="text-gray-600 mb-6 max-w-md mx-auto">
+                  Enroll in this course to take quizzes, tests, and earn certificates.
+                </p>
+                <button
+                  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                  className="bg-primary text-white px-8 py-3 rounded-lg font-semibold hover:bg-primary/90 transition-all shadow-md"
+                >
+                  Enroll Now
+                </button>
+              </div>
+            )
+          )}
+
+          {/* Certificates Tab - Only for Enrolled Users */}
+          {activeTab === 'certificates' && (
+            isEnrolled ? (
+              <div>
+                <h3 className="text-2xl font-bold text-dark mb-4">Certificates</h3>
+                {certificates.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {certificates.map((cert) => (
+                      <div key={cert._id} className="bg-gradient-to-br from-primary/5 to-primary/10 rounded-lg border border-primary/20 p-6 hover:shadow-lg transition-all">
+                        <div className="flex justify-between items-start mb-4">
+                          <TrophyIcon className="w-12 h-12 text-primary" />
+                          <span className="bg-primary text-white px-3 py-1 rounded-full text-xs font-semibold">
+                            {cert.grade}
+                          </span>
+                        </div>
+                        <h4 className="font-bold text-dark text-lg mb-2">{cert.courseName}</h4>
+                        <div className="space-y-2 text-sm text-gray-600 mb-4">
+                          <div>📅 Issued: {new Date(cert.issueDate).toLocaleDateString()}</div>
+                          <div>📊 Score: {cert.score}%</div>
+                          <div>🔢 Certificate #: {cert.certificateNumber}</div>
+                        </div>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => window.open(`/certificate/${cert._id}`, '_blank')}
+                            className="flex-1 bg-primary text-white px-4 py-2 rounded-lg font-semibold hover:bg-primary/90 transition-all text-sm"
+                          >
+                            View Certificate
+                          </button>
+                          <button
+                            onClick={() => window.open(`/verify-certificate/${cert.certificateNumber}`, '_blank')}
+                            className="flex-1 bg-white border border-primary text-primary px-4 py-2 rounded-lg font-semibold hover:bg-primary/10 transition-all text-sm"
+                          >
+                            Verify
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-16 bg-gradient-to-br from-primary/5 to-primary/10 rounded-lg border border-primary/20">
+                    <TrophyIcon className="w-20 h-20 text-primary mx-auto mb-4" />
+                    <h4 className="text-xl font-bold text-dark mb-3">Earn Your Certificate</h4>
+                    <p className="text-gray-600 mb-6 max-w-md mx-auto">
+                      Complete all quizzes and tests with passing grades to generate your certificate.
+                    </p>
+                    {quizzes.length > 0 && (
+                      <button
+                        onClick={() => setActiveTab('quizzes')}
+                        className="bg-primary text-white px-6 py-3 rounded-lg font-semibold hover:bg-primary/90 transition-all shadow-md"
+                      >
+                        Start Quizzes
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="text-center py-16 bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl border-2 border-dashed border-gray-300">
+                <LockClosedIcon className="w-20 h-20 text-gray-400 mx-auto mb-6" />
+                <h3 className="text-2xl font-bold text-dark mb-3">Certificates Locked</h3>
+                <p className="text-gray-600 mb-6 max-w-md mx-auto">
+                  Enroll in this course and complete all assessments to earn your certificate.
+                </p>
+                <button
+                  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                  className="bg-primary text-white px-8 py-3 rounded-lg font-semibold hover:bg-primary/90 transition-all shadow-md"
+                >
+                  Enroll Now
+                </button>
+              </div>
+            )
+          )}
+
+          {/* Show "Purchase to Access" message for premium tabs when not enrolled */}
+          {!isEnrolled && ['videos', 'pdfs', 'images', 'textContent', 'externalLinks'].includes(activeTab) && (
+            <div className="text-center py-16 bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl border-2 border-dashed border-gray-300">
+              <LockClosedIcon className="w-20 h-20 text-gray-400 mx-auto mb-6" />
+              <h3 className="text-2xl font-bold text-dark mb-3">Premium Content Locked</h3>
+              <p className="text-gray-600 mb-6 max-w-md mx-auto">
+                Enroll in this course to access all videos, PDFs, images, text content, and more.
+              </p>
+              <button
+                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                className="bg-primary text-white px-8 py-3 rounded-lg font-semibold hover:bg-primary/90 transition-all shadow-md"
+              >
+                Enroll Now
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

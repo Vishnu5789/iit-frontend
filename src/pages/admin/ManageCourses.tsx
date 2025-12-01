@@ -317,19 +317,28 @@ const ManageCourses = () => {
                       </span>
                     </div>
                   </div>
-                  <div className="flex gap-2 ml-4">
+                  <div className="flex flex-col gap-2 ml-4">
                     <button
-                      onClick={() => openEditModal(course)}
-                      className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                      onClick={() => navigate(`/admin/courses/${course._id}/quizzes`)}
+                      className="px-4 py-2 text-xs font-medium text-white bg-primary hover:bg-primary/90 rounded-lg transition-all whitespace-nowrap"
+                      title="Manage Quizzes & Tests"
                     >
-                      <PencilIcon className="h-5 w-5" />
+                      📝 Quizzes & Tests
                     </button>
-                    <button
-                      onClick={() => handleDelete(course._id)}
-                      className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                    >
-                      <TrashIcon className="h-5 w-5" />
-                    </button>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => openEditModal(course)}
+                        className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                      >
+                        <PencilIcon className="h-5 w-5" />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(course._id)}
+                        className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                      >
+                        <TrashIcon className="h-5 w-5" />
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>

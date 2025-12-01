@@ -34,6 +34,8 @@ interface AuthResponse {
 }
 
 class ApiService {
+  public API_BASE_URL = API_BASE_URL;
+
   private getHeaders(includeAuth = false): HeadersInit {
     const headers: HeadersInit = {
       'Content-Type': 'application/json',
@@ -484,6 +486,234 @@ class ApiService {
       method: 'PUT',
       headers: this.getHeaders(true),
       body: JSON.stringify(configData),
+    });
+    return this.handleResponse(response);
+  }
+
+  // Contact Widget methods
+  async getContactWidget(): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/contact-widget`);
+    return this.handleResponse(response);
+  }
+
+  async updateContactWidget(configData: any): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/contact-widget`, {
+      method: 'PUT',
+      headers: this.getHeaders(true),
+      body: JSON.stringify(configData),
+    });
+    return this.handleResponse(response);
+  }
+
+  // Instructor methods
+  async getInstructors(): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/instructors`);
+    return this.handleResponse(response);
+  }
+
+  async getInstructor(id: string): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/instructors/${id}`);
+    return this.handleResponse(response);
+  }
+
+  async getAllInstructorsAdmin(): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/instructors/admin/all`, {
+      headers: this.getHeaders(true),
+    });
+    return this.handleResponse(response);
+  }
+
+  async createInstructor(instructorData: any): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/instructors`, {
+      method: 'POST',
+      headers: this.getHeaders(true),
+      body: JSON.stringify(instructorData),
+    });
+    return this.handleResponse(response);
+  }
+
+  async updateInstructor(id: string, instructorData: any): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/instructors/${id}`, {
+      method: 'PUT',
+      headers: this.getHeaders(true),
+      body: JSON.stringify(instructorData),
+    });
+    return this.handleResponse(response);
+  }
+
+  async deleteInstructor(id: string): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/instructors/${id}`, {
+      method: 'DELETE',
+      headers: this.getHeaders(true),
+    });
+    return this.handleResponse(response);
+  }
+
+  async reorderInstructors(instructors: Array<{ id: string; order: number }>): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/instructors/admin/reorder`, {
+      method: 'PUT',
+      headers: this.getHeaders(true),
+      body: JSON.stringify({ instructors }),
+    });
+    return this.handleResponse(response);
+  }
+
+  // Hero Slide methods
+  async getHeroSlides(): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/hero-slides`);
+    return this.handleResponse(response);
+  }
+
+  async getHeroSlide(id: string): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/hero-slides/${id}`);
+    return this.handleResponse(response);
+  }
+
+  async getAllHeroSlidesAdmin(): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/hero-slides/admin/all`, {
+      headers: this.getHeaders(true),
+    });
+    return this.handleResponse(response);
+  }
+
+  async createHeroSlide(slideData: any): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/hero-slides`, {
+      method: 'POST',
+      headers: this.getHeaders(true),
+      body: JSON.stringify(slideData),
+    });
+    return this.handleResponse(response);
+  }
+
+  async updateHeroSlide(id: string, slideData: any): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/hero-slides/${id}`, {
+      method: 'PUT',
+      headers: this.getHeaders(true),
+      body: JSON.stringify(slideData),
+    });
+    return this.handleResponse(response);
+  }
+
+  async deleteHeroSlide(id: string): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/hero-slides/${id}`, {
+      method: 'DELETE',
+      headers: this.getHeaders(true),
+    });
+    return this.handleResponse(response);
+  }
+
+  async reorderHeroSlides(slides: Array<{ id: string; order: number }>): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/hero-slides/reorder`, {
+      method: 'POST',
+      headers: this.getHeaders(true),
+      body: JSON.stringify({ slides }),
+    });
+    return this.handleResponse(response);
+  }
+
+  // Quiz/Test methods
+  async getCourseQuizzes(courseId: string): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/quizzes/course/${courseId}`, {
+      headers: this.getHeaders(true),
+    });
+    return this.handleResponse(response);
+  }
+
+  async getAdminCourseQuizzes(courseId: string): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/quizzes/admin/course/${courseId}`, {
+      headers: this.getHeaders(true),
+    });
+    return this.handleResponse(response);
+  }
+
+  async getQuiz(quizId: string): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/quizzes/${quizId}`, {
+      headers: this.getHeaders(true),
+    });
+    return this.handleResponse(response);
+  }
+
+  async createQuiz(quizData: any): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/quizzes`, {
+      method: 'POST',
+      headers: this.getHeaders(true),
+      body: JSON.stringify(quizData),
+    });
+    return this.handleResponse(response);
+  }
+
+  async updateQuiz(quizId: string, quizData: any): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/quizzes/${quizId}`, {
+      method: 'PUT',
+      headers: this.getHeaders(true),
+      body: JSON.stringify(quizData),
+    });
+    return this.handleResponse(response);
+  }
+
+  async deleteQuiz(quizId: string): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/quizzes/${quizId}`, {
+      method: 'DELETE',
+      headers: this.getHeaders(true),
+    });
+    return this.handleResponse(response);
+  }
+
+  async startQuiz(quizId: string): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/quizzes/${quizId}/start`, {
+      method: 'POST',
+      headers: this.getHeaders(true),
+    });
+    return this.handleResponse(response);
+  }
+
+  async submitQuiz(attemptId: string, answers: any[], timeSpent: number): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/quizzes/attempt/${attemptId}/submit`, {
+      method: 'POST',
+      headers: this.getHeaders(true),
+      body: JSON.stringify({ answers, timeSpent }),
+    });
+    return this.handleResponse(response);
+  }
+
+  async getUserAttempts(quizId: string): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/quizzes/${quizId}/attempts`, {
+      headers: this.getHeaders(true),
+    });
+    return this.handleResponse(response);
+  }
+
+  // Certificate methods
+  async generateCertificate(courseId: string): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/certificates/generate/${courseId}`, {
+      method: 'POST',
+      headers: this.getHeaders(true),
+    });
+    return this.handleResponse(response);
+  }
+
+  async getUserCertificates(): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/certificates/my-certificates`, {
+      headers: this.getHeaders(true),
+    });
+    return this.handleResponse(response);
+  }
+
+  async getCertificate(certificateId: string): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/certificates/${certificateId}`, {
+      headers: this.getHeaders(true),
+    });
+    return this.handleResponse(response);
+  }
+
+  async verifyCertificate(certificateNumber: string): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/certificates/verify/${certificateNumber}`);
+    return this.handleResponse(response);
+  }
+
+  async downloadCertificate(certificateId: string): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/certificates/${certificateId}/download`, {
+      headers: this.getHeaders(true),
     });
     return this.handleResponse(response);
   }

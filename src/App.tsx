@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
 import Navbar from './components/Navbar'
+import ContactWidget from './components/ContactWidget'
 import Home from './pages/Home'
 import About from './pages/About'
 import Contact from './pages/Contact'
@@ -28,6 +29,12 @@ import ManageContact from './pages/admin/ManageContact'
 import ManageContactMessages from './pages/admin/ManageContactMessages'
 import ManageAbout from './pages/admin/ManageAbout'
 import ManageIndustryPage from './pages/admin/ManageIndustryPage'
+import ManageContactWidget from './pages/admin/ManageContactWidget'
+import ManageInstructors from './pages/admin/ManageInstructors'
+import ManageHeroSlides from './pages/admin/ManageHeroSlides'
+import ManageCourseQuizzes from './pages/admin/ManageCourseQuizzes'
+import QuizTake from './pages/QuizTake'
+import QuizResults from './pages/QuizResults'
 import AuthCallback from './pages/AuthCallback'
 import BlogDetail from './pages/BlogDetail'
 import IndustryDetail from './pages/IndustryDetail'
@@ -62,6 +69,7 @@ const App = () => {
       />
       <div className="min-h-screen">
         <Navbar />
+        <ContactWidget />
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
@@ -95,6 +103,12 @@ const App = () => {
           <Route path="/admin/contact-messages" element={<ManageContactMessages />} />
           <Route path="/admin/about" element={<ManageAbout />} />
           <Route path="/admin/industry-page" element={<ManageIndustryPage />} />
+          <Route path="/admin/contact-widget" element={<ManageContactWidget />} />
+          <Route path="/admin/instructors" element={<ManageInstructors />} />
+          <Route path="/admin/hero-slides" element={<ManageHeroSlides />} />
+          <Route path="/admin/courses/:courseId/quizzes" element={<ManageCourseQuizzes />} />
+          <Route path="/quiz/:quizId" element={<QuizTake />} />
+          <Route path="/quiz/:quizId/results" element={<QuizResults />} />
         </Routes>
       </div>
     </Router>

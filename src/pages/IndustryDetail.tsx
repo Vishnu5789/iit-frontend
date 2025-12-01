@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { BuildingOfficeIcon, ArrowLeftIcon } from '@heroicons/react/24/outline'
 import { API_BASE_URL } from '../config/api.config'
+import MarkdownRenderer from '../components/MarkdownRenderer'
 
 interface Industry {
   _id: string
@@ -110,11 +111,7 @@ export default function IndustryDetail() {
               </svg>
               About This Industry
             </h2>
-            <div className="prose prose-lg max-w-none">
-              <p className="text-dark/80 leading-relaxed text-lg whitespace-pre-wrap">
-                {industry.description}
-              </p>
-            </div>
+            <MarkdownRenderer content={industry.description} />
           </div>
 
           {/* Related Information */}

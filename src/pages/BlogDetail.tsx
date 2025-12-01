@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { ClockIcon, CalendarIcon, UserIcon, ArrowLeftIcon } from '@heroicons/react/24/outline'
 import { API_BASE_URL } from '../config/api.config'
+import MarkdownRenderer from '../components/MarkdownRenderer'
 
 interface Blog {
   _id: string
@@ -128,20 +129,7 @@ export default function BlogDetail() {
 
           {/* Main Content */}
           <div className="p-8 md:p-12">
-            <div 
-              className="prose prose-lg max-w-none
-                prose-headings:text-primary prose-headings:font-bold
-                prose-p:text-dark/80 prose-p:leading-relaxed prose-p:mb-4
-                prose-ul:list-disc prose-ul:pl-6 prose-ul:mb-4
-                prose-ol:list-decimal prose-ol:pl-6 prose-ol:mb-4
-                prose-li:text-dark/80 prose-li:mb-2
-                prose-strong:text-primary prose-strong:font-bold
-                prose-a:text-primary prose-a:underline prose-a:hover:text-primary/80
-                prose-code:bg-gray-100 prose-code:px-1 prose-code:py-0.5 prose-code:rounded
-                prose-blockquote:border-l-4 prose-blockquote:border-primary prose-blockquote:pl-4 prose-blockquote:italic
-                prose-img:rounded-lg prose-img:shadow-lg"
-              dangerouslySetInnerHTML={{ __html: blog.content }}
-            />
+            <MarkdownRenderer content={blog.content} />
           </div>
         </article>
 
