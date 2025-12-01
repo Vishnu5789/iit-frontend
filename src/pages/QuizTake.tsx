@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { ClockIcon, ArrowLeftIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
+import { ClockIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
 import apiService from '../services/api';
 
@@ -37,7 +37,7 @@ const QuizTake = () => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<any[]>([]);
   const [timeRemaining, setTimeRemaining] = useState(0);
-  const [startTime, setStartTime] = useState(Date.now());
+  const [startTime] = useState(Date.now());
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
