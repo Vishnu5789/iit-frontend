@@ -208,13 +208,20 @@ export default function Cart() {
                   </div>
                 </div>
 
-                <button
-                  onClick={handleCheckout}
-                  className="w-full bg-gradient-to-r from-primary to-secondary text-white py-4 px-6 rounded-lg font-semibold hover:shadow-lg transition-all flex items-center justify-center gap-2"
-                >
-                  Proceed to Checkout
-                  <ArrowRightIcon className="h-5 w-5" />
-                </button>
+                {cart.finalPrice > 0 ? (
+                  <button
+                    onClick={handleCheckout}
+                    className="w-full bg-gradient-to-r from-primary to-secondary text-white py-4 px-6 rounded-lg font-semibold hover:shadow-lg transition-all flex items-center justify-center gap-2"
+                  >
+                    Proceed to Checkout
+                    <ArrowRightIcon className="h-5 w-5" />
+                  </button>
+                ) : (
+                  <div className="bg-green-50 border-2 border-green-500 rounded-lg p-4 text-center">
+                    <p className="text-green-700 font-semibold mb-2">Free Courses!</p>
+                    <p className="text-sm text-green-600">These courses are free. Click "Enroll Now" on each course page to get started.</p>
+                  </div>
+                )}
 
                 <div className="mt-6 pt-6 border-t border-gray-200">
                   <button

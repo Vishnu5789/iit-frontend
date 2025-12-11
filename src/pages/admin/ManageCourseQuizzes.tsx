@@ -366,6 +366,14 @@ const ManageCourseQuizzes = () => {
               </div>
 
               <form onSubmit={handleSubmit} className="p-6 space-y-6">
+                {/* World-Class Quiz System Banner */}
+                <div className="bg-gradient-to-r from-primary to-secondary text-white p-4 rounded-lg text-center">
+                  <p className="font-bold text-sm">🎓 World-Class Assessment System</p>
+                  <p className="text-xs mt-1">
+                    Add unlimited questions • Multiple question types • Flexible grading • No restrictions!
+                  </p>
+                </div>
+
                 {/* Basic Info */}
                 <div className="grid grid-cols-2 gap-4">
                   <div className="col-span-2">
@@ -454,36 +462,49 @@ const ManageCourseQuizzes = () => {
 
                 {/* Questions Section */}
                 <div className="border-t pt-6">
-                  <h3 className="text-lg font-bold text-dark mb-4">Questions ({formData.questions.length})</h3>
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-bold text-dark">Questions ({formData.questions.length})</h3>
+                    <div className="text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full font-semibold">
+                      ✓ Unlimited Questions Supported
+                    </div>
+                  </div>
                   
                   {/* Existing Questions */}
                   {formData.questions.length > 0 && (
-                    <div className="space-y-3 mb-6">
-                      {formData.questions.map((q, index) => (
-                        <div key={index} className="bg-gray-50 p-4 rounded-lg flex justify-between items-start">
-                          <div className="flex-1">
-                            <p className="font-medium text-dark">
-                              {index + 1}. {q.questionText}
-                            </p>
-                            <p className="text-sm text-gray-600 mt-1">
-                              Type: {q.questionType} • Points: {q.points}
-                            </p>
+                    <div className="mb-6">
+                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-3 text-sm text-blue-800">
+                        <strong>📝 {formData.questions.length} question(s)</strong> added to this quiz. Scroll to view all questions.
+                      </div>
+                      <div className="space-y-3 max-h-96 overflow-y-auto border border-gray-200 rounded-lg p-3 bg-gray-50">
+                        {formData.questions.map((q, index) => (
+                          <div key={index} className="bg-white p-4 rounded-lg shadow-sm flex justify-between items-start border border-gray-200">
+                            <div className="flex-1">
+                              <p className="font-medium text-dark">
+                                {index + 1}. {q.questionText}
+                              </p>
+                              <p className="text-sm text-gray-600 mt-1">
+                                Type: {q.questionType} • Points: {q.points}
+                              </p>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveQuestion(index)}
+                              className="text-red-600 hover:text-red-700 ml-3"
+                            >
+                              <TrashIcon className="w-5 h-5" />
+                            </button>
                           </div>
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveQuestion(index)}
-                            className="text-red-600 hover:text-red-700"
-                          >
-                            <TrashIcon className="w-5 h-5" />
-                          </button>
-                        </div>
-                      ))}
+                        ))}
+                      </div>
                     </div>
                   )}
 
                   {/* Add New Question */}
-                  <div className="bg-primary/5 p-4 rounded-lg space-y-4">
-                    <h4 className="font-semibold text-dark">Add New Question</h4>
+                  <div className="bg-primary/5 border-2 border-primary/20 p-4 rounded-lg space-y-4">
+                    <div className="flex items-center justify-between">
+                      <h4 className="font-semibold text-dark">Add New Question</h4>
+                      <span className="text-xs text-primary font-medium">No limit on questions!</span>
+                    </div>
                     
                     <div>
                       <label className="block text-sm font-medium text-dark mb-2">Question *</label>
@@ -612,6 +633,27 @@ const ManageCourseQuizzes = () => {
                     Inactive quizzes will not be visible to students
                   </p>
                 </div>
+
+                {/* Quiz Summary */}
+                {formData.questions.length > 0 && (
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                    <h4 className="font-semibold text-green-800 mb-2">📊 Quiz Summary</h4>
+                    <div className="grid grid-cols-2 gap-3 text-sm text-green-700">
+                      <div>
+                        <span className="font-medium">Total Questions:</span> {formData.questions.length}
+                      </div>
+                      <div>
+                        <span className="font-medium">Total Points:</span> {formData.questions.reduce((sum, q) => sum + (q.points || 1), 0)}
+                      </div>
+                      <div>
+                        <span className="font-medium">Time Limit:</span> {formData.timeLimit} minutes
+                      </div>
+                      <div>
+                        <span className="font-medium">Passing Score:</span> {formData.passingScore}%
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 {/* Modal Actions */}
                 <div className="flex gap-3 pt-4 border-t">

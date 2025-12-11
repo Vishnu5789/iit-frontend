@@ -6,11 +6,14 @@ import {
   CheckCircleIcon, 
   ArrowRightIcon,
   PhoneIcon,
-  EnvelopeIcon
+  EnvelopeIcon,
+  ShoppingCartIcon
 } from '@heroicons/react/24/outline'
 import { ChatBubbleLeftRightIcon } from '@heroicons/react/24/solid'
 import { useNavigate } from 'react-router-dom'
 import { API_BASE_URL } from '../config/api.config'
+import apiService from '../services/api'
+import toast from 'react-hot-toast'
 
 interface Course {
   _id: string
@@ -19,6 +22,8 @@ interface Course {
   duration: string
   level: string
   category: string
+  price?: number
+  discountPrice?: number
   thumbnail?: {
     url: string
     fileId: string
@@ -47,6 +52,40 @@ const Courses = () => {
     } finally {
       setIsLoading(false)
     }
+  }
+
+  const handleAddToCart = async (e: React.MouseEvent, courseId: string) => {
+    e.stopPropagation()
+    
+    if (!apiService.isAuthenticated()) {
+      toast.error('Please login to add courses to cart')
+      navigate('/login', { state: { from: '/courses' } })
+      return
+    }
+
+    try {
+      const response = await apiService.addToCart(courseId)
+      if (response.success) {
+        toast.success('Course added to cart!')
+      }
+    } catch (error: any) {
+      if (error.message?.includes('already in cart')) {
+        toast.error('This course is already in your cart')
+      } else if (error.message?.includes('already enrolled')) {
+        toast.error('You are already enrolled in this course')
+      } else {
+        toast.error(error.message || 'Failed to add course to cart')
+      }
+    }
+  }
+
+  const formatPrice = (price?: number, discountPrice?: number) => {
+    if (!price || price === 0) {
+      return 'Free'
+    }
+    
+    const finalPrice = discountPrice && discountPrice > 0 ? discountPrice : price
+    return `₹${finalPrice.toLocaleString('en-IN')}`
   }
 
   const whoShouldEnroll = [
@@ -203,11 +242,13 @@ const Courses = () => {
               {filteredCourses.map((course) => (
                 <div
                   key={course._id}
-                  className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 cursor-pointer group flex flex-col h-full"
-                  onClick={() => navigate(`/courses/${course._id}`)}
+                  className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 group flex flex-col h-full"
                 >
                   {/* Course Image - Fixed Height */}
-                  <div className="w-full h-56 overflow-hidden bg-gray-100 flex-shrink-0">
+                  <div 
+                    className="w-full h-56 overflow-hidden bg-gray-100 flex-shrink-0 cursor-pointer"
+                    onClick={() => navigate(`/courses/${course._id}`)}
+                  >
                     {course.thumbnail?.url ? (
                       <img 
                         src={course.thumbnail.url} 
@@ -223,7 +264,10 @@ const Courses = () => {
                   
                   {/* Course Content - Flexible Height */}
                   <div className="bg-gradient-to-r from-[#1a1f71] to-[#2d3192] p-6 flex-grow flex flex-col">
-                    <h3 className="text-xl font-bold text-white mb-4 h-[3.5rem] line-clamp-2">
+                    <h3 
+                      className="text-xl font-bold text-white mb-4 h-[3.5rem] line-clamp-2 cursor-pointer"
+                      onClick={() => navigate(`/courses/${course._id}`)}
+                    >
                       {course.title}
                     </h3>
                     
@@ -237,19 +281,41 @@ const Courses = () => {
                         <ChartBarIcon className="h-5 w-5 text-[#f4e500]" />
                         <span className="text-sm">{course.level}</span>
                       </div>
+                      
+                      {/* Price */}
+                      <div className="flex items-center gap-2 pt-2">
+                        {course.discountPrice && course.discountPrice > 0 && course.discountPrice < (course.price || 0) ? (
+                          <>
+                            <span className="text-2xl font-bold text-[#f4e500]">
+                              {formatPrice(course.price, course.discountPrice)}
+                            </span>
+                            <span className="text-sm text-white/60 line-through">
+                              ₹{course.price?.toLocaleString('en-IN')}
+                            </span>
+                          </>
+                        ) : (
+                          <span className="text-2xl font-bold text-[#f4e500]">
+                            {formatPrice(course.price, course.discountPrice)}
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
 
-                  {/* Know More Button - Fixed at Bottom */}
-                  <div className="bg-[#f4e500] px-6 py-4 flex-shrink-0">
+                  {/* Action Buttons - Fixed at Bottom */}
+                  <div className="bg-white px-4 py-3 flex-shrink-0 flex gap-2">
                     <button 
-                      className="w-full flex items-center justify-between text-dark font-bold text-lg group-hover:translate-x-1 transition-transform"
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        navigate(`/courses/${course._id}`)
-                      }}
+                      className="flex-1 bg-[#f4e500] text-dark font-bold py-3 px-4 rounded-lg hover:bg-[#e0d400] transition-all flex items-center justify-center gap-2"
+                      onClick={(e) => handleAddToCart(e, course._id)}
                     >
-                      <span>Know More</span>
+                      <ShoppingCartIcon className="h-5 w-5" />
+                      <span>Add to Cart</span>
+                    </button>
+                    <button 
+                      className="bg-primary text-white font-semibold py-3 px-4 rounded-lg hover:bg-primary-dark transition-all"
+                      onClick={() => navigate(`/courses/${course._id}`)}
+                      title="View Details"
+                    >
                       <ArrowRightIcon className="h-5 w-5" />
                     </button>
                   </div>

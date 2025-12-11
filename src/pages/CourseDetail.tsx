@@ -72,12 +72,11 @@ export default function CourseDetail() {
   const [course, setCourse] = useState<Course | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [addingToCart, setAddingToCart] = useState(false);
-  const [selectedVideo, setSelectedVideo] = useState<any>(null);
   const [error, setError] = useState('');
   const [isEnrolled, setIsEnrolled] = useState(false);
   const [quizzes, setQuizzes] = useState<any[]>([]);
   const [certificates, setCertificates] = useState<any[]>([]);
-  const [activeTab, setActiveTab] = useState<'keyPoints' | 'about' | 'eligibility' | 'syllabus' | 'objective' | 'videos' | 'pdfs' | 'images' | 'textContent' | 'externalLinks' | 'quizzes' | 'certificates'>('keyPoints');
+  const [activeTab, setActiveTab] = useState<'videos' | 'pdfs' | 'images' | 'textContent' | 'externalLinks' | 'quizzes' | 'certificates'>('videos');
   const [formData, setFormData] = useState({
     firstName: '',
     email: '',
@@ -207,9 +206,6 @@ export default function CourseDetail() {
         console.log('✅ Course data loaded successfully');
         setCourse(response.data);
         setFormData(prev => ({ ...prev, courseName: response.data.title }));
-        if (response.data.sampleVideos?.length > 0) {
-          setSelectedVideo(response.data.sampleVideos[0]);
-        }
       } else {
         console.error('❌ Failed to fetch course:', response);
         setError(response.message || 'Failed to load course details');
@@ -539,225 +535,72 @@ This is an enquiry from the course detail page.
         </div>
       </div>
 
-      {/* Tabs and Content Section */}
+      {/* Course Information - All Sections Visible Vertically */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* Tabs */}
-        <div className="bg-gray-100 rounded-lg p-2 mb-8 overflow-x-auto">
-          <div className="flex gap-2 min-w-max">
-            <button
-              onClick={() => setActiveTab('keyPoints')}
-              className={`px-6 py-3 rounded-lg font-semibold transition-all whitespace-nowrap ${
-                activeTab === 'keyPoints'
-                  ? 'bg-white text-dark shadow-md'
-                  : 'text-gray-600 hover:text-dark'
-              }`}
-            >
-              Key Points
-            </button>
-            <button
-              onClick={() => setActiveTab('about')}
-              className={`px-6 py-3 rounded-lg font-semibold transition-all whitespace-nowrap ${
-                activeTab === 'about'
-                  ? 'bg-white text-dark shadow-md'
-                  : 'text-gray-600 hover:text-dark'
-              }`}
-            >
-              About Course
-            </button>
-            <button
-              onClick={() => setActiveTab('eligibility')}
-              className={`px-6 py-3 rounded-lg font-semibold transition-all whitespace-nowrap ${
-                activeTab === 'eligibility'
-                  ? 'bg-white text-dark shadow-md'
-                  : 'text-gray-600 hover:text-dark'
-              }`}
-            >
-              Eligibility
-            </button>
-            <button
-              onClick={() => setActiveTab('syllabus')}
-              className={`px-6 py-3 rounded-lg font-semibold transition-all whitespace-nowrap ${
-                activeTab === 'syllabus'
-                  ? 'bg-white text-dark shadow-md'
-                  : 'text-gray-600 hover:text-dark'
-              }`}
-            >
-              Syllabus
-            </button>
-        <button
-              onClick={() => setActiveTab('objective')}
-              className={`px-6 py-3 rounded-lg font-semibold transition-all whitespace-nowrap ${
-                activeTab === 'objective'
-                  ? 'bg-white text-dark shadow-md'
-                  : 'text-gray-600 hover:text-dark'
-              }`}
-            >
-              Objective
-        </button>
-            
-            {/* Premium Content Tabs - Only for Enrolled Users */}
-            {isEnrolled ? (
-              <>
-                <button
-                  onClick={() => setActiveTab('videos')}
-                  className={`px-6 py-3 rounded-lg font-semibold transition-all whitespace-nowrap ${
-                    activeTab === 'videos'
-                      ? 'bg-white text-dark shadow-md'
-                      : 'text-gray-600 hover:text-dark'
-                  }`}
-                >
-                  Video Library
-                </button>
-                <button
-                  onClick={() => setActiveTab('pdfs')}
-                  className={`px-6 py-3 rounded-lg font-semibold transition-all whitespace-nowrap ${
-                    activeTab === 'pdfs'
-                      ? 'bg-white text-dark shadow-md'
-                      : 'text-gray-600 hover:text-dark'
-                  }`}
-                >
-                  PDF Library
-                </button>
-                <button
-                  onClick={() => setActiveTab('images')}
-                  className={`px-6 py-3 rounded-lg font-semibold transition-all whitespace-nowrap ${
-                    activeTab === 'images'
-                      ? 'bg-white text-dark shadow-md'
-                      : 'text-gray-600 hover:text-dark'
-                  }`}
-                >
-                  Images Library
-                </button>
-                <button
-                  onClick={() => setActiveTab('textContent')}
-                  className={`px-6 py-3 rounded-lg font-semibold transition-all whitespace-nowrap ${
-                    activeTab === 'textContent'
-                      ? 'bg-white text-dark shadow-md'
-                      : 'text-gray-600 hover:text-dark'
-                  }`}
-                >
-                  Text Content
-                </button>
-                <button
-                  onClick={() => setActiveTab('externalLinks')}
-                  className={`px-6 py-3 rounded-lg font-semibold transition-all whitespace-nowrap ${
-                    activeTab === 'externalLinks'
-                      ? 'bg-white text-dark shadow-md'
-                      : 'text-gray-600 hover:text-dark'
-                  }`}
-                >
-                  External Videos
-                </button>
-                <button
-                  onClick={() => setActiveTab('quizzes')}
-                  className={`px-6 py-3 rounded-lg font-semibold transition-all whitespace-nowrap ${
-                    activeTab === 'quizzes'
-                      ? 'bg-white text-dark shadow-md'
-                      : 'text-gray-600 hover:text-dark'
-                  }`}
-                >
-                  📝 Quizzes & Tests ({quizzes.length})
-                </button>
-                <button
-                  onClick={() => setActiveTab('certificates')}
-                  className={`px-6 py-3 rounded-lg font-semibold transition-all whitespace-nowrap ${
-                    activeTab === 'certificates'
-                      ? 'bg-white text-dark shadow-md'
-                      : 'text-gray-600 hover:text-dark'
-                  }`}
-                >
-                  🏆 Certificates ({certificates.length})
-                </button>
-              </>
-            ) : (
-              <>
-                <button
-                  disabled
-                  className="px-6 py-3 rounded-lg font-semibold transition-all whitespace-nowrap text-gray-400 cursor-not-allowed flex items-center gap-2 bg-gray-50"
-                  title="Purchase course to access"
-                >
-                  <LockClosedIcon className="w-4 h-4" />
-                  Premium Content
-                </button>
-              </>
-            )}
+        <div className="space-y-8">
+          
+          {/* Key Points Section */}
+          {course.keyPoints && course.keyPoints.length > 0 && (
+            <div className="bg-white rounded-xl shadow-md p-8">
+              <h2 className="text-3xl font-bold text-dark mb-6 border-b border-gray-200 pb-4">Key Points</h2>
+              <ul className="space-y-4">
+                {course.keyPoints.map((point, index) => (
+                  <li key={index} className="flex items-start gap-3">
+                    <span className="h-2 w-2 bg-dark rounded-full mt-2 flex-shrink-0"></span>
+                    <span className="text-gray-700 leading-relaxed">{point}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {/* About Course Section */}
+          <div className="bg-white rounded-xl shadow-md p-8">
+            <h2 className="text-3xl font-bold text-dark mb-6 border-b border-gray-200 pb-4">About This Course</h2>
+            <p className="text-gray-700 leading-relaxed mb-4">
+              {course.aboutCourse || course.description}
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+              <div className="flex items-start gap-3">
+                <ClockIcon className="h-6 w-6 text-primary flex-shrink-0" />
+                <div>
+                  <p className="font-semibold text-dark">Duration</p>
+                  <p className="text-gray-600">{course.duration}</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <AcademicCapIcon className="h-6 w-6 text-primary flex-shrink-0" />
+                <div>
+                  <p className="font-semibold text-dark">Level</p>
+                  <p className="text-gray-600">{course.level}</p>
+                </div>
+              </div>
+            </div>
           </div>
-              </div>
-              
-        {/* Tab Content */}
-        <div className="bg-white rounded-xl shadow-lg p-8">
-          {/* Key Points Tab */}
-          {activeTab === 'keyPoints' && (
-            <div>
-              {course.keyPoints && course.keyPoints.length > 0 ? (
-                <ul className="space-y-4">
-                  {course.keyPoints.map((point, index) => (
-                    <li key={index} className="flex items-start gap-3">
-                      <span className="h-2 w-2 bg-dark rounded-full mt-2 flex-shrink-0"></span>
-                      <span className="text-gray-700 leading-relaxed">{point}</span>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="text-gray-600">No key points available for this course.</p>
-              )}
+
+          {/* Eligibility Section */}
+          {course.eligibility && course.eligibility.length > 0 && (
+            <div className="bg-white rounded-xl shadow-md p-8">
+              <h2 className="text-3xl font-bold text-dark mb-6 border-b border-gray-200 pb-4">Eligibility Criteria</h2>
+              <ul className="space-y-3">
+                {course.eligibility.map((criterion, index) => (
+                  <li key={index} className="flex items-start gap-3">
+                    <CheckIcon className="h-6 w-6 text-green-600 flex-shrink-0" />
+                    <span className="text-gray-700">{criterion}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
           )}
 
-          {/* About Course Tab */}
-          {activeTab === 'about' && (
-            <div>
-              <h3 className="text-2xl font-bold text-dark mb-4">About This Course</h3>
-              <p className="text-gray-700 leading-relaxed mb-4">
-                {course.aboutCourse || course.description}
-              </p>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-                <div className="flex items-start gap-3">
-                  <ClockIcon className="h-6 w-6 text-primary flex-shrink-0" />
-                  <div>
-                    <p className="font-semibold text-dark">Duration</p>
-                    <p className="text-gray-600">{course.duration}</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <AcademicCapIcon className="h-6 w-6 text-primary flex-shrink-0" />
-                  <div>
-                    <p className="font-semibold text-dark">Level</p>
-                    <p className="text-gray-600">{course.level}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Eligibility Tab */}
-          {activeTab === 'eligibility' && (
-            <div>
-              <h3 className="text-2xl font-bold text-dark mb-4">Eligibility Criteria</h3>
-              {course.eligibility && course.eligibility.length > 0 ? (
-                <ul className="space-y-3">
-                  {course.eligibility.map((criterion, index) => (
-                    <li key={index} className="flex items-start gap-3">
-                      <CheckIcon className="h-6 w-6 text-green-600 flex-shrink-0" />
-                      <span className="text-gray-700">{criterion}</span>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="text-gray-600">No eligibility criteria specified for this course.</p>
-              )}
-            </div>
-          )}
-
-          {/* Syllabus Tab */}
-          {activeTab === 'syllabus' && (
-            <div>
-              <h3 className="text-2xl font-bold text-dark mb-4">Course Syllabus</h3>
-              {course.syllabus?.url ? (
-                <div className="space-y-4">
-                  <p className="text-gray-700 mb-4">
-                    Download the complete course syllabus to understand the detailed curriculum, topics covered, and learning outcomes.
-                  </p>
+          {/* Syllabus Section */}
+          <div className="bg-white rounded-xl shadow-md p-8">
+            <h2 className="text-3xl font-bold text-dark mb-6 border-b border-gray-200 pb-4">Course Syllabus</h2>
+            {course.syllabus?.url ? (
+              <div className="space-y-4">
+                <p className="text-gray-700 mb-4">
+                  Download the complete course syllabus to understand the detailed curriculum, topics covered, and learning outcomes.
+                </p>
                 <div className="flex items-center justify-between bg-gray-50 p-6 rounded-lg border border-gray-200">
                   <div className="flex items-center gap-4">
                     <div className="p-3 bg-primary/10 rounded-lg">
@@ -766,7 +609,7 @@ This is an enquiry from the course detail page.
                       </svg>
                     </div>
                     <div>
-                        <p className="font-semibold text-gray-900">{course.title} Syllabus</p>
+                      <p className="font-semibold text-gray-900">{course.title} Syllabus</p>
                       <p className="text-sm text-gray-500">{course.syllabus.name || 'Syllabus.pdf'}</p>
                     </div>
                   </div>
@@ -774,102 +617,123 @@ This is an enquiry from the course detail page.
                     href={course.syllabus.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                      className="flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-primary-dark transition-all"
+                    className="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-dark transition-all font-semibold"
                   >
-                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                    </svg>
-                      Download
+                    Download
                   </a>
-                  </div>
-                </div>
-              ) : (
-                <p className="text-gray-600">
-                  Detailed syllabus will be shared upon enrollment. Please contact us for more information.
-                </p>
-            )}
-
-              {/* Sample Videos Section */}
-            {course.sampleVideos && course.sampleVideos.length > 0 && (
-                <div className="mt-8">
-                  <h4 className="text-xl font-bold text-dark mb-4">Sample Videos</h4>
-                {selectedVideo && (
-                  <div className="mb-6">
-                    <div className="aspect-video bg-gray-900 rounded-lg overflow-hidden mb-4">
-                      <video
-                        key={selectedVideo.url}
-                        controls
-                        className="w-full h-full"
-                        poster={course.thumbnail.url}
-                      >
-                        <source src={selectedVideo.url} type="video/mp4" />
-                        Your browser does not support the video tag.
-                      </video>
-                    </div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                      {selectedVideo.name}
-                    </h3>
-                    {selectedVideo.description && (
-                      <p className="text-gray-600">{selectedVideo.description}</p>
-                    )}
-                  </div>
-                )}
-                  <div className="grid grid-cols-1 gap-2">
-                  {course.sampleVideos.map((video, index) => (
-                    <button
-                      key={index}
-                      onClick={() => setSelectedVideo(video)}
-                        className={`text-left p-4 rounded-lg border transition-all ${
-                        selectedVideo?.url === video.url
-                          ? 'border-primary bg-primary/5'
-                          : 'border-gray-200 hover:border-primary/50 hover:bg-gray-50'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <PlayIcon className="h-5 w-5 text-primary" />
-                          <div>
-                            <p className="font-medium text-gray-900">{video.name}</p>
-                            {video.description && (
-                              <p className="text-sm text-gray-500 mt-1">{video.description}</p>
-                            )}
-                          </div>
-                        </div>
-                        {video.duration && (
-                          <span className="text-sm text-gray-500">{video.duration}</span>
-                        )}
-                      </div>
-                    </button>
-                  ))}
                 </div>
               </div>
+            ) : (
+              <p className="text-gray-600">Syllabus will be provided upon enrollment.</p>
             )}
-                  </div>
-                )}
+          </div>
 
-          {/* Objective Tab */}
-          {activeTab === 'objective' && (
-                    <div>
-              <h3 className="text-2xl font-bold text-dark mb-4">Course Objectives</h3>
-              {course.objectives && course.objectives.length > 0 ? (
-                <ul className="space-y-3">
-                  {course.objectives.map((objective, index) => (
-                    <li key={index} className="flex items-start gap-3">
-                      <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                        <span className="text-primary font-bold text-sm">{index + 1}</span>
+          {/* Objectives Section */}
+          {course.objectives && course.objectives.length > 0 && (
+            <div className="bg-white rounded-xl shadow-md p-8">
+              <h2 className="text-3xl font-bold text-dark mb-6 border-b border-gray-200 pb-4">Course Objectives</h2>
+              <ul className="space-y-3">
+                {course.objectives.map((objective, index) => (
+                  <li key={index} className="flex items-start gap-3">
+                    <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                      <span className="text-primary font-bold text-sm">{index + 1}</span>
                     </div>
-                      <span className="text-gray-700 pt-1">{objective}</span>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="text-gray-600">No objectives specified for this course.</p>
-              )}
+                    <span className="text-gray-700 pt-1">{objective}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
           )}
 
+        </div>
+      </div>
+
+      {/* Premium Content Tabs Section - Only for Enrolled Users */}
+      {isEnrolled && (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
+          <div className="bg-white rounded-xl shadow-md p-8">
+            <h2 className="text-3xl font-bold text-dark mb-6 border-b border-gray-200 pb-4">Premium Course Content</h2>
+            
+            {/* Tabs for Premium Content */}
+            <div className="bg-gray-100 rounded-lg p-2 mb-6">
+              <div className="flex flex-wrap gap-2">
+                <button
+                  onClick={() => setActiveTab('videos')}
+                  className={`px-6 py-3 rounded-lg font-semibold transition-all ${
+                    activeTab === 'videos'
+                      ? 'bg-white text-dark shadow-md'
+                      : 'text-gray-600 hover:text-dark hover:bg-white/50'
+                  }`}
+                >
+                  Video Library
+                </button>
+                <button
+                  onClick={() => setActiveTab('pdfs')}
+                  className={`px-6 py-3 rounded-lg font-semibold transition-all ${
+                    activeTab === 'pdfs'
+                      ? 'bg-white text-dark shadow-md'
+                      : 'text-gray-600 hover:text-dark hover:bg-white/50'
+                  }`}
+                >
+                  PDF Library
+                </button>
+                <button
+                  onClick={() => setActiveTab('images')}
+                  className={`px-6 py-3 rounded-lg font-semibold transition-all ${
+                    activeTab === 'images'
+                      ? 'bg-white text-dark shadow-md'
+                      : 'text-gray-600 hover:text-dark hover:bg-white/50'
+                  }`}
+                >
+                  Images Library
+                </button>
+                <button
+                  onClick={() => setActiveTab('textContent')}
+                  className={`px-6 py-3 rounded-lg font-semibold transition-all ${
+                    activeTab === 'textContent'
+                      ? 'bg-white text-dark shadow-md'
+                      : 'text-gray-600 hover:text-dark hover:bg-white/50'
+                  }`}
+                >
+                  Text Content
+                </button>
+                <button
+                  onClick={() => setActiveTab('externalLinks')}
+                  className={`px-6 py-3 rounded-lg font-semibold transition-all ${
+                    activeTab === 'externalLinks'
+                      ? 'bg-white text-dark shadow-md'
+                      : 'text-gray-600 hover:text-dark hover:bg-white/50'
+                  }`}
+                >
+                  External Videos
+                </button>
+                <button
+                  onClick={() => setActiveTab('quizzes')}
+                  className={`px-6 py-3 rounded-lg font-semibold transition-all ${
+                    activeTab === 'quizzes'
+                      ? 'bg-white text-dark shadow-md'
+                      : 'text-gray-600 hover:text-dark hover:bg-white/50'
+                  }`}
+                >
+                  📝 Quizzes & Tests ({quizzes.length})
+                </button>
+                <button
+                  onClick={() => setActiveTab('certificates')}
+                  className={`px-6 py-3 rounded-lg font-semibold transition-all ${
+                    activeTab === 'certificates'
+                      ? 'bg-white text-dark shadow-md'
+                      : 'text-gray-600 hover:text-dark hover:bg-white/50'
+                  }`}
+                >
+                  🏆 Certificates ({certificates.length})
+                </button>
+              </div>
+            </div>
+
+            {/* Premium Content Display */}
+            <div>
           {/* Video Library Tab */}
-          {activeTab === 'videos' && isEnrolled && (
+          {activeTab === 'videos' && (
             <div>
               <h3 className="text-2xl font-bold text-dark mb-4">Video Library</h3>
               {course.videoFiles && course.videoFiles.length > 0 ? (
@@ -902,7 +766,7 @@ This is an enquiry from the course detail page.
           )}
 
           {/* PDF Library Tab */}
-          {activeTab === 'pdfs' && isEnrolled && (
+          {activeTab === 'pdfs' && (
             <div>
               <h3 className="text-2xl font-bold text-dark mb-4">PDF Library</h3>
               {course.pdfFiles && course.pdfFiles.length > 0 ? (
@@ -935,7 +799,7 @@ This is an enquiry from the course detail page.
           )}
 
           {/* Images Library Tab */}
-          {activeTab === 'images' && isEnrolled && (
+          {activeTab === 'images' && (
             <div>
               <h3 className="text-2xl font-bold text-dark mb-4">Images Library</h3>
               {course.images && course.images.length > 0 ? (
@@ -957,7 +821,7 @@ This is an enquiry from the course detail page.
           )}
 
           {/* Text Content Tab */}
-          {activeTab === 'textContent' && isEnrolled && (
+          {activeTab === 'textContent' && (
             <div>
               <h3 className="text-2xl font-bold text-dark mb-4">Text Content</h3>
               {course.textContent && course.textContent.length > 0 ? (
@@ -976,7 +840,7 @@ This is an enquiry from the course detail page.
           )}
 
           {/* External Video Links Tab */}
-          {activeTab === 'externalLinks' && isEnrolled && (
+          {activeTab === 'externalLinks' && (
             <div>
               <h3 className="text-2xl font-bold text-dark mb-4">External Video Links</h3>
               {course.externalVideoLinks && course.externalVideoLinks.length > 0 ? (
@@ -1016,8 +880,7 @@ This is an enquiry from the course detail page.
 
           {/* Quizzes & Tests Tab - Only for Enrolled Users */}
           {activeTab === 'quizzes' && (
-            isEnrolled ? (
-              <div>
+            <div>
                 <h3 className="text-2xl font-bold text-dark mb-4">Quizzes & Tests</h3>
                 {quizzes.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -1134,27 +997,11 @@ This is an enquiry from the course detail page.
                   </div>
                 )}
               </div>
-            ) : (
-              <div className="text-center py-16 bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl border-2 border-dashed border-gray-300">
-                <LockClosedIcon className="w-20 h-20 text-gray-400 mx-auto mb-6" />
-                <h3 className="text-2xl font-bold text-dark mb-3">Assessments Locked</h3>
-                <p className="text-gray-600 mb-6 max-w-md mx-auto">
-                  Enroll in this course to take quizzes, tests, and earn certificates.
-                </p>
-                <button
-                  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                  className="bg-primary text-white px-8 py-3 rounded-lg font-semibold hover:bg-primary/90 transition-all shadow-md"
-                >
-                  Enroll Now
-                </button>
-              </div>
-            )
           )}
 
           {/* Certificates Tab - Only for Enrolled Users */}
           {activeTab === 'certificates' && (
-            isEnrolled ? (
-              <div>
+            <div>
                 <h3 className="text-2xl font-bold text-dark mb-4">Certificates</h3>
                 {certificates.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -1207,41 +1054,11 @@ This is an enquiry from the course detail page.
                   </div>
                 )}
               </div>
-            ) : (
-              <div className="text-center py-16 bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl border-2 border-dashed border-gray-300">
-                <LockClosedIcon className="w-20 h-20 text-gray-400 mx-auto mb-6" />
-                <h3 className="text-2xl font-bold text-dark mb-3">Certificates Locked</h3>
-                <p className="text-gray-600 mb-6 max-w-md mx-auto">
-                  Enroll in this course and complete all assessments to earn your certificate.
-                </p>
-                <button
-                  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                  className="bg-primary text-white px-8 py-3 rounded-lg font-semibold hover:bg-primary/90 transition-all shadow-md"
-                >
-                  Enroll Now
-                </button>
-              </div>
-            )
           )}
-
-          {/* Show "Purchase to Access" message for premium tabs when not enrolled */}
-          {!isEnrolled && ['videos', 'pdfs', 'images', 'textContent', 'externalLinks'].includes(activeTab) && (
-            <div className="text-center py-16 bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl border-2 border-dashed border-gray-300">
-              <LockClosedIcon className="w-20 h-20 text-gray-400 mx-auto mb-6" />
-              <h3 className="text-2xl font-bold text-dark mb-3">Premium Content Locked</h3>
-              <p className="text-gray-600 mb-6 max-w-md mx-auto">
-                Enroll in this course to access all videos, PDFs, images, text content, and more.
-              </p>
-              <button
-                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                className="bg-primary text-white px-8 py-3 rounded-lg font-semibold hover:bg-primary/90 transition-all shadow-md"
-              >
-                Enroll Now
-              </button>
             </div>
-          )}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

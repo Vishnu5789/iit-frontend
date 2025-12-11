@@ -40,6 +40,20 @@ interface Course {
     url: string
     fileId: string
   }>
+  images?: Array<{
+    url: string
+    fileId: string
+  }>
+  textContent?: Array<{
+    title: string
+    content: string
+  }>
+  externalVideoLinks?: Array<{
+    title: string
+    url: string
+    description?: string
+    platform?: string
+  }>
   keyPoints?: string[]
   aboutCourse?: string
   eligibility?: string[]
@@ -66,11 +80,17 @@ const ManageCourses = () => {
     sampleVideos: [] as Array<{ name: string; url: string; fileId: string; description?: string }>,
     pdfFiles: [] as Array<{ name: string; url: string; fileId: string }>,
     videoFiles: [] as Array<{ name: string; url: string; fileId: string }>,
+    images: [] as Array<{ url: string; fileId: string }>,
+    textContent: [] as Array<{ title: string; content: string }>,
+    externalVideoLinks: [] as Array<{ title: string; url: string; description?: string; platform?: string }>,
     keyPoints: '',
     aboutCourse: '',
     eligibility: '',
     objectives: ''
   })
+  
+  const [newTextContent, setNewTextContent] = useState({ title: '', content: '' })
+  const [newExternalVideo, setNewExternalVideo] = useState({ title: '', url: '', description: '', platform: 'youtube' })
 
   useEffect(() => {
     checkAdminAccess()
@@ -227,11 +247,16 @@ const ManageCourses = () => {
       sampleVideos: [],
       pdfFiles: [],
       videoFiles: [],
+      images: [],
+      textContent: [],
+      externalVideoLinks: [],
       keyPoints: '',
       aboutCourse: '',
       eligibility: '',
       objectives: ''
     })
+    setNewTextContent({ title: '', content: '' })
+    setNewExternalVideo({ title: '', url: '', description: '', platform: 'youtube' })
     setShowModal(true)
   }
 
@@ -251,11 +276,16 @@ const ManageCourses = () => {
       sampleVideos: course.sampleVideos || [],
       pdfFiles: course.pdfFiles || [],
       videoFiles: course.videoFiles || [],
+      images: course.images || [],
+      textContent: course.textContent || [],
+      externalVideoLinks: course.externalVideoLinks || [],
       keyPoints: course.keyPoints?.join('\n') || '',
       aboutCourse: course.aboutCourse || '',
       eligibility: course.eligibility?.join('\n') || '',
       objectives: course.objectives?.join('\n') || ''
     })
+    setNewTextContent({ title: '', content: '' })
+    setNewExternalVideo({ title: '', url: '', description: '', platform: 'youtube' })
     setShowModal(true)
   }
 
@@ -348,18 +378,20 @@ const ManageCourses = () => {
 
         {/* Modal */}
         {showModal && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-              <div className="p-6">
-                <div className="flex items-center justify-between mb-6">
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto">
+            <div className="bg-white rounded-xl shadow-2xl max-w-4xl w-full my-8">
+              <div className="sticky top-0 bg-white z-10 p-6 border-b border-gray-200 rounded-t-xl">
+                <div className="flex items-center justify-between">
                   <h2 className="text-2xl font-bold text-primary">
-                    {editingCourse ? 'Edit Course' : 'Add New Course'}
+                    {editingCourse ? 'Edit Course' : 'Add New Course - World-Class LMS'}
                   </h2>
                   <button onClick={closeModal} className="text-dark/60 hover:text-dark">
                     <XMarkIcon className="h-6 w-6" />
                   </button>
                 </div>
+              </div>
 
+              <div className="p-6 max-h-[calc(100vh-200px)] overflow-y-auto">
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div>
                     <label className="block text-sm font-semibold text-primary mb-2">
@@ -596,8 +628,11 @@ const ManageCourses = () => {
                       {/* Sample Videos Upload */}
                       <div>
                         <label className="block text-sm font-semibold text-primary mb-2">
-                          Sample Videos * (Preview for users before purchase)
+                          🎬 Sample Videos * (Preview for users before purchase)
                         </label>
+                        <p className="text-xs text-gray-600 mb-2">
+                          Upload preview videos to showcase your course. Add as many as needed!
+                        </p>
                         <FileUpload
                           label="Add Sample Video"
                           accept=".mp4,.mov,.avi,.mkv"
@@ -637,8 +672,11 @@ const ManageCourses = () => {
                       {/* PDF Upload */}
                       <div>
                         <label className="block text-sm font-semibold text-primary mb-2">
-                          PDF Study Materials * (Course content for enrolled students)
+                          📚 PDF Study Materials * (40+ PDFs Supported)
                         </label>
+                        <p className="text-xs text-gray-600 mb-2">
+                          Upload comprehensive PDF materials, study guides, textbooks, and reference documents. Support for 40+ PDFs!
+                        </p>
                         <FileUpload
                           label="Add PDF Materials"
                           accept=".pdf"
@@ -676,8 +714,11 @@ const ManageCourses = () => {
                       {/* Video Upload */}
                       <div>
                         <label className="block text-sm font-semibold text-primary mb-2">
-                          Video Lessons * (Full course videos for enrolled students)
+                          🎓 Video Lessons * (40+ Videos Supported)
                         </label>
+                        <p className="text-xs text-gray-600 mb-2">
+                          Upload comprehensive video tutorials and lessons. Create world-class courses with 40+ video tutorials!
+                        </p>
                         <FileUpload
                           label="Add Video Lessons"
                           accept=".mp4,.mov,.avi,.mkv"
@@ -711,7 +752,238 @@ const ManageCourses = () => {
                           </div>
                         )}
                       </div>
+
+                      {/* Image Library Upload */}
+                      <div className="mt-6 pt-6 border-t border-primary/20">
+                        <label className="block text-sm font-semibold text-primary mb-2">
+                          📷 Image Library (Unlimited Images)
+                        </label>
+                        <p className="text-xs text-gray-600 mb-3">
+                          Upload course images, diagrams, screenshots, and visual materials. Perfect for world-class LMS content.
+                        </p>
+                        <FileUpload
+                          label="Add Image"
+                          accept=".jpg,.jpeg,.png,.webp,.gif"
+                          folder="courses/images"
+                          onUploadComplete={(fileData) => setFormData({
+                            ...formData,
+                            images: [...formData.images, { url: fileData.url, fileId: fileData.fileId }]
+                          })}
+                        />
+                        {formData.images.length > 0 && (
+                          <div className="mt-3 space-y-2">
+                            <p className="text-xs text-green-600 font-semibold">
+                              ✓ {formData.images.length} image(s) uploaded
+                            </p>
+                            <div className="grid grid-cols-2 gap-2 max-h-60 overflow-y-auto">
+                              {formData.images.map((image, index) => (
+                                <div key={index} className="relative group">
+                                  <img 
+                                    src={image.url} 
+                                    alt={`Course image ${index + 1}`}
+                                    className="w-full h-24 object-cover rounded border border-gray-200"
+                                  />
+                                  <button
+                                    type="button"
+                                    onClick={() => setFormData({
+                                      ...formData,
+                                      images: formData.images.filter((_, i) => i !== index)
+                                    })}
+                                    className="absolute top-1 right-1 bg-red-600 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity"
+                                  >
+                                    Remove
+                                  </button>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Text Content Section */}
+                      <div className="mt-6 pt-6 border-t border-primary/20">
+                        <label className="block text-sm font-semibold text-primary mb-2">
+                          📝 Text Content (Unlimited Articles)
+                        </label>
+                        <p className="text-xs text-gray-600 mb-3">
+                          Add comprehensive text lessons, articles, notes, and written materials for students.
+                        </p>
+                        
+                        {/* Add New Text Content Form */}
+                        <div className="bg-gray-50 p-4 rounded-lg mb-3 space-y-3">
+                          <input
+                            type="text"
+                            placeholder="Content Title (e.g., Introduction to CAD)"
+                            value={newTextContent.title}
+                            onChange={(e) => setNewTextContent({ ...newTextContent, title: e.target.value })}
+                            className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary/50"
+                          />
+                          <textarea
+                            placeholder="Content text (Markdown supported)..."
+                            value={newTextContent.content}
+                            onChange={(e) => setNewTextContent({ ...newTextContent, content: e.target.value })}
+                            rows={4}
+                            className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary/50"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (newTextContent.title && newTextContent.content) {
+                                setFormData({
+                                  ...formData,
+                                  textContent: [...formData.textContent, { ...newTextContent }]
+                                })
+                                setNewTextContent({ title: '', content: '' })
+                              } else {
+                                alert('Please fill in both title and content')
+                              }
+                            }}
+                            className="w-full bg-primary text-white px-4 py-2 rounded font-semibold hover:bg-primary/90 transition-all"
+                          >
+                            + Add Text Content
+                          </button>
+                        </div>
+
+                        {/* Display Added Text Content */}
+                        {formData.textContent.length > 0 && (
+                          <div className="space-y-2">
+                            <p className="text-xs text-green-600 font-semibold">
+                              ✓ {formData.textContent.length} text content(s) added
+                            </p>
+                            <div className="max-h-60 overflow-y-auto space-y-2">
+                              {formData.textContent.map((content, index) => (
+                                <div key={index} className="bg-white border border-gray-200 p-3 rounded">
+                                  <div className="flex items-start justify-between">
+                                    <div className="flex-1">
+                                      <h4 className="font-semibold text-sm text-dark">{content.title}</h4>
+                                      <p className="text-xs text-gray-600 mt-1 line-clamp-2">{content.content}</p>
+                                    </div>
+                                    <button
+                                      type="button"
+                                      onClick={() => setFormData({
+                                        ...formData,
+                                        textContent: formData.textContent.filter((_, i) => i !== index)
+                                      })}
+                                      className="text-red-600 hover:text-red-800 text-xs ml-2"
+                                    >
+                                      Remove
+                                    </button>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* External Video Links Section */}
+                      <div className="mt-6 pt-6 border-t border-primary/20">
+                        <label className="block text-sm font-semibold text-primary mb-2">
+                          🎥 External Video Links (YouTube, Vimeo, etc.)
+                        </label>
+                        <p className="text-xs text-gray-600 mb-3">
+                          Link to external videos from YouTube, Vimeo, or other platforms. No upload limits!
+                        </p>
+                        
+                        {/* Add New External Video Form */}
+                        <div className="bg-gray-50 p-4 rounded-lg mb-3 space-y-3">
+                          <input
+                            type="text"
+                            placeholder="Video Title (e.g., Advanced CAD Techniques)"
+                            value={newExternalVideo.title}
+                            onChange={(e) => setNewExternalVideo({ ...newExternalVideo, title: e.target.value })}
+                            className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary/50"
+                          />
+                          <input
+                            type="url"
+                            placeholder="Video URL (e.g., https://youtube.com/watch?v=...)"
+                            value={newExternalVideo.url}
+                            onChange={(e) => setNewExternalVideo({ ...newExternalVideo, url: e.target.value })}
+                            className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary/50"
+                          />
+                          <select
+                            value={newExternalVideo.platform}
+                            onChange={(e) => setNewExternalVideo({ ...newExternalVideo, platform: e.target.value })}
+                            className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary/50"
+                          >
+                            <option value="youtube">YouTube</option>
+                            <option value="vimeo">Vimeo</option>
+                            <option value="other">Other</option>
+                          </select>
+                          <textarea
+                            placeholder="Description (optional)"
+                            value={newExternalVideo.description}
+                            onChange={(e) => setNewExternalVideo({ ...newExternalVideo, description: e.target.value })}
+                            rows={2}
+                            className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary/50"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (newExternalVideo.title && newExternalVideo.url) {
+                                setFormData({
+                                  ...formData,
+                                  externalVideoLinks: [...formData.externalVideoLinks, { ...newExternalVideo }]
+                                })
+                                setNewExternalVideo({ title: '', url: '', description: '', platform: 'youtube' })
+                              } else {
+                                alert('Please fill in at least title and URL')
+                              }
+                            }}
+                            className="w-full bg-primary text-white px-4 py-2 rounded font-semibold hover:bg-primary/90 transition-all"
+                          >
+                            + Add External Video
+                          </button>
+                        </div>
+
+                        {/* Display Added External Videos */}
+                        {formData.externalVideoLinks.length > 0 && (
+                          <div className="space-y-2">
+                            <p className="text-xs text-green-600 font-semibold">
+                              ✓ {formData.externalVideoLinks.length} external video(s) added
+                            </p>
+                            <div className="max-h-60 overflow-y-auto space-y-2">
+                              {formData.externalVideoLinks.map((video, index) => (
+                                <div key={index} className="bg-white border border-gray-200 p-3 rounded">
+                                  <div className="flex items-start justify-between">
+                                    <div className="flex-1">
+                                      <div className="flex items-center gap-2">
+                                        <h4 className="font-semibold text-sm text-dark">{video.title}</h4>
+                                        <span className="text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">
+                                          {video.platform}
+                                        </span>
+                                      </div>
+                                      <p className="text-xs text-blue-600 mt-1 truncate">{video.url}</p>
+                                      {video.description && (
+                                        <p className="text-xs text-gray-600 mt-1 line-clamp-1">{video.description}</p>
+                                      )}
+                                    </div>
+                                    <button
+                                      type="button"
+                                      onClick={() => setFormData({
+                                        ...formData,
+                                        externalVideoLinks: formData.externalVideoLinks.filter((_, i) => i !== index)
+                                      })}
+                                      className="text-red-600 hover:text-red-800 text-xs ml-2"
+                                    >
+                                      Remove
+                                    </button>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     </div>
+                  </div>
+
+                  {/* World-Class LMS Banner */}
+                  <div className="bg-gradient-to-r from-primary to-secondary text-white p-4 rounded-lg text-center">
+                    <p className="font-bold text-sm">🏆 World-Class Learning Management System</p>
+                    <p className="text-xs mt-1">
+                      Support for 40+ Videos • 40+ PDFs • Unlimited Images • Rich Text Content • External Videos
+                    </p>
                   </div>
 
                   <div className="flex items-center gap-2">
