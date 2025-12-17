@@ -46,6 +46,8 @@ export default function Cart() {
       const response = await apiService.getCart();
       if (response.success && response.data) {
         setCart(response.data);
+        // If cart was automatically cleaned (enrolled courses removed), 
+        // the backend already filtered them out, so cart is up to date
       }
     } catch (error: any) {
       console.error('Error fetching cart:', error);

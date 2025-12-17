@@ -1,15 +1,52 @@
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 interface MarkdownRendererProps {
   content: string;
 }
 
 export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
+  // Process content to ensure tables are properly formatted
+  // Tables need blank lines before and after them to be recognized by markdown parsers
+  let processedContent = content;
+  
+  // Split content into lines for better processing
+  const lines = processedContent.split('\n');
+  const processedLines: string[] = [];
+  
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const isTableRow = line.trim().startsWith('|') && line.trim().endsWith('|');
+    const prevLine = i > 0 ? lines[i - 1] : '';
+    const nextLine = i < lines.length - 1 ? lines[i + 1] : '';
+    const prevIsTableRow = prevLine.trim().startsWith('|') && prevLine.trim().endsWith('|');
+    const nextIsTableRow = nextLine.trim().startsWith('|') && nextLine.trim().endsWith('|');
+    
+    // If this is a table row
+    if (isTableRow) {
+      // Add blank line before table if previous line is not a table row and not empty
+      if (!prevIsTableRow && prevLine.trim() !== '' && processedLines.length > 0 && processedLines[processedLines.length - 1].trim() !== '') {
+        processedLines.push('');
+      }
+      processedLines.push(line);
+      // Add blank line after table if next line is not a table row and not empty
+      if (!nextIsTableRow && nextLine.trim() !== '' && i < lines.length - 1) {
+        processedLines.push('');
+      }
+    } else {
+      processedLines.push(line);
+    }
+  }
+  
+  processedContent = processedLines.join('\n');
+  
   return (
-    <ReactMarkdown
-      className="prose prose-lg max-w-none"
-      components={{
-        // Headings
+    <div className="markdown-content">
+      <ReactMarkdown
+        className="prose prose-lg max-w-none"
+        remarkPlugins={[remarkGfm]}
+        components={{
+          // Headings
         h1: ({ ...props }) => (
           <h1 className="text-4xl font-bold text-gray-900 mt-8 mb-6 leading-tight" {...props} />
         ),
@@ -101,18 +138,24 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
         
         // Tables
         table: ({ ...props }) => (
-          <div className="overflow-x-auto my-6">
-            <table className="min-w-full border-collapse border border-gray-300" {...props} />
+          <div className="overflow-x-auto my-6 rounded-lg border border-gray-200 shadow-sm">
+            <table className="min-w-full border-collapse bg-white w-full" {...props} />
           </div>
         ),
         thead: ({ ...props }) => (
           <thead className="bg-primary/10" {...props} />
         ),
+        tbody: ({ ...props }) => (
+          <tbody className="bg-white" {...props} />
+        ),
+        tr: ({ ...props }) => (
+          <tr className="hover:bg-gray-50 transition-colors border-b border-gray-200" {...props} />
+        ),
         th: ({ ...props }) => (
-          <th className="border border-gray-300 px-4 py-2 text-left font-semibold text-gray-900" {...props} />
+          <th className="border border-gray-300 px-4 py-3 text-left font-semibold text-gray-900 bg-primary/5" style={{ whiteSpace: 'normal', wordWrap: 'break-word' }} {...props} />
         ),
         td: ({ ...props }) => (
-          <td className="border border-gray-300 px-4 py-2 text-gray-700" {...props} />
+          <td className="border border-gray-300 px-4 py-3 text-gray-700 align-top" style={{ whiteSpace: 'normal', wordWrap: 'break-word' }} {...props} />
         ),
         
         // Images
@@ -124,9 +167,10 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
           />
         ),
       }}
-    >
-      {content}
-    </ReactMarkdown>
+      >
+        {processedContent}
+      </ReactMarkdown>
+    </div>
   );
 }
 

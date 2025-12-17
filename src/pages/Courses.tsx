@@ -71,7 +71,7 @@ const Courses = () => {
     } catch (error: any) {
       if (error.message?.includes('already in cart')) {
         toast.error('This course is already in your cart')
-      } else if (error.message?.includes('already enrolled')) {
+      } else if (error.message?.includes('already enrolled') || error.message?.includes('enrolled in this course')) {
         toast.error('You are already enrolled in this course')
       } else {
         toast.error(error.message || 'Failed to add course to cart')

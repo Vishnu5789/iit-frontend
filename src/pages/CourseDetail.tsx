@@ -9,10 +9,16 @@ import {
   DocumentTextIcon,
   LinkIcon,
   LockClosedIcon,
-  TrophyIcon
+  TrophyIcon,
+  XMarkIcon,
+  FolderIcon,
+  ChevronDownIcon,
+  ChevronUpIcon,
+  PhotoIcon
 } from '@heroicons/react/24/outline';
 import apiService from '../services/api';
 import toast from 'react-hot-toast';
+import MarkdownRenderer from '../components/MarkdownRenderer';
 
 interface Course {
   _id: string;
@@ -63,6 +69,12 @@ interface Course {
   aboutCourse?: string;
   eligibility?: string[];
   objectives?: string[];
+  mediaFolders?: Array<{
+    folderName: string;
+    videos: Array<{ name: string; url: string; fileId: string; duration?: string }>;
+    pdfs: Array<{ name: string; url: string; fileId: string }>;
+    images: Array<{ url: string; fileId: string }>;
+  }>;
 }
 
 export default function CourseDetail() {
@@ -76,7 +88,8 @@ export default function CourseDetail() {
   const [isEnrolled, setIsEnrolled] = useState(false);
   const [quizzes, setQuizzes] = useState<any[]>([]);
   const [certificates, setCertificates] = useState<any[]>([]);
-  const [activeTab, setActiveTab] = useState<'videos' | 'pdfs' | 'images' | 'textContent' | 'externalLinks' | 'quizzes' | 'certificates'>('videos');
+  const [activeTab, setActiveTab] = useState<'folders' | 'textContent' | 'externalLinks' | 'quizzes' | 'certificates'>('folders');
+  const [expandedFolders, setExpandedFolders] = useState<Set<number>>(new Set());
   const [formData, setFormData] = useState({
     firstName: '',
     email: '',
@@ -86,6 +99,46 @@ export default function CourseDetail() {
     courseName: ''
   });
   const [submittingForm, setSubmittingForm] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [selectedPdf, setSelectedPdf] = useState<string | null>(null);
+  const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
+
+  // Content protection: Disable right-click, text selection, and image dragging
+  useEffect(() => {
+    if (isEnrolled) {
+      const handleContextMenu = (e: MouseEvent) => {
+        e.preventDefault();
+        return false;
+      };
+
+      const handleDragStart = (e: DragEvent) => {
+        e.preventDefault();
+        return false;
+      };
+
+      const handleSelectStart = (e: Event) => {
+        e.preventDefault();
+        return false;
+      };
+
+      const handleCopy = (e: ClipboardEvent) => {
+        e.preventDefault();
+        return false;
+      };
+
+      document.addEventListener('contextmenu', handleContextMenu);
+      document.addEventListener('dragstart', handleDragStart);
+      document.addEventListener('selectstart', handleSelectStart);
+      document.addEventListener('copy', handleCopy);
+
+      return () => {
+        document.removeEventListener('contextmenu', handleContextMenu);
+        document.removeEventListener('dragstart', handleDragStart);
+        document.removeEventListener('selectstart', handleSelectStart);
+        document.removeEventListener('copy', handleCopy);
+      };
+    }
+  }, [isEnrolled]);
 
   useEffect(() => {
     console.log('🎯 CourseDetail mounted/updated, Course ID:', id);
@@ -235,6 +288,10 @@ export default function CourseDetail() {
     } catch (error: any) {
       if (error.message?.includes('already in cart')) {
         navigate('/cart');
+      } else if (error.message?.includes('already enrolled')) {
+        toast.error('You are already enrolled in this course');
+        // Refresh enrollment status
+        await checkEnrollment();
       } else {
         toast.error(error.message || 'Failed to add course to cart');
       }
@@ -658,34 +715,14 @@ This is an enquiry from the course detail page.
             <div className="bg-gray-100 rounded-lg p-2 mb-6">
               <div className="flex flex-wrap gap-2">
                 <button
-                  onClick={() => setActiveTab('videos')}
+                  onClick={() => setActiveTab('folders')}
                   className={`px-6 py-3 rounded-lg font-semibold transition-all ${
-                    activeTab === 'videos'
+                    activeTab === 'folders'
                       ? 'bg-white text-dark shadow-md'
                       : 'text-gray-600 hover:text-dark hover:bg-white/50'
                   }`}
                 >
-                  Video Library
-                </button>
-                <button
-                  onClick={() => setActiveTab('pdfs')}
-                  className={`px-6 py-3 rounded-lg font-semibold transition-all ${
-                    activeTab === 'pdfs'
-                      ? 'bg-white text-dark shadow-md'
-                      : 'text-gray-600 hover:text-dark hover:bg-white/50'
-                  }`}
-                >
-                  PDF Library
-                </button>
-                <button
-                  onClick={() => setActiveTab('images')}
-                  className={`px-6 py-3 rounded-lg font-semibold transition-all ${
-                    activeTab === 'images'
-                      ? 'bg-white text-dark shadow-md'
-                      : 'text-gray-600 hover:text-dark hover:bg-white/50'
-                  }`}
-                >
-                  Images Library
+                  📁 Course Content
                 </button>
                 <button
                   onClick={() => setActiveTab('textContent')}
@@ -732,104 +769,160 @@ This is an enquiry from the course detail page.
 
             {/* Premium Content Display */}
             <div>
-          {/* Video Library Tab */}
-          {activeTab === 'videos' && (
-            <div>
-              <h3 className="text-2xl font-bold text-dark mb-4">Video Library</h3>
-              {course.videoFiles && course.videoFiles.length > 0 ? (
-                <div className="grid grid-cols-1 gap-4">
-                  {course.videoFiles.map((video, index) => (
-                    <div key={index} className="border border-gray-200 rounded-lg p-4 hover:border-primary transition-all">
-                      <div className="flex items-center justify-between">
+          {/* Folders Tab - Folder-based content organization */}
+          {activeTab === 'folders' && (
+            <div className="select-none" onContextMenu={(e) => e.preventDefault()}>
+              <h3 className="text-2xl font-bold text-dark mb-4">Course Content</h3>
+              {course.mediaFolders && course.mediaFolders.length > 0 ? (
+                <div className="space-y-4">
+                  {course.mediaFolders.map((folder, folderIndex) => (
+                    <div key={folderIndex} className="border border-gray-200 rounded-lg overflow-hidden">
+                      {/* Folder Header */}
+                      <div 
+                        className="bg-primary/10 px-4 py-3 flex items-center justify-between cursor-pointer hover:bg-primary/15 transition-colors"
+                        onClick={() => {
+                          const newExpanded = new Set(expandedFolders)
+                          if (newExpanded.has(folderIndex)) {
+                            newExpanded.delete(folderIndex)
+                          } else {
+                            newExpanded.add(folderIndex)
+                          }
+                          setExpandedFolders(newExpanded)
+                        }}
+                      >
                         <div className="flex items-center gap-3">
-                          <PlayIcon className="h-6 w-6 text-primary" />
-                          <div>
-                            <p className="font-semibold text-gray-900">{video.name}</p>
-        </div>
-      </div>
-        <a
-                          href={video.url}
-          target="_blank"
-          rel="noopener noreferrer"
-                          className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-all"
-                        >
-                          Watch
-                        </a>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-gray-600">No video content available for this course yet.</p>
-              )}
-            </div>
-          )}
-
-          {/* PDF Library Tab */}
-          {activeTab === 'pdfs' && (
-            <div>
-              <h3 className="text-2xl font-bold text-dark mb-4">PDF Library</h3>
-              {course.pdfFiles && course.pdfFiles.length > 0 ? (
-                <div className="grid grid-cols-1 gap-4">
-                  {course.pdfFiles.map((pdf, index) => (
-                    <div key={index} className="border border-gray-200 rounded-lg p-4 hover:border-primary transition-all">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <DocumentTextIcon className="h-6 w-6 text-primary" />
-                          <div>
-                            <p className="font-semibold text-gray-900">{pdf.name}</p>
-                          </div>
+                          {expandedFolders.has(folderIndex) ? (
+                            <ChevronUpIcon className="h-5 w-5 text-primary" />
+                          ) : (
+                            <ChevronDownIcon className="h-5 w-5 text-primary" />
+                          )}
+                          <FolderIcon className="h-6 w-6 text-primary" />
+                          <span className="font-bold text-lg text-dark">{folder.folderName}</span>
+                          <span className="text-sm text-gray-600">
+                            ({folder.videos.length} videos, {folder.pdfs.length} PDFs, {folder.images.length} images)
+                          </span>
                         </div>
-                        <a
-                          href={pdf.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-all"
-                        >
-                          Download
-                        </a>
                       </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-gray-600">No PDF materials available for this course yet.</p>
-              )}
-            </div>
-          )}
 
-          {/* Images Library Tab */}
-          {activeTab === 'images' && (
-            <div>
-              <h3 className="text-2xl font-bold text-dark mb-4">Images Library</h3>
-              {course.images && course.images.length > 0 ? (
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                  {course.images.map((image, index) => (
-                    <div key={index} className="border border-gray-200 rounded-lg overflow-hidden hover:border-primary transition-all">
-                      <img 
-                        src={image.url} 
-                        alt={`Course image ${index + 1}`}
-                        className="w-full h-48 object-cover"
-                      />
+                      {/* Folder Content */}
+                      {expandedFolders.has(folderIndex) && (
+                        <div className="bg-white p-4 space-y-6">
+                          {/* Videos in Folder */}
+                          {folder.videos.length > 0 && (
+                            <div>
+                              <h4 className="text-lg font-semibold text-dark mb-3 flex items-center gap-2">
+                                <PlayIcon className="h-5 w-5 text-primary" />
+                                Videos ({folder.videos.length})
+                              </h4>
+                              <div className="grid grid-cols-1 gap-4">
+                                {folder.videos.map((video, videoIndex) => (
+                                  <div key={videoIndex} className="border border-gray-200 rounded-lg overflow-hidden">
+                                    <div className="bg-gray-50 px-4 py-2 border-b border-gray-200">
+                                      <p className="font-semibold text-gray-900 text-sm">{video.name}</p>
+                                    </div>
+                                    <div className="bg-black">
+                                      <video
+                                        controls
+                                        controlsList="nodownload noplaybackrate"
+                                        disablePictureInPicture
+                                        className="w-full aspect-video"
+                                        onContextMenu={(e) => e.preventDefault()}
+                                      >
+                                        <source src={video.url} type="video/mp4" />
+                                        Your browser does not support the video tag.
+                                      </video>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* PDFs in Folder */}
+                          {folder.pdfs.length > 0 && (
+                            <div>
+                              <h4 className="text-lg font-semibold text-dark mb-3 flex items-center gap-2">
+                                <DocumentTextIcon className="h-5 w-5 text-primary" />
+                                PDFs ({folder.pdfs.length})
+                              </h4>
+                              <div className="grid grid-cols-1 gap-4">
+                                {folder.pdfs.map((pdf, pdfIndex) => (
+                                  <div key={pdfIndex} className="border border-gray-200 rounded-lg overflow-hidden">
+                                    <div className="bg-gray-50 px-4 py-2 border-b border-gray-200">
+                                      <p className="font-semibold text-gray-900 text-sm">{pdf.name}</p>
+                                    </div>
+                                    <div className="bg-gray-100" style={{ height: '600px' }}>
+                                      <iframe
+                                        src={`${pdf.url}#toolbar=0&navpanes=0&scrollbar=0`}
+                                        className="w-full h-full border-0"
+                                        title={pdf.name}
+                                        onContextMenu={(e) => e.preventDefault()}
+                                      />
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Images in Folder */}
+                          {folder.images.length > 0 && (
+                            <div>
+                              <h4 className="text-lg font-semibold text-dark mb-3 flex items-center gap-2">
+                                <PhotoIcon className="h-5 w-5 text-primary" />
+                                Images ({folder.images.length})
+                              </h4>
+                              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                                {folder.images.map((image, imageIndex) => (
+                                  <div 
+                                    key={imageIndex} 
+                                    className="border border-gray-200 rounded-lg overflow-hidden hover:border-primary hover:shadow-lg transition-all cursor-pointer"
+                                    onClick={() => setSelectedImage(image.url)}
+                                    onDragStart={(e) => e.preventDefault()}
+                                  >
+                                    <img 
+                                      src={image.url} 
+                                      alt={`${folder.folderName} image ${imageIndex + 1}`}
+                                      className="w-full h-48 object-cover pointer-events-none"
+                                      draggable={false}
+                                      onContextMenu={(e) => e.preventDefault()}
+                                    />
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {folder.videos.length === 0 && folder.pdfs.length === 0 && folder.images.length === 0 && (
+                            <p className="text-gray-500 text-center py-4">This folder is empty.</p>
+                          )}
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
               ) : (
-                <p className="text-gray-600">No images available for this course yet.</p>
+                <p className="text-gray-600">No course content available yet.</p>
               )}
             </div>
           )}
 
           {/* Text Content Tab */}
           {activeTab === 'textContent' && (
-            <div>
+            <div onContextMenu={(e) => e.preventDefault()} onCopy={(e) => e.preventDefault()}>
               <h3 className="text-2xl font-bold text-dark mb-4">Text Content</h3>
               {course.textContent && course.textContent.length > 0 ? (
                 <div className="space-y-6">
                   {course.textContent.map((text, index) => (
                     <div key={index} className="border-l-4 border-primary pl-6 py-2">
                       <h4 className="text-xl font-semibold text-gray-900 mb-3">{text.title}</h4>
-                      <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">{text.content}</p>
+                      <div 
+                        className="text-gray-700 leading-relaxed" 
+                        onCopy={(e) => e.preventDefault()}
+                        style={{ userSelect: 'none', WebkitUserSelect: 'none', MozUserSelect: 'none' }}
+                      >
+                        <MarkdownRenderer content={text.content} />
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -1056,6 +1149,36 @@ This is an enquiry from the course detail page.
               </div>
           )}
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Image Modal Viewer */}
+      {selectedImage && (
+        <div 
+          className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-4"
+          onClick={() => setSelectedImage(null)}
+          onContextMenu={(e) => e.preventDefault()}
+        >
+          <div 
+            className="relative max-w-7xl max-h-[90vh] w-full h-full flex items-center justify-center"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setSelectedImage(null)}
+              className="absolute top-4 right-4 bg-white/10 hover:bg-white/20 text-white p-2 rounded-full transition-all z-10"
+              onContextMenu={(e) => e.preventDefault()}
+            >
+              <XMarkIcon className="h-6 w-6" />
+            </button>
+            <img
+              src={selectedImage}
+              alt="Course image"
+              className="max-w-full max-h-full object-contain"
+              draggable={false}
+              onContextMenu={(e) => e.preventDefault()}
+              onDragStart={(e) => e.preventDefault()}
+            />
           </div>
         </div>
       )}

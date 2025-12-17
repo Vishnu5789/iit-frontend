@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { PlusIcon, PencilIcon, TrashIcon, XMarkIcon } from '@heroicons/react/24/outline'
+import { PlusIcon, PencilIcon, TrashIcon, XMarkIcon, FolderIcon, ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/outline'
 import apiService from '../../services/api'
 import FileUpload from '../../components/FileUpload'
 import { API_BASE_URL } from '../../config/api.config'
@@ -58,6 +58,12 @@ interface Course {
   aboutCourse?: string
   eligibility?: string[]
   objectives?: string[]
+  mediaFolders?: Array<{
+    folderName: string
+    videos: Array<{ name: string; url: string; fileId: string; duration?: string }>
+    pdfs: Array<{ name: string; url: string; fileId: string }>
+    images: Array<{ url: string; fileId: string }>
+  }>
 }
 
 const ManageCourses = () => {
@@ -81,6 +87,12 @@ const ManageCourses = () => {
     pdfFiles: [] as Array<{ name: string; url: string; fileId: string }>,
     videoFiles: [] as Array<{ name: string; url: string; fileId: string }>,
     images: [] as Array<{ url: string; fileId: string }>,
+    mediaFolders: [] as Array<{
+      folderName: string
+      videos: Array<{ name: string; url: string; fileId: string; duration?: string }>
+      pdfs: Array<{ name: string; url: string; fileId: string }>
+      images: Array<{ url: string; fileId: string }>
+    }>,
     textContent: [] as Array<{ title: string; content: string }>,
     externalVideoLinks: [] as Array<{ title: string; url: string; description?: string; platform?: string }>,
     keyPoints: '',
@@ -91,6 +103,8 @@ const ManageCourses = () => {
   
   const [newTextContent, setNewTextContent] = useState({ title: '', content: '' })
   const [newExternalVideo, setNewExternalVideo] = useState({ title: '', url: '', description: '', platform: 'youtube' })
+  const [newFolderName, setNewFolderName] = useState('')
+  const [expandedFolders, setExpandedFolders] = useState<Set<number>>(new Set())
 
   useEffect(() => {
     checkAdminAccess()
@@ -157,13 +171,18 @@ const ManageCourses = () => {
       return
     }
     
-    if (formData.pdfFiles.length === 0) {
-      alert('Please upload at least one PDF material for the course')
+    // Validate folder-based media organization
+    if (formData.mediaFolders.length === 0) {
+      alert('Please create at least one folder and add media content (videos, PDFs, or images)')
       return
     }
     
-    if (formData.videoFiles.length === 0) {
-      alert('Please upload at least one video lesson for the course')
+    const hasContent = formData.mediaFolders.some(folder => 
+      folder.videos.length > 0 || folder.pdfs.length > 0 || folder.images.length > 0
+    )
+    
+    if (!hasContent) {
+      alert('Please add at least one video, PDF, or image to a folder')
       return
     }
     
@@ -248,6 +267,7 @@ const ManageCourses = () => {
       pdfFiles: [],
       videoFiles: [],
       images: [],
+      mediaFolders: [],
       textContent: [],
       externalVideoLinks: [],
       keyPoints: '',
@@ -277,6 +297,7 @@ const ManageCourses = () => {
       pdfFiles: course.pdfFiles || [],
       videoFiles: course.videoFiles || [],
       images: course.images || [],
+      mediaFolders: course.mediaFolders || [],
       textContent: course.textContent || [],
       externalVideoLinks: course.externalVideoLinks || [],
       keyPoints: course.keyPoints?.join('\n') || '',
@@ -292,6 +313,85 @@ const ManageCourses = () => {
   const closeModal = () => {
     setShowModal(false)
     setEditingCourse(null)
+    setNewFolderName('')
+    setExpandedFolders(new Set())
+  }
+
+  // Folder management functions
+  const createFolder = () => {
+    if (!newFolderName.trim()) {
+      alert('Please enter a folder name')
+      return
+    }
+    const newFolder = {
+      folderName: newFolderName.trim(),
+      videos: [],
+      pdfs: [],
+      images: []
+    }
+    setFormData({
+      ...formData,
+      mediaFolders: [...formData.mediaFolders, newFolder]
+    })
+    setNewFolderName('')
+    setExpandedFolders(new Set([...expandedFolders, formData.mediaFolders.length]))
+  }
+
+  const deleteFolder = (folderIndex: number) => {
+    if (!confirm('Are you sure you want to delete this folder and all its contents?')) return
+    setFormData({
+      ...formData,
+      mediaFolders: formData.mediaFolders.filter((_, i) => i !== folderIndex)
+    })
+    const newExpanded = new Set(expandedFolders)
+    newExpanded.delete(folderIndex)
+    setExpandedFolders(newExpanded)
+  }
+
+  const toggleFolder = (folderIndex: number) => {
+    const newExpanded = new Set(expandedFolders)
+    if (newExpanded.has(folderIndex)) {
+      newExpanded.delete(folderIndex)
+    } else {
+      newExpanded.add(folderIndex)
+    }
+    setExpandedFolders(newExpanded)
+  }
+
+  const addVideoToFolder = (folderIndex: number, fileData: { name: string; url: string; fileId: string }) => {
+    const updatedFolders = [...formData.mediaFolders]
+    updatedFolders[folderIndex].videos.push(fileData)
+    setFormData({ ...formData, mediaFolders: updatedFolders })
+  }
+
+  const addPdfToFolder = (folderIndex: number, fileData: { name: string; url: string; fileId: string }) => {
+    const updatedFolders = [...formData.mediaFolders]
+    updatedFolders[folderIndex].pdfs.push(fileData)
+    setFormData({ ...formData, mediaFolders: updatedFolders })
+  }
+
+  const addImageToFolder = (folderIndex: number, fileData: { url: string; fileId: string }) => {
+    const updatedFolders = [...formData.mediaFolders]
+    updatedFolders[folderIndex].images.push(fileData)
+    setFormData({ ...formData, mediaFolders: updatedFolders })
+  }
+
+  const removeVideoFromFolder = (folderIndex: number, videoIndex: number) => {
+    const updatedFolders = [...formData.mediaFolders]
+    updatedFolders[folderIndex].videos = updatedFolders[folderIndex].videos.filter((_, i) => i !== videoIndex)
+    setFormData({ ...formData, mediaFolders: updatedFolders })
+  }
+
+  const removePdfFromFolder = (folderIndex: number, pdfIndex: number) => {
+    const updatedFolders = [...formData.mediaFolders]
+    updatedFolders[folderIndex].pdfs = updatedFolders[folderIndex].pdfs.filter((_, i) => i !== pdfIndex)
+    setFormData({ ...formData, mediaFolders: updatedFolders })
+  }
+
+  const removeImageFromFolder = (folderIndex: number, imageIndex: number) => {
+    const updatedFolders = [...formData.mediaFolders]
+    updatedFolders[folderIndex].images = updatedFolders[folderIndex].images.filter((_, i) => i !== imageIndex)
+    setFormData({ ...formData, mediaFolders: updatedFolders })
   }
 
   return (
@@ -669,133 +769,174 @@ const ManageCourses = () => {
                         )}
                       </div>
 
-                      {/* PDF Upload */}
-                      <div>
-                        <label className="block text-sm font-semibold text-primary mb-2">
-                          📚 PDF Study Materials * (40+ PDFs Supported)
-                        </label>
-                        <p className="text-xs text-gray-600 mb-2">
-                          Upload comprehensive PDF materials, study guides, textbooks, and reference documents. Support for 40+ PDFs!
-                        </p>
-                        <FileUpload
-                          label="Add PDF Materials"
-                          accept=".pdf"
-                          folder="courses/pdfs"
-                          onUploadComplete={(fileData) => setFormData({
-                            ...formData,
-                            pdfFiles: [...formData.pdfFiles, fileData]
-                          })}
-                        />
-                        <p className="text-xs text-red-500 mt-1">* At least one PDF material is required</p>
-                        {formData.pdfFiles.length > 0 && (
-                          <div className="mt-3 space-y-2">
-                            <p className="text-xs text-green-600 font-semibold">
-                              ✓ {formData.pdfFiles.length} PDF file(s) uploaded
-                            </p>
-                            {formData.pdfFiles.map((pdf, index) => (
-                              <div key={index} className="flex items-center justify-between bg-gray-50 p-2 rounded">
-                                <span className="text-sm text-dark/70">{pdf.name}</span>
-                                <button
-                                  type="button"
-                                  onClick={() => setFormData({
-                                    ...formData,
-                                    pdfFiles: formData.pdfFiles.filter((_, i) => i !== index)
-                                  })}
-                                  className="text-red-600 hover:text-red-800 text-xs"
-                                >
-                                  Remove
-                                </button>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Video Upload */}
-                      <div>
-                        <label className="block text-sm font-semibold text-primary mb-2">
-                          🎓 Video Lessons * (40+ Videos Supported)
-                        </label>
-                        <p className="text-xs text-gray-600 mb-2">
-                          Upload comprehensive video tutorials and lessons. Create world-class courses with 40+ video tutorials!
-                        </p>
-                        <FileUpload
-                          label="Add Video Lessons"
-                          accept=".mp4,.mov,.avi,.mkv"
-                          folder="courses/videos"
-                          onUploadComplete={(fileData) => setFormData({
-                            ...formData,
-                            videoFiles: [...formData.videoFiles, fileData]
-                          })}
-                        />
-                        <p className="text-xs text-red-500 mt-1">* At least one video lesson is required</p>
-                        {formData.videoFiles.length > 0 && (
-                          <div className="mt-3 space-y-2">
-                            <p className="text-xs text-green-600 font-semibold">
-                              ✓ {formData.videoFiles.length} video lesson(s) uploaded
-                            </p>
-                            {formData.videoFiles.map((video, index) => (
-                              <div key={index} className="flex items-center justify-between bg-gray-50 p-2 rounded">
-                                <span className="text-sm text-dark/70">{video.name}</span>
-                                <button
-                                  type="button"
-                                  onClick={() => setFormData({
-                                    ...formData,
-                                    videoFiles: formData.videoFiles.filter((_, i) => i !== index)
-                                  })}
-                                  className="text-red-600 hover:text-red-800 text-xs"
-                                >
-                                  Remove
-                                </button>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Image Library Upload */}
+                      {/* Folder-Based Media Organization */}
                       <div className="mt-6 pt-6 border-t border-primary/20">
                         <label className="block text-sm font-semibold text-primary mb-2">
-                          📷 Image Library (Unlimited Images)
+                          📁 Course Content Folders * (Organize videos, PDFs, and images by folder)
                         </label>
                         <p className="text-xs text-gray-600 mb-3">
-                          Upload course images, diagrams, screenshots, and visual materials. Perfect for world-class LMS content.
+                          Create folders to organize your course content. Each folder can contain videos, PDFs, and images.
                         </p>
+
+                        {/* Create New Folder */}
+                        <div className="bg-gray-50 p-4 rounded-lg mb-4">
+                          <div className="flex gap-2">
+                            <input
+                              type="text"
+                              placeholder="Enter folder name (e.g., Module 1, Week 1, Introduction)"
+                              value={newFolderName}
+                              onChange={(e) => setNewFolderName(e.target.value)}
+                              onKeyPress={(e) => e.key === 'Enter' && createFolder()}
+                              className="flex-1 px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary/50"
+                            />
+                            <button
+                              type="button"
+                              onClick={createFolder}
+                              className="px-4 py-2 bg-primary text-white rounded font-semibold hover:bg-primary/90 transition-all flex items-center gap-2"
+                            >
+                              <FolderIcon className="h-5 w-5" />
+                              Create Folder
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Display Folders */}
+                        {formData.mediaFolders.length > 0 ? (
+                          <div className="space-y-3">
+                            {formData.mediaFolders.map((folder, folderIndex) => (
+                              <div key={folderIndex} className="border border-gray-200 rounded-lg overflow-hidden">
+                                {/* Folder Header */}
+                                <div 
+                                  className="bg-primary/5 px-4 py-3 flex items-center justify-between cursor-pointer hover:bg-primary/10 transition-colors"
+                                  onClick={() => toggleFolder(folderIndex)}
+                                >
+                                  <div className="flex items-center gap-3">
+                                    {expandedFolders.has(folderIndex) ? (
+                                      <ChevronUpIcon className="h-5 w-5 text-primary" />
+                                    ) : (
+                                      <ChevronDownIcon className="h-5 w-5 text-primary" />
+                                    )}
+                                    <FolderIcon className="h-5 w-5 text-primary" />
+                                    <span className="font-semibold text-dark">{folder.folderName}</span>
+                                    <span className="text-xs text-gray-500">
+                                      ({folder.videos.length} videos, {folder.pdfs.length} PDFs, {folder.images.length} images)
+                                    </span>
+                                  </div>
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      deleteFolder(folderIndex)
+                                    }}
+                                    className="text-red-600 hover:text-red-800 p-1"
+                                  >
+                                    <TrashIcon className="h-5 w-5" />
+                                  </button>
+                                </div>
+
+                                {/* Folder Content */}
+                                {expandedFolders.has(folderIndex) && (
+                                  <div className="p-4 bg-white space-y-4">
+                                    {/* Videos Section */}
+                                    <div>
+                                      <label className="block text-sm font-semibold text-primary mb-2">
+                                        🎓 Videos
+                                      </label>
+                        <FileUpload
+                                        label="Add Video"
+                                        accept=".mp4,.mov,.avi,.mkv"
+                                        folder={`courses/folders/${folder.folderName}/videos`}
+                                        onUploadComplete={(fileData) => addVideoToFolder(folderIndex, fileData)}
+                                      />
+                                      {folder.videos.length > 0 && (
+                                        <div className="mt-2 space-y-1">
+                                          {folder.videos.map((video, videoIndex) => (
+                                            <div key={videoIndex} className="flex items-center justify-between bg-gray-50 p-2 rounded text-sm">
+                                              <span className="text-gray-700 truncate flex-1">{video.name}</span>
+                                <button
+                                  type="button"
+                                                onClick={() => removeVideoFromFolder(folderIndex, videoIndex)}
+                                                className="text-red-600 hover:text-red-800 ml-2"
+                                >
+                                  Remove
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+
+                                    {/* PDFs Section */}
+                      <div>
+                        <label className="block text-sm font-semibold text-primary mb-2">
+                                        📚 PDFs
+                        </label>
+                        <FileUpload
+                                        label="Add PDF"
+                                        accept=".pdf"
+                                        folder={`courses/folders/${folder.folderName}/pdfs`}
+                                        onUploadComplete={(fileData) => addPdfToFolder(folderIndex, fileData)}
+                                      />
+                                      {folder.pdfs.length > 0 && (
+                                        <div className="mt-2 space-y-1">
+                                          {folder.pdfs.map((pdf, pdfIndex) => (
+                                            <div key={pdfIndex} className="flex items-center justify-between bg-gray-50 p-2 rounded text-sm">
+                                              <span className="text-gray-700 truncate flex-1">{pdf.name}</span>
+                                <button
+                                  type="button"
+                                                onClick={() => removePdfFromFolder(folderIndex, pdfIndex)}
+                                                className="text-red-600 hover:text-red-800 ml-2"
+                                >
+                                  Remove
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+
+                                    {/* Images Section */}
+                                    <div>
+                        <label className="block text-sm font-semibold text-primary mb-2">
+                                        📷 Images
+                        </label>
                         <FileUpload
                           label="Add Image"
                           accept=".jpg,.jpeg,.png,.webp,.gif"
-                          folder="courses/images"
-                          onUploadComplete={(fileData) => setFormData({
-                            ...formData,
-                            images: [...formData.images, { url: fileData.url, fileId: fileData.fileId }]
-                          })}
-                        />
-                        {formData.images.length > 0 && (
-                          <div className="mt-3 space-y-2">
-                            <p className="text-xs text-green-600 font-semibold">
-                              ✓ {formData.images.length} image(s) uploaded
-                            </p>
-                            <div className="grid grid-cols-2 gap-2 max-h-60 overflow-y-auto">
-                              {formData.images.map((image, index) => (
-                                <div key={index} className="relative group">
+                                        folder={`courses/folders/${folder.folderName}/images`}
+                                        onUploadComplete={(fileData) => addImageToFolder(folderIndex, { url: fileData.url, fileId: fileData.fileId })}
+                                      />
+                                      {folder.images.length > 0 && (
+                                        <div className="mt-2 grid grid-cols-3 gap-2">
+                                          {folder.images.map((image, imageIndex) => (
+                                            <div key={imageIndex} className="relative group">
                                   <img 
                                     src={image.url} 
-                                    alt={`Course image ${index + 1}`}
-                                    className="w-full h-24 object-cover rounded border border-gray-200"
+                                                alt={`${folder.folderName} image ${imageIndex + 1}`}
+                                                className="w-full h-20 object-cover rounded border border-gray-200"
                                   />
                                   <button
                                     type="button"
-                                    onClick={() => setFormData({
-                                      ...formData,
-                                      images: formData.images.filter((_, i) => i !== index)
-                                    })}
-                                    className="absolute top-1 right-1 bg-red-600 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity"
-                                  >
-                                    Remove
+                                                onClick={() => removeImageFromFolder(folderIndex, imageIndex)}
+                                                className="absolute top-1 right-1 bg-red-600 text-white text-xs px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity"
+                                              >
+                                                ×
                                   </button>
                                 </div>
                               ))}
                             </div>
+                                      )}
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="text-center py-8 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+                            <FolderIcon className="h-12 w-12 text-gray-400 mx-auto mb-2" />
+                            <p className="text-sm text-gray-600">No folders created yet. Create your first folder above.</p>
+                            <p className="text-xs text-red-500 mt-2">* At least one folder with content is required</p>
                           </div>
                         )}
                       </div>

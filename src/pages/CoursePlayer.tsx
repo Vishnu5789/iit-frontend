@@ -5,7 +5,11 @@ import {
   DocumentTextIcon, 
   PhotoIcon,
   ArrowLeftIcon,
-  LockClosedIcon
+  LockClosedIcon,
+  XMarkIcon,
+  FolderIcon,
+  ChevronDownIcon,
+  ChevronUpIcon
 } from '@heroicons/react/24/outline'
 import apiService from '../services/api'
 
@@ -46,6 +50,12 @@ interface CourseContent {
     description?: string
     uploadedAt: string
   }>
+  mediaFolders?: Array<{
+    folderName: string
+    videos: Array<{ name: string; url: string; fileId: string; duration?: string }>
+    pdfs: Array<{ name: string; url: string; fileId: string }>
+    images: Array<{ url: string; fileId: string }>
+  }>
 }
 
 export default function CoursePlayer() {
@@ -54,8 +64,45 @@ export default function CoursePlayer() {
   const [course, setCourse] = useState<CourseContent | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [activeTab, setActiveTab] = useState<'videos' | 'pdfs' | 'images'>('videos')
+  const [activeTab, setActiveTab] = useState<'folders' | 'videos' | 'pdfs' | 'images'>('folders')
   const [selectedVideo, setSelectedVideo] = useState<string | null>(null)
+  const [selectedImage, setSelectedImage] = useState<string | null>(null)
+  const [expandedFolders, setExpandedFolders] = useState<Set<number>>(new Set())
+
+  // Content protection: Disable right-click, text selection, and image dragging
+  useEffect(() => {
+    const handleContextMenu = (e: MouseEvent) => {
+      e.preventDefault();
+      return false;
+    };
+
+    const handleDragStart = (e: DragEvent) => {
+      e.preventDefault();
+      return false;
+    };
+
+    const handleSelectStart = (e: Event) => {
+      e.preventDefault();
+      return false;
+    };
+
+    const handleCopy = (e: ClipboardEvent) => {
+      e.preventDefault();
+      return false;
+    };
+
+    document.addEventListener('contextmenu', handleContextMenu);
+    document.addEventListener('dragstart', handleDragStart);
+    document.addEventListener('selectstart', handleSelectStart);
+    document.addEventListener('copy', handleCopy);
+
+    return () => {
+      document.removeEventListener('contextmenu', handleContextMenu);
+      document.removeEventListener('dragstart', handleDragStart);
+      document.removeEventListener('selectstart', handleSelectStart);
+      document.removeEventListener('copy', handleCopy);
+    };
+  }, []);
 
   useEffect(() => {
     // Check if user is authenticated
@@ -102,8 +149,9 @@ export default function CoursePlayer() {
     setSelectedVideo(url)
   }
 
-  const handleDownloadPdf = (url: string) => {
-    window.open(url, '_blank')
+  const handleViewPdf = (url: string) => {
+    // Open PDF in embedded viewer instead of download
+    window.open(url, '_blank', 'noopener,noreferrer')
   }
 
   if (isLoading) {
@@ -197,12 +245,15 @@ export default function CoursePlayer() {
 
         {/* Video Player */}
         {selectedVideo && (
-          <div className="bg-black rounded-lg overflow-hidden mb-6 shadow-lg">
+          <div className="bg-black rounded-lg overflow-hidden mb-6 shadow-lg select-none" onContextMenu={(e) => e.preventDefault()}>
             <video
               key={selectedVideo}
               controls
+              controlsList="nodownload noplaybackrate"
+              disablePictureInPicture
               className="w-full aspect-video"
               src={selectedVideo}
+              onContextMenu={(e) => e.preventDefault()}
             >
               Your browser does not support the video tag.
             </video>
@@ -214,141 +265,196 @@ export default function CoursePlayer() {
           {/* Tab Headers */}
           <div className="flex border-b border-gray-200">
             <button
-              onClick={() => setActiveTab('videos')}
+              onClick={() => setActiveTab('folders')}
               className={`flex-1 px-6 py-4 font-semibold transition ${
-                activeTab === 'videos'
+                activeTab === 'folders'
                   ? 'bg-primary text-white'
                   : 'bg-white text-gray-600 hover:bg-gray-50'
               }`}
             >
-              <PlayIcon className="w-5 h-5 inline-block mr-2" />
-              Videos ({allVideos.length})
-            </button>
-            <button
-              onClick={() => setActiveTab('pdfs')}
-              className={`flex-1 px-6 py-4 font-semibold transition ${
-                activeTab === 'pdfs'
-                  ? 'bg-primary text-white'
-                  : 'bg-white text-gray-600 hover:bg-gray-50'
-              }`}
-            >
-              <DocumentTextIcon className="w-5 h-5 inline-block mr-2" />
-              PDFs ({course.pdfFiles?.length || 0})
-            </button>
-            <button
-              onClick={() => setActiveTab('images')}
-              className={`flex-1 px-6 py-4 font-semibold transition ${
-                activeTab === 'images'
-                  ? 'bg-primary text-white'
-                  : 'bg-white text-gray-600 hover:bg-gray-50'
-              }`}
-            >
-              <PhotoIcon className="w-5 h-5 inline-block mr-2" />
-              Images ({course.images?.length || 0})
+              <FolderIcon className="w-5 h-5 inline-block mr-2" />
+              Course Content
             </button>
           </div>
 
           {/* Tab Content */}
-          <div className="p-6">
-            {/* Videos Tab */}
-            {activeTab === 'videos' && (
-              <div className="space-y-3">
-                {allVideos.length === 0 ? (
-                  <p className="text-gray-500 text-center py-8">No videos available</p>
-                ) : (
-                  allVideos.map((video, index) => (
-                    <div
-                      key={video._id || index}
+          <div className="p-6 select-none" onContextMenu={(e) => e.preventDefault()}>
+            {/* Folders Tab - Folder-based content organization */}
+            {activeTab === 'folders' && (
+              <div>
+                {course.mediaFolders && course.mediaFolders.length > 0 ? (
+                  <div className="space-y-4">
+                    {course.mediaFolders.map((folder, folderIndex) => (
+                      <div key={folderIndex} className="border border-gray-200 rounded-lg overflow-hidden">
+                        {/* Folder Header */}
+                        <div 
+                          className="bg-primary/10 px-4 py-3 flex items-center justify-between cursor-pointer hover:bg-primary/15 transition-colors"
+                          onClick={() => {
+                            const newExpanded = new Set(expandedFolders)
+                            if (newExpanded.has(folderIndex)) {
+                              newExpanded.delete(folderIndex)
+                            } else {
+                              newExpanded.add(folderIndex)
+                            }
+                            setExpandedFolders(newExpanded)
+                          }}
+                        >
+                          <div className="flex items-center gap-3">
+                            {expandedFolders.has(folderIndex) ? (
+                              <ChevronUpIcon className="h-5 w-5 text-primary" />
+                            ) : (
+                              <ChevronDownIcon className="h-5 w-5 text-primary" />
+                            )}
+                            <FolderIcon className="h-6 w-6 text-primary" />
+                            <span className="font-bold text-lg text-dark">{folder.folderName}</span>
+                            <span className="text-sm text-gray-600">
+                              ({folder.videos.length} videos, {folder.pdfs.length} PDFs, {folder.images.length} images)
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Folder Content */}
+                        {expandedFolders.has(folderIndex) && (
+                          <div className="bg-white p-4 space-y-4">
+                            {/* Videos in Folder */}
+                            {folder.videos.length > 0 && (
+                              <div>
+                                <h4 className="text-md font-semibold text-dark mb-2 flex items-center gap-2">
+                                  <PlayIcon className="h-5 w-5 text-primary" />
+                                  Videos ({folder.videos.length})
+                                </h4>
+                                <div className="space-y-2">
+                                  {folder.videos.map((video, videoIndex) => (
+                                    <div
+                                      key={videoIndex}
                       onClick={() => handleVideoSelect(video.url)}
-                      className={`p-4 border rounded-lg cursor-pointer transition ${
+                                      className={`p-3 border rounded-lg cursor-pointer transition ${
                         selectedVideo === video.url
                           ? 'border-primary bg-primary/5'
                           : 'border-gray-200 hover:border-primary hover:bg-gray-50'
                       }`}
                     >
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
-                          <PlayIcon className="w-5 h-5 text-primary" />
+                                        <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
+                                          <PlayIcon className="w-4 h-4 text-primary" />
                         </div>
                         <div className="flex-1">
-                          <h4 className="font-semibold text-dark">{video.name}</h4>
-                          {video.description && (
-                            <p className="text-sm text-gray-600">{video.description}</p>
-                          )}
+                                          <h5 className="font-semibold text-dark text-sm">{video.name}</h5>
                           {video.duration && (
                             <p className="text-xs text-gray-500 mt-1">{video.duration}</p>
                           )}
                         </div>
                       </div>
                     </div>
-                  ))
-                )}
+                                  ))}
+                                </div>
               </div>
             )}
 
-            {/* PDFs Tab */}
-            {activeTab === 'pdfs' && (
+                            {/* PDFs in Folder */}
+                            {folder.pdfs.length > 0 && (
+                              <div>
+                                <h4 className="text-md font-semibold text-dark mb-2 flex items-center gap-2">
+                                  <DocumentTextIcon className="h-5 w-5 text-primary" />
+                                  PDFs ({folder.pdfs.length})
+                                </h4>
               <div className="space-y-3">
-                {!course.pdfFiles || course.pdfFiles.length === 0 ? (
-                  <p className="text-gray-500 text-center py-8">No PDFs available</p>
-                ) : (
-                  course.pdfFiles.map((pdf, index) => (
-                    <div
-                      key={pdf._id || index}
-                      className="p-4 border border-gray-200 rounded-lg hover:border-primary hover:bg-gray-50 transition"
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
-                            <DocumentTextIcon className="w-5 h-5 text-red-600" />
+                                  {folder.pdfs.map((pdf, pdfIndex) => (
+                                    <div
+                                      key={pdfIndex}
+                                      className="border border-gray-200 rounded-lg overflow-hidden"
+                                    >
+                                      <div className="bg-gray-50 px-4 py-2 border-b border-gray-200">
+                                        <p className="font-semibold text-gray-900 text-sm">{pdf.name}</p>
                           </div>
-                          <div>
-                            <h4 className="font-semibold text-dark">{pdf.name}</h4>
-                            <p className="text-xs text-gray-500">
-                              Uploaded: {new Date(pdf.uploadedAt).toLocaleDateString()}
-                            </p>
+                                      <div className="bg-gray-100" style={{ height: '500px' }}>
+                                        <iframe
+                                          src={`${pdf.url}#toolbar=0&navpanes=0&scrollbar=0`}
+                                          className="w-full h-full border-0"
+                                          title={pdf.name}
+                                          onContextMenu={(e) => e.preventDefault()}
+                                        />
                           </div>
                         </div>
-                        <button
-                          onClick={() => handleDownloadPdf(pdf.url)}
-                          className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition text-sm font-semibold"
-                        >
-                          View/Download
-                        </button>
+                                  ))}
                       </div>
-                    </div>
-                  ))
-                )}
               </div>
             )}
 
-            {/* Images Tab */}
-            {activeTab === 'images' && (
+                            {/* Images in Folder */}
+                            {folder.images.length > 0 && (
               <div>
-                {!course.images || course.images.length === 0 ? (
-                  <p className="text-gray-500 text-center py-8">No images available</p>
-                ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {course.images.map((image, index) => (
-                      <div
-                        key={image._id || index}
+                                <h4 className="text-md font-semibold text-dark mb-2 flex items-center gap-2">
+                                  <PhotoIcon className="h-5 w-5 text-primary" />
+                                  Images ({folder.images.length})
+                                </h4>
+                                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                                  {folder.images.map((image, imageIndex) => (
+                                    <div
+                                      key={imageIndex}
                         className="border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition cursor-pointer"
-                        onClick={() => window.open(image.url, '_blank')}
+                                      onClick={() => setSelectedImage(image.url)}
+                                      onDragStart={(e) => e.preventDefault()}
                       >
                         <img
                           src={image.url}
-                          alt={`Course image ${index + 1}`}
-                          className="w-full h-48 object-cover"
-                        />
+                                        alt={`${folder.folderName} image ${imageIndex + 1}`}
+                                        className="w-full h-40 object-cover pointer-events-none"
+                                        draggable={false}
+                                        onContextMenu={(e) => e.preventDefault()}
+                                      />
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+
+                            {folder.videos.length === 0 && folder.pdfs.length === 0 && folder.images.length === 0 && (
+                              <p className="text-gray-500 text-center py-4">This folder is empty.</p>
+                            )}
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>
+                ) : (
+                  <p className="text-gray-500 text-center py-8">No course content available yet.</p>
                 )}
               </div>
             )}
           </div>
         </div>
       </div>
+
+      {/* Image Modal Viewer */}
+      {selectedImage && (
+        <div 
+          className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-4"
+          onClick={() => setSelectedImage(null)}
+          onContextMenu={(e) => e.preventDefault()}
+        >
+          <div 
+            className="relative max-w-7xl max-h-[90vh] w-full h-full flex items-center justify-center"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setSelectedImage(null)}
+              className="absolute top-4 right-4 bg-white/10 hover:bg-white/20 text-white p-2 rounded-full transition-all z-10"
+              onContextMenu={(e) => e.preventDefault()}
+            >
+              <XMarkIcon className="h-6 w-6" />
+            </button>
+            <img
+              src={selectedImage}
+              alt="Course image"
+              className="max-w-full max-h-full object-contain"
+              draggable={false}
+              onContextMenu={(e) => e.preventDefault()}
+              onDragStart={(e) => e.preventDefault()}
+            />
+          </div>
+        </div>
+      )}
     </div>
   )
 }

@@ -157,11 +157,18 @@ export default function Checkout() {
               
               if (createOrderResponse.success && createOrderResponse.data) {
                 navigate(`/order-confirmation/${createOrderResponse.data._id}`);
+              } else {
+                throw new Error(createOrderResponse.message || 'Failed to create order');
               }
             }
           } catch (error: any) {
             console.error('Error processing payment:', error);
-            alert('Payment verification failed. Please contact support.');
+            if (error.message?.includes('already enrolled')) {
+              alert('Some courses in your cart are already enrolled. Please check your cart and try again.');
+              navigate('/cart');
+            } else {
+              alert('Payment verification failed. Please contact support.');
+            }
           }
         },
         prefill: {
