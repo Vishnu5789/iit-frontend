@@ -100,8 +100,6 @@ export default function CourseDetail() {
   });
   const [submittingForm, setSubmittingForm] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  const [selectedPdf, setSelectedPdf] = useState<string | null>(null);
-  const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
 
   // Content protection: Disable right-click, text selection, and image dragging
   useEffect(() => {

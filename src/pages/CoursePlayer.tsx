@@ -149,11 +149,6 @@ export default function CoursePlayer() {
     setSelectedVideo(url)
   }
 
-  const handleViewPdf = (url: string) => {
-    // Open PDF in embedded viewer instead of download
-    window.open(url, '_blank', 'noopener,noreferrer')
-  }
-
   if (isLoading) {
     return (
       <div className="pt-28 md:pt-32 lg:pt-36 px-4 min-h-screen flex items-center justify-center">
@@ -196,8 +191,6 @@ export default function CoursePlayer() {
   if (!course) {
     return null
   }
-
-  const allVideos = [...(course.sampleVideos || []), ...(course.videoFiles || [])]
 
   return (
     <div className="pt-28 md:pt-32 lg:pt-36 px-4 min-h-screen bg-gray-50">
