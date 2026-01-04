@@ -33,11 +33,17 @@ import ManageContactWidget from './pages/admin/ManageContactWidget'
 import ManageInstructors from './pages/admin/ManageInstructors'
 import ManageHeroSlides from './pages/admin/ManageHeroSlides'
 import ManageCourseQuizzes from './pages/admin/ManageCourseQuizzes'
+import ManageAdmissions from './pages/admin/ManageAdmissions'
+import ManageWebinar from './pages/admin/ManageWebinar'
+import ManageWebinarRegistrations from './pages/admin/ManageWebinarRegistrations'
+import ManageBlogSubscribers from './pages/admin/ManageBlogSubscribers'
 import QuizTake from './pages/QuizTake'
 import QuizResults from './pages/QuizResults'
 import AuthCallback from './pages/AuthCallback'
 import BlogDetail from './pages/BlogDetail'
+import BlogUnsubscribe from './pages/BlogUnsubscribe'
 import IndustryDetail from './pages/IndustryDetail'
+import Admissions from './pages/Admissions'
 
 const App = () => {
   return (
@@ -74,10 +80,12 @@ const App = () => {
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/admissions" element={<Admissions />} />
           <Route path="/courses" element={<Courses />} />
           <Route path="/courses/:id" element={<CourseDetail />} />
           <Route path="/blog" element={<Blog />} />
           <Route path="/blog/:id" element={<BlogDetail />} />
+          <Route path="/blog/unsubscribe" element={<BlogUnsubscribe />} />
           <Route path="/industry" element={<Industry />} />
           <Route path="/industry/:id" element={<IndustryDetail />} />
           <Route path="/cart" element={<Cart />} />
@@ -107,6 +115,10 @@ const App = () => {
           <Route path="/admin/instructors" element={<ManageInstructors />} />
           <Route path="/admin/hero-slides" element={<ManageHeroSlides />} />
           <Route path="/admin/courses/:courseId/quizzes" element={<ManageCourseQuizzes />} />
+          <Route path="/admin/admissions" element={<ManageAdmissions />} />
+          <Route path="/admin/webinar" element={<ManageWebinar />} />
+          <Route path="/admin/webinar-registrations" element={<ManageWebinarRegistrations />} />
+          <Route path="/admin/blog-subscribers" element={<ManageBlogSubscribers />} />
           <Route path="/quiz/:quizId" element={<QuizTake />} />
           <Route path="/quiz/:quizId/results" element={<QuizResults />} />
         </Routes>

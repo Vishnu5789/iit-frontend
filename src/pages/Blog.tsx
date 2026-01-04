@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { NewspaperIcon, EnvelopeIcon, ArrowRightIcon } from '@heroicons/react/24/outline'
+import { NewspaperIcon, EnvelopeIcon, ArrowRightIcon, CheckCircleIcon } from '@heroicons/react/24/outline'
 import { API_BASE_URL } from '../config/api.config'
+import toast from 'react-hot-toast'
+import apiService from '../services/api'
 
 interface Blog {
   _id: string
@@ -11,29 +13,56 @@ interface Blog {
   content: string
   readTime: string
   publishedDate: string
+  thumbnail?: {
+    url: string
+    fileId: string
+  }
+  image?: {
+    url: string
+    fileId: string
+  }
+  images?: Array<{
+    url: string
+    fileId: string
+  }>
+}
+
+const categoryDescriptions: { [key: string]: string } = {
+  "CAD": "Master computer-aided design tools, techniques, and workflows",
+  "CAE": "Dive into analysis, simulation, and validation methods",
+  "Mechanical Engineering": "Core concepts, applications, and industry practices",
+  "Electrical/PCB Design": "Electronics design, circuit boards, and embedded systems",
+  "Product Design": "From concept to manufacturing-ready products",
+  "Industry 4.0": "Smart manufacturing, automation, and digital transformation"
 }
 
 const Blog = () => {
   const navigate = useNavigate()
   const [blogs, setBlogs] = useState<Blog[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [selectedCategory, setSelectedCategory] = useState<string>('')
+  const [email, setEmail] = useState('')
+  const [isSubscribing, setIsSubscribing] = useState(false)
+  const [isSubscribed, setIsSubscribed] = useState(false)
 
-  const categories = [
-    { name: "CAD", description: "Master computer-aided design tools, techniques, and workflows" },
-    { name: "CAE", description: "Dive into analysis, simulation, and validation methods" },
-    { name: "Mechanical Engineering", description: "Core concepts, applications, and industry practices" },
-    { name: "Electrical/PCB Design", description: "Electronics design, circuit boards, and embedded systems" },
-    { name: "Product Design", description: "From concept to manufacturing-ready products" },
-    { name: "Industry 4.0", description: "Smart manufacturing, automation, and digital transformation" }
-  ]
+  // Get unique categories from blogs
+  const categories = Array.from(new Set(blogs.map(blog => blog.category)))
+    .map(cat => ({
+      name: cat,
+      description: categoryDescriptions[cat] || `${cat} articles and insights`
+    }))
 
   useEffect(() => {
     fetchBlogs()
   }, [])
 
-  const fetchBlogs = async () => {
+  const fetchBlogs = async (category?: string) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/blogs`)
+      setIsLoading(true)
+      const url = category 
+        ? `${API_BASE_URL}/blogs?category=${encodeURIComponent(category)}`
+        : `${API_BASE_URL}/blogs`
+      const response = await fetch(url)
       const data = await response.json()
       if (data.success) {
         setBlogs(data.data)
@@ -42,6 +71,43 @@ const Blog = () => {
       console.error('Error fetching blogs:', error)
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const handleCategoryClick = (categoryName: string) => {
+    if (selectedCategory === categoryName) {
+      // If same category clicked, show all
+      setSelectedCategory('')
+      fetchBlogs()
+    } else {
+      setSelectedCategory(categoryName)
+      fetchBlogs(categoryName)
+    }
+  }
+
+  const handleSubscribe = async (e: React.FormEvent) => {
+    e.preventDefault()
+    
+    if (!email || !email.includes('@')) {
+      toast.error('Please enter a valid email address')
+      return
+    }
+
+    try {
+      setIsSubscribing(true)
+      const response = await apiService.subscribeToBlog(email)
+      
+      if (response.success) {
+        toast.success(response.message || 'Successfully subscribed to our newsletter!')
+        setIsSubscribed(true)
+        setEmail('')
+      } else {
+        toast.error(response.message || 'Failed to subscribe')
+      }
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to subscribe. Please try again.')
+    } finally {
+      setIsSubscribing(false)
     }
   }
 
@@ -67,24 +133,57 @@ const Blog = () => {
         </div>
 
         {/* Categories */}
-        <div className="mb-16">
-          <h2 className="text-2xl md:text-3xl font-bold text-primary mb-8 text-center">Browse by Category</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {categories.map((category, index) => (
+        {categories.length > 0 && (
+          <div className="mb-16">
+            <h2 className="text-2xl md:text-3xl font-bold text-primary mb-8 text-center">Browse by Category</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               <button
-                key={index}
-                className="bg-gradient-to-br from-primary/10 to-primary/5 hover:from-primary hover:to-primary/90 hover:text-white text-left rounded-xl p-5 border border-primary/20 transition-all duration-300 group"
+                onClick={() => handleCategoryClick('')}
+                className={`text-left rounded-xl p-5 border transition-all duration-300 group ${
+                  selectedCategory === ''
+                    ? 'bg-primary text-white border-primary'
+                    : 'bg-gradient-to-br from-primary/10 to-primary/5 hover:from-primary hover:to-primary/90 hover:text-white border-primary/20'
+                }`}
               >
-                <h3 className="text-lg font-bold text-primary group-hover:text-white mb-2">{category.name}</h3>
-                <p className="text-sm text-dark/70 group-hover:text-white/90">{category.description}</p>
+                <h3 className={`text-lg font-bold mb-2 ${selectedCategory === '' ? 'text-white' : 'text-primary group-hover:text-white'}`}>All Categories</h3>
+                <p className={`text-sm ${selectedCategory === '' ? 'text-white/90' : 'text-dark/70 group-hover:text-white/90'}`}>View all blog posts</p>
               </button>
-            ))}
+              {categories.map((category, index) => (
+                <button
+                  key={index}
+                  onClick={() => handleCategoryClick(category.name)}
+                  className={`text-left rounded-xl p-5 border transition-all duration-300 group ${
+                    selectedCategory === category.name
+                      ? 'bg-primary text-white border-primary'
+                      : 'bg-gradient-to-br from-primary/10 to-primary/5 hover:from-primary hover:to-primary/90 hover:text-white border-primary/20'
+                  }`}
+                >
+                  <h3 className={`text-lg font-bold mb-2 ${selectedCategory === category.name ? 'text-white' : 'text-primary group-hover:text-white'}`}>{category.name}</h3>
+                  <p className={`text-sm ${selectedCategory === category.name ? 'text-white/90' : 'text-dark/70 group-hover:text-white/90'}`}>{category.description}</p>
+                </button>
+              ))}
+            </div>
+            {selectedCategory && (
+              <div className="mt-4 text-center">
+                <p className="text-medium">
+                  Showing blogs in category: <span className="font-semibold text-primary">{selectedCategory}</span>
+                  <button
+                    onClick={() => handleCategoryClick('')}
+                    className="ml-2 text-primary hover:underline"
+                  >
+                    (Clear filter)
+                  </button>
+                </p>
+              </div>
+            )}
           </div>
-        </div>
+        )}
 
         {/* Featured Articles */}
         <div className="mb-16">
-          <h2 className="text-2xl md:text-3xl font-bold text-primary mb-8 text-center">Featured Articles</h2>
+          <h2 className="text-2xl md:text-3xl font-bold text-primary mb-8 text-center">
+            {selectedCategory ? `${selectedCategory} Articles` : 'Featured Articles'}
+          </h2>
           {isLoading ? (
             <div className="text-center py-12">
               <p className="text-lg text-dark/60">Loading blog posts...</p>
@@ -99,32 +198,43 @@ const Blog = () => {
                 <div
                   key={blog._id}
                   onClick={() => navigate(`/blog/${blog._id}`)}
-                  className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg p-6 md:p-8 border border-primary/10 hover:shadow-xl hover:scale-[1.01] transition-all duration-300 cursor-pointer"
+                  className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg overflow-hidden border border-primary/10 hover:shadow-xl hover:scale-[1.01] transition-all duration-300 cursor-pointer"
                 >
-                  <div className="flex flex-wrap items-center gap-3 mb-4">
-                    <span className="bg-primary/10 text-primary text-xs font-semibold px-3 py-1 rounded-full">
-                      {blog.category}
-                    </span>
-                    <span className="text-sm text-dark/60">
-                      {new Date(blog.publishedDate).toLocaleDateString('en-US', { 
-                        year: 'numeric', 
-                        month: 'long', 
-                        day: 'numeric' 
-                      })}
-                    </span>
-                    <span className="text-sm text-dark/60">•</span>
-                    <span className="text-sm text-dark/60">{blog.readTime}</span>
+                  {(blog.thumbnail?.url || blog.image?.url) && (
+                    <div className="w-full h-64 md:h-80 overflow-hidden">
+                      <img 
+                        src={blog.thumbnail?.url || blog.image?.url} 
+                        alt={blog.title}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  )}
+                  <div className="p-6 md:p-8">
+                    <div className="flex flex-wrap items-center gap-3 mb-4">
+                      <span className="bg-primary/10 text-primary text-xs font-semibold px-3 py-1 rounded-full">
+                        {blog.category}
+                      </span>
+                      <span className="text-sm text-dark/60">
+                        {new Date(blog.publishedDate).toLocaleDateString('en-US', { 
+                          year: 'numeric', 
+                          month: 'long', 
+                          day: 'numeric' 
+                        })}
+                      </span>
+                      <span className="text-sm text-dark/60">•</span>
+                      <span className="text-sm text-dark/60">{blog.readTime}</span>
+                    </div>
+                    <h3 className="text-xl md:text-2xl font-bold text-primary mb-4 hover:text-primary/80 transition-colors">
+                      {blog.title}
+                    </h3>
+                    <p className="text-dark/70 text-sm md:text-base leading-relaxed mb-4">
+                      {blog.summary}
+                    </p>
+                    <button className="text-primary font-semibold text-sm flex items-center gap-2 hover:gap-3 transition-all duration-300">
+                      Read Full Article
+                      <ArrowRightIcon className="h-4 w-4" />
+                    </button>
                   </div>
-                  <h3 className="text-xl md:text-2xl font-bold text-primary mb-4 hover:text-primary/80 transition-colors">
-                    {blog.title}
-                  </h3>
-                  <p className="text-dark/70 text-sm md:text-base leading-relaxed mb-4">
-                    {blog.summary}
-                  </p>
-                  <button className="text-primary font-semibold text-sm flex items-center gap-2 hover:gap-3 transition-all duration-300">
-                    Read Full Article
-                    <ArrowRightIcon className="h-4 w-4" />
-                  </button>
                 </div>
               ))}
             </div>
@@ -148,16 +258,31 @@ const Blog = () => {
           <p className="text-lg mb-6 max-w-3xl mx-auto">
             Subscribe to our engineering newsletter and get the latest tutorials, industry insights, and career tips delivered directly to your inbox every week. Plus, subscribers get early access to new courses, exclusive webinars with industry experts, and special discounts. Join our community of forward-thinking engineers who are committed to continuous learning and professional excellence. Your next breakthrough insight is just one email away.
           </p>
-          <div className="max-w-md mx-auto flex flex-col sm:flex-row gap-3">
-            <input
-              type="email"
-              placeholder="Enter your email"
-              className="flex-1 px-4 py-3 rounded-lg text-dark focus:outline-none focus:ring-2 focus:ring-white"
-            />
-            <button className="bg-white text-primary px-6 py-3 rounded-lg font-semibold hover:bg-light/90 transition-all duration-300 whitespace-nowrap">
-              Subscribe Now
-            </button>
-          </div>
+          {isSubscribed ? (
+            <div className="max-w-md mx-auto bg-white/20 rounded-lg p-6">
+              <CheckCircleIcon className="h-12 w-12 mx-auto mb-3 text-white" />
+              <p className="text-lg font-semibold mb-2">Thank you for subscribing!</p>
+              <p className="text-sm text-white/90">We'll send you the latest blog posts and updates.</p>
+            </div>
+          ) : (
+            <form onSubmit={handleSubscribe} className="max-w-md mx-auto flex flex-col sm:flex-row gap-3">
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Enter your email"
+                required
+                className="flex-1 px-4 py-3 rounded-lg text-dark focus:outline-none focus:ring-2 focus:ring-white"
+              />
+              <button
+                type="submit"
+                disabled={isSubscribing}
+                className="bg-white text-primary px-6 py-3 rounded-lg font-semibold hover:bg-light/90 transition-all duration-300 whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isSubscribing ? 'Subscribing...' : 'Subscribe Now'}
+              </button>
+            </form>
+          )}
         </div>
       </div>
     </div>

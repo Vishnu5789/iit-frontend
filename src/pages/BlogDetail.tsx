@@ -12,6 +12,18 @@ interface Blog {
   content: string
   readTime: string
   publishedDate: string
+  thumbnail?: {
+    url: string
+    fileId: string
+  }
+  image?: {
+    url: string
+    fileId: string
+  }
+  images?: Array<{
+    url: string
+    fileId: string
+  }>
   author?: {
     fullName: string
     email: string
@@ -88,6 +100,17 @@ export default function BlogDetail() {
 
         {/* Article Content */}
         <article className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-primary/10 overflow-hidden">
+          {/* Blog Image */}
+          {blog.image?.url && (
+            <div className="w-full h-96 md:h-[500px] overflow-hidden">
+              <img 
+                src={blog.image.url} 
+                alt={blog.title}
+                className="w-full h-full object-cover"
+              />
+            </div>
+          )}
+
           {/* Header */}
           <div className="bg-gradient-to-r from-primary to-primary/80 text-white p-8 md:p-12">
             <div className="flex items-center gap-3 mb-4">
@@ -129,7 +152,36 @@ export default function BlogDetail() {
 
           {/* Main Content */}
           <div className="p-8 md:p-12">
-            <MarkdownRenderer content={blog.content} />
+            {/* Check if content is HTML (from rich text editor) or Markdown */}
+            {blog.content && blog.content.trim().startsWith('<') ? (
+              <div 
+                className="prose prose-lg max-w-none"
+                dangerouslySetInnerHTML={{ __html: blog.content }}
+                style={{
+                  fontFamily: 'inherit'
+                }}
+              />
+            ) : (
+              <MarkdownRenderer content={blog.content} />
+            )}
+            
+            {/* Additional Images Gallery */}
+            {blog.images && blog.images.length > 0 && (
+              <div className="mt-8 pt-8 border-t border-gray-200">
+                <h3 className="text-xl font-bold text-primary mb-4">Gallery</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {blog.images.map((img, index) => (
+                    <div key={index} className="rounded-lg overflow-hidden border border-gray-200">
+                      <img 
+                        src={img.url} 
+                        alt={`${blog.title} - Image ${index + 1}`}
+                        className="w-full h-auto object-cover"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </article>
 

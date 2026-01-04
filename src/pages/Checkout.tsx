@@ -167,7 +167,7 @@ export default function Checkout() {
               alert('Some courses in your cart are already enrolled. Please check your cart and try again.');
               navigate('/cart');
             } else {
-              alert('Payment verification failed. Please contact support.');
+            alert('Payment verification failed. Please contact support.');
             }
           }
         },

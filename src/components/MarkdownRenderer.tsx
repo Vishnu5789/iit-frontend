@@ -42,11 +42,11 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
   
   return (
     <div className="markdown-content">
-      <ReactMarkdown
-        className="prose prose-lg max-w-none"
+    <ReactMarkdown
+      className="prose prose-lg max-w-none"
         remarkPlugins={[remarkGfm]}
-        components={{
-          // Headings
+      components={{
+        // Headings
         h1: ({ ...props }) => (
           <h1 className="text-4xl font-bold text-gray-900 mt-8 mb-6 leading-tight" {...props} />
         ),
@@ -167,9 +167,9 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
           />
         ),
       }}
-      >
+    >
         {processedContent}
-      </ReactMarkdown>
+    </ReactMarkdown>
     </div>
   );
 }

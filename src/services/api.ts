@@ -330,6 +330,15 @@ class ApiService {
     return this.handleResponse(response);
   }
 
+  async updateContentSection(sectionName: string, sectionData: any): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/home-config/content/${sectionName}`, {
+      method: 'PUT',
+      headers: this.getHeaders(true),
+      body: JSON.stringify(sectionData),
+    });
+    return this.handleResponse(response);
+  }
+
   // User Management methods (Admin only)
   async getAllUsers(params?: { search?: string; role?: string; page?: number; limit?: number }): Promise<ApiResponse> {
     const queryParams = new URLSearchParams();
@@ -784,6 +793,188 @@ class ApiService {
     const response = await fetch(`${API_BASE_URL}/about-sections/admin/initialize`, {
       method: 'POST',
       headers: this.getHeaders(true),
+    });
+    return this.handleResponse(response);
+  }
+
+  // Admission methods
+  async submitAdmission(admissionData: {
+    name: string;
+    fatherName: string;
+    dateOfBirth: string;
+    gender: string;
+    address: string;
+    education: string;
+    experience?: string;
+    aadharCardNumber: string;
+    courseApplied: string;
+    contactNumber: string;
+    email: string;
+    nationality: string;
+  }): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/admissions`, {
+      method: 'POST',
+      headers: this.getHeaders(),
+      body: JSON.stringify(admissionData),
+    });
+    return this.handleResponse(response);
+  }
+
+  // Webinar methods
+  async submitWebinarRegistration(webinarData: {
+    fullName: string;
+    email: string;
+    contactNumber: string;
+    currentEducation: string;
+    interestAreas: string[];
+  }): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/webinar`, {
+      method: 'POST',
+      headers: this.getHeaders(),
+      body: JSON.stringify(webinarData),
+    });
+    return this.handleResponse(response);
+  }
+
+  async getWebinarConfig(): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/webinar/config`);
+    return this.handleResponse(response);
+  }
+
+  async updateWebinarConfig(configData: any): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/webinar/config`, {
+      method: 'PUT',
+      headers: this.getHeaders(true),
+      body: JSON.stringify(configData),
+    });
+    return this.handleResponse(response);
+  }
+
+  // Admission admin methods
+  async getAdmissions(params?: { status?: string; page?: number; limit?: number }): Promise<ApiResponse> {
+    const queryParams = new URLSearchParams();
+    if (params?.status) queryParams.append('status', params.status);
+    if (params?.page) queryParams.append('page', params.page.toString());
+    if (params?.limit) queryParams.append('limit', params.limit.toString());
+    
+    const url = `${API_BASE_URL}/admissions${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
+    const response = await fetch(url, {
+      headers: this.getHeaders(true),
+    });
+    return this.handleResponse(response);
+  }
+
+  async getAdmission(id: string): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/admissions/${id}`, {
+      headers: this.getHeaders(true),
+    });
+    return this.handleResponse(response);
+  }
+
+  async updateAdmissionStatus(id: string, data: { status?: string; adminNotes?: string }): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/admissions/${id}`, {
+      method: 'PUT',
+      headers: this.getHeaders(true),
+      body: JSON.stringify(data),
+    });
+    return this.handleResponse(response);
+  }
+
+  async deleteAdmission(id: string): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/admissions/${id}`, {
+      method: 'DELETE',
+      headers: this.getHeaders(true),
+    });
+    return this.handleResponse(response);
+  }
+
+  // Get courses for dropdown (titles only)
+  async getCoursesTitlesOnly(): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/courses?titlesOnly=true`);
+    return this.handleResponse(response);
+  }
+
+  // Webinar registration admin methods
+  async getWebinarRegistrations(params?: { status?: string; page?: number; limit?: number }): Promise<ApiResponse> {
+    const queryParams = new URLSearchParams();
+    if (params?.status) queryParams.append('status', params.status);
+    if (params?.page) queryParams.append('page', params.page.toString());
+    if (params?.limit) queryParams.append('limit', params.limit.toString());
+    
+    const url = `${API_BASE_URL}/webinar/registrations${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
+    const response = await fetch(url, {
+      headers: this.getHeaders(true),
+    });
+    return this.handleResponse(response);
+  }
+
+  async getWebinarRegistration(id: string): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/webinar/registrations/${id}`, {
+      headers: this.getHeaders(true),
+    });
+    return this.handleResponse(response);
+  }
+
+  async updateWebinarStatus(id: string, data: { status?: string; adminNotes?: string }): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/webinar/registrations/${id}`, {
+      method: 'PUT',
+      headers: this.getHeaders(true),
+      body: JSON.stringify(data),
+    });
+    return this.handleResponse(response);
+  }
+
+  async resendWebinarEmail(id: string): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/webinar/registrations/${id}/resend-email`, {
+      method: 'POST',
+      headers: this.getHeaders(true),
+    });
+    return this.handleResponse(response);
+  }
+
+  async deleteWebinarRegistration(id: string): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/webinar/registrations/${id}`, {
+      method: 'DELETE',
+      headers: this.getHeaders(true),
+    });
+    return this.handleResponse(response);
+  }
+
+  // Blog subscriber methods
+  async subscribeToBlog(email: string): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/blog-subscribers`, {
+      method: 'POST',
+      headers: this.getHeaders(),
+      body: JSON.stringify({ email }),
+    });
+    return this.handleResponse(response);
+  }
+
+  async getBlogSubscribers(params?: { isActive?: string; page?: number; limit?: number }): Promise<ApiResponse> {
+    const queryParams = new URLSearchParams();
+    if (params?.isActive) queryParams.append('isActive', params.isActive);
+    if (params?.page) queryParams.append('page', params.page.toString());
+    if (params?.limit) queryParams.append('limit', params.limit.toString());
+    
+    const url = `${API_BASE_URL}/blog-subscribers${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
+    const response = await fetch(url, {
+      headers: this.getHeaders(true),
+    });
+    return this.handleResponse(response);
+  }
+
+  async getBlogSubscriberStats(): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/blog-subscribers/stats`, {
+      headers: this.getHeaders(true),
+    });
+    return this.handleResponse(response);
+  }
+
+  async unsubscribeFromBlog(email: string, token?: string): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/blog-subscribers/unsubscribe`, {
+      method: 'POST',
+      headers: this.getHeaders(),
+      body: JSON.stringify({ email, token }),
     });
     return this.handleResponse(response);
   }

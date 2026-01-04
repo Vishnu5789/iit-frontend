@@ -227,113 +227,156 @@ const Home = () => {
       </div>
 
       {/* Rest of the content */}
-      <div className="max-w-7xl mx-auto w-full px-4">
-
-        {/* Why Choose Us Section */}
-        <div className="bg-white rounded-2xl shadow-lg p-8 md:p-12 mb-20">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-dark mb-4">Why Isaac Institute?</h2>
-            <p className="text-lg text-medium max-w-3xl mx-auto">
-              We're revolutionizing engineering education for the digital age
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="text-center p-6">
-              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-3xl">🚀</span>
-              </div>
-              <h3 className="text-xl font-bold text-dark mb-2">Industry Experts</h3>
-              <p className="text-medium">Learn from professionals at SpaceX, Apple, Tesla, and more</p>
-            </div>
-            <div className="text-center p-6">
-              <div className="w-16 h-16 bg-secondary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-3xl">⚡</span>
-              </div>
-              <h3 className="text-xl font-bold text-dark mb-2">Hands-On Projects</h3>
-              <p className="text-medium">Build real-world projects that showcase your skills</p>
-            </div>
-            <div className="text-center p-6">
-              <div className="w-16 h-16 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-3xl">🎯</span>
-              </div>
-              <h3 className="text-xl font-bold text-dark mb-2">Career Ready</h3>
-              <p className="text-medium">Get job-ready skills that employers are actively seeking</p>
-            </div>
-          </div>
-        </div>
+      <div className="max-w-7xl mx-auto w-full px-4 py-12 md:py-16">
 
         {/* Mission Section */}
-        <div className="flex flex-col lg:flex-row items-center justify-between gap-8 md:gap-16 mb-20">
-          <div className="flex items-center justify-center flex-1">
-            <img src={getImage('starsImage', '/assets/stars.svg')} alt="stars" className="w-full max-w-md object-contain" />
+        <section className="relative flex flex-col lg:flex-row items-center justify-between gap-8 md:gap-16 mb-20 md:mb-24 py-12 md:py-16 overflow-hidden">
+          {/* Decorative Background Graphics */}
+          <div className="absolute left-0 top-0 w-96 h-full opacity-5">
+            <div className="absolute top-20 left-10 w-48 h-48 bg-primary rounded-full blur-3xl"></div>
+            <div className="absolute bottom-20 left-20 w-32 h-32 bg-secondary rounded-full blur-2xl"></div>
+          </div>
+          <div className="absolute right-0 top-0 w-96 h-full opacity-5">
+            <div className="absolute top-40 right-10 w-56 h-56 bg-secondary rounded-full blur-3xl"></div>
+            <div className="absolute bottom-40 right-20 w-40 h-40 bg-primary rounded-full blur-2xl"></div>
+          </div>
+
+          <div className="relative z-10 flex items-center justify-center flex-1">
+            {/* Decorative Frame Around Image */}
+            <div className="relative">
+              {/* Outer Glow */}
+              <div className="absolute -inset-6 bg-gradient-to-r from-primary/30 via-secondary/30 to-primary/30 rounded-2xl blur-2xl animate-pulse"></div>
+              {/* Middle Layer */}
+              <div className="absolute -inset-3 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-xl"></div>
+              {/* Inner Frame */}
+              <div className="relative bg-white p-3 rounded-xl shadow-2xl">
+                {/* Decorative Corner Elements */}
+                <div className="absolute -top-2 -left-2 w-8 h-8 bg-primary/20 rounded-full blur-sm"></div>
+                <div className="absolute -top-2 -right-2 w-8 h-8 bg-secondary/20 rounded-full blur-sm"></div>
+                <div className="absolute -bottom-2 -left-2 w-8 h-8 bg-secondary/20 rounded-full blur-sm"></div>
+                <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-primary/20 rounded-full blur-sm"></div>
+                
+                <img src={getImage('starsImage', '/assets/stars.svg')} alt="stars" className="relative z-10 w-full max-w-md object-contain" />
+              </div>
+            </div>
           </div>
           
-          <div className="flex flex-col gap-4 items-start justify-center flex-1">
-            <h2 className="text-3xl md:text-4xl font-bold text-dark">Engineering the Future, One Student at a Time</h2>
+          <div className="relative z-10 flex flex-col gap-4 items-start justify-center flex-1">
+            <h2 className="text-3xl md:text-4xl font-bold text-dark">
+              {config?.missionSection?.title || 'Engineering the Future, One Student at a Time'}
+            </h2>
             <p className="text-lg text-medium leading-relaxed">
-              In a rapidly evolving tech landscape, engineers need more than theory—they need practical, cutting-edge skills. We bridge that gap with expert-led courses designed for real-world impact.
+              {config?.missionSection?.paragraph1 || 'In a rapidly evolving tech landscape, engineers need more than theory—they need practical, cutting-edge skills. We bridge that gap with expert-led courses designed for real-world impact.'}
             </p>
             <p className="text-lg text-medium leading-relaxed">
-              Founded by industry veterans from SpaceX, Tesla, and Apple, Isaac Institute equips engineers with the tools, knowledge, and confidence to shape tomorrow's innovations. The future is engineering—and it starts here.
+              {config?.missionSection?.paragraph2 || 'Founded by industry veterans from SpaceX, Tesla, and Apple, Isaac Institute equips engineers with the tools, knowledge, and confidence to shape tomorrow\'s innovations. The future is engineering—and it starts here.'}
             </p>
           </div>
-        </div>
+        </section>
 
         {/* Third Section - Our Mission & Vision */}
-        <div className="flex flex-col-reverse md:flex-row items-center justify-between gap-6 md:gap-12 mb-16 md:mb-24">
-          <div className="flex flex-col gap-3 items-start justify-center flex-1 px-2 md:px-6">
-            <h1 className="text-xl md:text-2xl font-bold text-primary">Our Mission & Vision</h1>
+        <section className="relative flex flex-col-reverse md:flex-row items-center justify-between gap-6 md:gap-12 mb-20 md:mb-24 py-12 md:py-16 bg-gray-50 rounded-2xl px-6 md:px-8 overflow-hidden">
+          {/* Decorative Background Graphics */}
+          <div className="absolute inset-0 opacity-5">
+            <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-primary rounded-full blur-3xl"></div>
+            <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-secondary rounded-full blur-3xl"></div>
+          </div>
+
+          <div className="relative z-10 flex flex-col gap-3 items-start justify-center flex-1 px-2 md:px-6">
+            <h1 className="text-xl md:text-2xl font-bold text-primary">
+              {config?.missionVisionSection?.title || 'Our Mission & Vision'}
+            </h1>
             <p className="text-xs md:text-sm font-medium text-dark/60 max-w-md md:max-w-2xl">
-              Our Mission: To empower every design engineer with the practical skills, theoretical depth, and innovative mindset required to solve complex challenges and lead the future of product development.
+              {config?.missionVisionSection?.mission || 'Our Mission: To empower every design engineer with the practical skills, theoretical depth, and innovative mindset required to solve complex challenges and lead the future of product development.'}
             </p>
             <p className="text-xs md:text-sm font-medium text-dark/60 max-w-md md:max-w-2xl">
-              Our Vision: A world where engineering education is no longer a barrier to innovation, but its catalyst. We envision a global community where engineers can continuously learn, apply, and excel throughout their careers.
+              {config?.missionVisionSection?.vision || 'Our Vision: A world where engineering education is no longer a barrier to innovation, but its catalyst. We envision a global community where engineers can continuously learn, apply, and excel throughout their careers.'}
             </p>
           </div>
-          <div className="flex items-center justify-center flex-1 px-2 md:px-6">
-            <img src={getImage('visionImage', '/assets/vision.svg')} alt="vision" className="w-full max-w-sm md:max-w-md object-contain" />
+          <div className="relative z-10 flex items-center justify-center flex-1 px-2 md:px-6">
+            {/* Decorative Frame Around Image */}
+            <div className="relative">
+              {/* Outer Glow */}
+              <div className="absolute -inset-6 bg-gradient-to-r from-primary/30 via-secondary/30 to-primary/30 rounded-2xl blur-2xl"></div>
+              {/* Middle Layer */}
+              <div className="absolute -inset-3 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-xl"></div>
+              {/* Inner Frame */}
+              <div className="relative bg-white p-3 rounded-xl shadow-2xl">
+                {/* Decorative Corner Elements */}
+                <div className="absolute -top-2 -left-2 w-8 h-8 bg-primary/20 rounded-full blur-sm"></div>
+                <div className="absolute -top-2 -right-2 w-8 h-8 bg-secondary/20 rounded-full blur-sm"></div>
+                <div className="absolute -bottom-2 -left-2 w-8 h-8 bg-secondary/20 rounded-full blur-sm"></div>
+                <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-primary/20 rounded-full blur-sm"></div>
+                
+                <img src={getImage('visionImage', '/assets/vision.svg')} alt="vision" className="relative z-10 w-full max-w-sm md:max-w-md object-contain" />
+              </div>
+            </div>
           </div>
-        </div>
+        </section>
 
         {/* Fourth Section - Our Pedagogy */}
-        <div className="flex flex-col lg:flex-row items-center justify-between gap-6 md:gap-12 mb-16 md:mb-24">
-          <div className="flex items-center justify-center flex-1 px-2 md:px-6">
-            <img src={getImage('teamCollaborationImage', '/assets/team-collaboration.svg')} alt="team collaboration" className="w-full max-w-sm md:max-w-md object-contain" />
+        <section className="relative flex flex-col lg:flex-row items-center justify-between gap-6 md:gap-12 mb-20 md:mb-24 py-12 md:py-16 overflow-hidden">
+          {/* Decorative Background Graphics */}
+          <div className="absolute left-0 top-0 w-96 h-full opacity-5">
+            <div className="absolute top-1/4 left-20 w-48 h-48 bg-primary rounded-full blur-3xl"></div>
+            <div className="absolute bottom-1/3 left-10 w-32 h-32 bg-secondary rounded-full blur-2xl"></div>
+          </div>
+          <div className="absolute right-0 top-0 w-96 h-full opacity-5">
+            <div className="absolute top-1/3 right-20 w-56 h-56 bg-secondary rounded-full blur-3xl"></div>
+            <div className="absolute bottom-1/4 right-10 w-40 h-40 bg-primary rounded-full blur-2xl"></div>
+          </div>
+
+          <div className="relative z-10 flex items-center justify-center flex-1 px-2 md:px-6">
+            {/* Decorative Frame Around Image */}
+            <div className="relative">
+              {/* Outer Glow */}
+              <div className="absolute -inset-6 bg-gradient-to-r from-primary/30 via-secondary/30 to-primary/30 rounded-2xl blur-2xl animate-pulse"></div>
+              {/* Middle Layer */}
+              <div className="absolute -inset-3 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-xl"></div>
+              {/* Inner Frame */}
+              <div className="relative bg-white p-3 rounded-xl shadow-2xl">
+                {/* Decorative Corner Elements */}
+                <div className="absolute -top-2 -left-2 w-8 h-8 bg-primary/20 rounded-full blur-sm"></div>
+                <div className="absolute -top-2 -right-2 w-8 h-8 bg-secondary/20 rounded-full blur-sm"></div>
+                <div className="absolute -bottom-2 -left-2 w-8 h-8 bg-secondary/20 rounded-full blur-sm"></div>
+                <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-primary/20 rounded-full blur-sm"></div>
+                
+                <img src={getImage('teamCollaborationImage', '/assets/team-collaboration.svg')} alt="team collaboration" className="relative z-10 w-full max-w-sm md:max-w-md object-contain" />
+              </div>
+            </div>
           </div>
           
-          <div className="flex flex-col gap-3 items-start justify-center flex-1 px-2 md:px-6">
-            <h1 className="text-xl md:text-2xl font-bold text-primary">More Than a Tutorial. A Transformation.</h1>
+          <div className="relative z-10 flex flex-col gap-3 items-start justify-center flex-1 px-2 md:px-6">
+            <h1 className="text-xl md:text-2xl font-bold text-primary">
+              {config?.pedagogySection?.title || 'More Than a Tutorial. A Transformation.'}
+            </h1>
             <p className="text-xs md:text-sm font-medium text-dark/60 max-w-md md:max-w-2xl">
-              We've built our curriculum on a core set of learning principles that ensure real, tangible skill development.
+              {config?.pedagogySection?.description || 'We\'ve built our curriculum on a core set of learning principles that ensure real, tangible skill development.'}
             </p>
             <ul className="text-xs md:text-sm font-medium text-dark/60 max-w-md md:max-w-2xl space-y-2">
-              <li className="flex items-start">
-                <span className="text-primary mr-2">•</span>
-                <span><strong>Principle-Based Learning:</strong> We teach the why behind the what. Understand the core mechanics, material science, and physics so your skills are software-agnostic and enduring.</span>
-              </li>
-              <li className="flex items-start">
-                <span className="text-primary mr-2">•</span>
-                <span><strong>Project-Centric Application:</strong> Knowledge without application is theory. Every course includes real-world projects with downloadable files, datasets, and challenges that mirror professional workflows.</span>
-              </li>
-              <li className="flex items-start">
-                <span className="text-primary mr-2">•</span>
-                <span><strong>Expert-Led Instruction:</strong> Learn from the best. Our instructors are active industry professionals, lead engineers, and PhDs who bring current, real-world insights directly to you.</span>
-              </li>
-              <li className="flex items-start">
-                <span className="text-primary mr-2">•</span>
-                <span><strong>Community of Practice:</strong> Join a global network of peers. Collaborate, solve problems, and share knowledge in our exclusive forums and live Q&A sessions.</span>
-              </li>
+              {(config?.pedagogySection?.principles || [
+                { title: 'Principle-Based Learning', description: 'We teach the why behind the what. Understand the core mechanics, material science, and physics so your skills are software-agnostic and enduring.' },
+                { title: 'Project-Centric Application', description: 'Knowledge without application is theory. Every course includes real-world projects with downloadable files, datasets, and challenges that mirror professional workflows.' },
+                { title: 'Expert-Led Instruction', description: 'Learn from the best. Our instructors are active industry professionals, lead engineers, and PhDs who bring current, real-world insights directly to you.' },
+                { title: 'Community of Practice', description: 'Join a global network of peers. Collaborate, solve problems, and share knowledge in our exclusive forums and live Q&A sessions.' }
+              ]).map((principle: any, idx: number) => (
+                <li key={idx} className="flex items-start">
+                  <span className="text-primary mr-2">•</span>
+                  <span><strong>{principle.title}:</strong> {principle.description}</span>
+                </li>
+              ))}
             </ul>
           </div>
-        </div>
+        </section>
 
         {/* Instructors Section - Dynamic from Database */}
-        <div className="mb-20 md:mb-32">
+        <section className="mb-20 md:mb-32 py-12 md:py-16 bg-gray-50 rounded-2xl px-6 md:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-dark mb-4">Learn from the Best in the Industry</h2>
+            <h2 className="text-3xl md:text-4xl font-bold text-dark mb-4">
+              {config?.instructorsSection?.title || 'Learn from the Best in the Industry'}
+            </h2>
             <p className="text-lg text-medium max-w-3xl mx-auto">
-              Our instructors are industry veterans from SpaceX, Tesla, Apple, and leading tech companies
+              {config?.instructorsSection?.subtitle || 'Our instructors are industry veterans from SpaceX, Tesla, Apple, and leading tech companies'}
             </p>
           </div>
           
@@ -377,78 +420,147 @@ const Home = () => {
               <p className="text-gray-500">Loading instructors...</p>
             </div>
           )}
-        </div>
+        </section>
 
         {/* Sixth Section - Our Core Values */}
-        <div className="flex flex-col lg:flex-row items-center justify-between gap-6 md:gap-12 mb-16 md:mb-24">
-          <div className="flex items-center justify-center flex-1 px-2 md:px-6">
-            <img src={getImage('goalsImage', '/assets/goals.svg')} alt="goals" className="w-full max-w-sm md:max-w-md object-contain" />
+        <section className="relative flex flex-col lg:flex-row items-center justify-between gap-6 md:gap-12 mb-20 md:mb-24 py-12 md:py-16 overflow-hidden">
+          {/* Decorative Background Graphics */}
+          <div className="absolute left-0 top-0 w-96 h-full opacity-5">
+            <div className="absolute top-20 left-10 w-48 h-48 bg-primary rounded-full blur-3xl"></div>
+            <div className="absolute bottom-20 left-20 w-32 h-32 bg-secondary rounded-full blur-2xl"></div>
+          </div>
+          <div className="absolute right-0 top-0 w-96 h-full opacity-5">
+            <div className="absolute top-40 right-10 w-56 h-56 bg-secondary rounded-full blur-3xl"></div>
+            <div className="absolute bottom-40 right-20 w-40 h-40 bg-primary rounded-full blur-2xl"></div>
+          </div>
+
+          <div className="relative z-10 flex items-center justify-center flex-1 px-2 md:px-6">
+            {/* Decorative Frame Around Image */}
+            <div className="relative">
+              {/* Outer Glow */}
+              <div className="absolute -inset-6 bg-gradient-to-r from-primary/30 via-secondary/30 to-primary/30 rounded-2xl blur-2xl"></div>
+              {/* Middle Layer */}
+              <div className="absolute -inset-3 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-xl"></div>
+              {/* Inner Frame */}
+              <div className="relative bg-white p-3 rounded-xl shadow-2xl">
+                {/* Decorative Corner Elements */}
+                <div className="absolute -top-2 -left-2 w-8 h-8 bg-primary/20 rounded-full blur-sm"></div>
+                <div className="absolute -top-2 -right-2 w-8 h-8 bg-secondary/20 rounded-full blur-sm"></div>
+                <div className="absolute -bottom-2 -left-2 w-8 h-8 bg-secondary/20 rounded-full blur-sm"></div>
+                <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-primary/20 rounded-full blur-sm"></div>
+                
+                <img src={getImage('goalsImage', '/assets/goals.svg')} alt="goals" className="relative z-10 w-full max-w-sm md:max-w-md object-contain" />
+              </div>
+            </div>
           </div>
           
-          <div className="flex flex-col gap-3 items-start justify-center flex-1 px-2 md:px-6">
-            <h1 className="text-xl md:text-2xl font-bold text-primary">Our Core Values</h1>
+          <div className="relative z-10 flex flex-col gap-3 items-start justify-center flex-1 px-2 md:px-6">
+            <h1 className="text-xl md:text-2xl font-bold text-primary">
+              {config?.coreValuesSection?.title || 'Our Core Values'}
+            </h1>
             <ul className="text-xs md:text-sm font-medium text-dark/60 max-w-md md:max-w-2xl space-y-3">
-              <li className="flex items-start">
-                <span className="text-primary mr-2 font-bold">•</span>
-                <div>
-                  <span className="font-bold text-primary">Excellence:</span> We are relentlessly committed to the highest standards in content, instruction, and user experience.
-                </div>
-              </li>
-              <li className="flex items-start">
-                <span className="text-primary mr-2 font-bold">•</span>
-                <div>
-                  <span className="font-bold text-primary">Clarity:</span> We break down complexity into clear, understandable, and actionable lessons.
-                </div>
-              </li>
-              <li className="flex items-start">
-                <span className="text-primary mr-2 font-bold">•</span>
-                <div>
-                  <span className="font-bold text-primary">Integrity:</span> We teach proven, validated methods. Our goal is your success, not just course completion.
-                </div>
-              </li>
-              <li className="flex items-start">
-                <span className="text-primary mr-2 font-bold">•</span>
-                <div>
-                  <span className="font-bold text-primary">Innovation:</span> We continuously evolve our curriculum to include the latest tools and methodologies, from Generative Design to Advanced Composites.
-                </div>
-              </li>
+              {(config?.coreValuesSection?.values || [
+                { name: 'Excellence', description: 'We are relentlessly committed to the highest standards in content, instruction, and user experience.' },
+                { name: 'Clarity', description: 'We break down complexity into clear, understandable, and actionable lessons.' },
+                { name: 'Integrity', description: 'We teach proven, validated methods. Our goal is your success, not just course completion.' },
+                { name: 'Innovation', description: 'We continuously evolve our curriculum to include the latest tools and methodologies, from Generative Design to Advanced Composites.' }
+              ]).map((value: any, idx: number) => (
+                <li key={idx} className="flex items-start">
+                  <span className="text-primary mr-2 font-bold">•</span>
+                  <div>
+                    <span className="font-bold text-primary">{value.name}:</span> {value.description}
+                  </div>
+                </li>
+              ))}
             </ul>
           </div>
-        </div>
+        </section>
 
         {/* Seventh Section - Join the Journey */}
-        <div className="flex flex-col-reverse md:flex-row items-center justify-between gap-6 md:gap-12 mb-16">
-          <div className="flex flex-col gap-3 items-start justify-center flex-1 px-2 md:px-6">
-            <h1 className="text-xl md:text-2xl font-bold text-primary">Ready to Redefine What You Can Design?</h1>
+        <section className="relative flex flex-col-reverse md:flex-row items-center justify-between gap-6 md:gap-12 mb-20 md:mb-24 py-12 md:py-16 bg-gray-50 rounded-2xl px-6 md:px-8 overflow-hidden">
+          {/* Decorative Background Graphics */}
+          <div className="absolute inset-0 opacity-5">
+            <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-primary rounded-full blur-3xl"></div>
+            <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-secondary rounded-full blur-3xl"></div>
+          </div>
+
+          <div className="relative z-10 flex flex-col gap-3 items-start justify-center flex-1 px-2 md:px-6">
+            <h1 className="text-xl md:text-2xl font-bold text-primary">
+              {config?.joinJourneySection?.title || 'Ready to Redefine What You Can Design?'}
+            </h1>
             <p className="text-xs md:text-sm font-medium text-dark/60 max-w-md md:max-w-2xl">
-              Whether you're an aspiring engineer, a seasoned professional looking to specialize, or a manager aiming to upskill your team, Isaac Institute of Technology is your partner in professional growth.
+              {config?.joinJourneySection?.description || 'Whether you\'re an aspiring engineer, a seasoned professional looking to specialize, or a manager aiming to upskill your team, Isaac Institute of Technology is your partner in professional growth.'}
             </p>
             <div className="flex flex-col sm:flex-row gap-3 mt-4 w-full">
               <button 
-                onClick={() => navigate('/courses')}
+                onClick={() => navigate(config?.joinJourneySection?.button1?.link || '/courses')}
                 className="w-full sm:w-auto border border-primary hover:bg-primary duration-300 text-primary hover:text-light px-4 py-2 rounded-md cursor-pointer text-xs md:text-sm"
               >
-                Explore Our Courses
+                {config?.joinJourneySection?.button1?.text || 'Explore Our Courses'}
               </button>
               <button 
-                onClick={() => navigate('/about')}
+                onClick={() => navigate(config?.joinJourneySection?.button2?.link || '/about')}
                 className="w-full sm:w-auto border border-primary hover:bg-primary duration-300 text-primary hover:text-light px-4 py-2 rounded-md cursor-pointer text-xs md:text-sm"
               >
-                View Our Instructor Team
+                {config?.joinJourneySection?.button2?.text || 'View Our Instructor Team'}
               </button>
               <button 
-                onClick={() => navigate('/contact')}
+                onClick={() => navigate(config?.joinJourneySection?.button3?.link || '/contact')}
                 className="w-full sm:w-auto border border-dark bg-theme text-dark hover:bg-dark hover:text-light duration-300 px-4 py-2 rounded-md cursor-pointer text-xs md:text-sm"
               >
-                Contact Us for Team Training
+                {config?.joinJourneySection?.button3?.text || 'Contact Us for Team Training'}
               </button>
             </div>
           </div>
           
-          <div className="flex items-center justify-center flex-1 px-2 md:px-6">
-            <img src={getImage('journeyImage', '/assets/journey.svg')} alt="journey" className="w-full max-w-sm md:max-w-md object-contain" />
+          <div className="relative z-10 flex items-center justify-center flex-1 px-2 md:px-6">
+            {/* Decorative Frame Around Image */}
+            <div className="relative">
+              {/* Outer Glow */}
+              <div className="absolute -inset-6 bg-gradient-to-r from-primary/30 via-secondary/30 to-primary/30 rounded-2xl blur-2xl"></div>
+              {/* Middle Layer */}
+              <div className="absolute -inset-3 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-xl"></div>
+              {/* Inner Frame */}
+              <div className="relative bg-white p-3 rounded-xl shadow-2xl">
+                {/* Decorative Corner Elements */}
+                <div className="absolute -top-2 -left-2 w-8 h-8 bg-primary/20 rounded-full blur-sm"></div>
+                <div className="absolute -top-2 -right-2 w-8 h-8 bg-secondary/20 rounded-full blur-sm"></div>
+                <div className="absolute -bottom-2 -left-2 w-8 h-8 bg-secondary/20 rounded-full blur-sm"></div>
+                <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-primary/20 rounded-full blur-sm"></div>
+                
+                <img src={getImage('journeyImage', '/assets/journey.svg')} alt="journey" className="relative z-10 w-full max-w-sm md:max-w-md object-contain" />
+              </div>
+            </div>
           </div>
-        </div>
+        </section>
+
+        {/* Why Choose Us Section - Moved to Bottom */}
+        <section className="bg-white rounded-2xl shadow-lg p-8 md:p-12 mb-20">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-dark mb-4">
+              {config?.whyChooseUsSection?.title || 'Why Isaac Institute?'}
+            </h2>
+            <p className="text-lg text-medium max-w-3xl mx-auto">
+              {config?.whyChooseUsSection?.subtitle || 'We\'re revolutionizing engineering education for the digital age'}
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {(config?.whyChooseUsSection?.features || [
+              { icon: '🚀', title: 'Industry Experts', description: 'Learn from professionals at SpaceX, Apple, Tesla, and more' },
+              { icon: '⚡', title: 'Hands-On Projects', description: 'Build real-world projects that showcase your skills' },
+              { icon: '🎯', title: 'Career Ready', description: 'Get job-ready skills that employers are actively seeking' }
+            ]).map((feature: any, index: number) => (
+              <div key={index} className="text-center p-6">
+                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-3xl">{feature.icon}</span>
+                </div>
+                <h3 className="text-xl font-bold text-dark mb-2">{feature.title}</h3>
+                <p className="text-medium">{feature.description}</p>
+              </div>
+            ))}
+          </div>
+        </section>
       </div>
 
       {/* Instructor Detail Modal */}

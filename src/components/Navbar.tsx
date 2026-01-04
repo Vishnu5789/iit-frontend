@@ -42,6 +42,10 @@ const Navbar = () => {
             link: "/courses",
         },
         {
+            name: "Admissions",
+            link: "/admissions",
+        },
+        {
             name: "Blog",
             link: "/blog",
         },

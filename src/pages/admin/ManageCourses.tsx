@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { PlusIcon, PencilIcon, TrashIcon, XMarkIcon, FolderIcon, ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/outline'
 import apiService from '../../services/api'
 import FileUpload from '../../components/FileUpload'
+import RichTextEditor from '../../components/RichTextEditor'
 import { API_BASE_URL } from '../../config/api.config'
 
 interface Course {
@@ -63,6 +64,8 @@ interface Course {
     videos: Array<{ name: string; url: string; fileId: string; duration?: string }>
     pdfs: Array<{ name: string; url: string; fileId: string }>
     images: Array<{ url: string; fileId: string }>
+    textContent: Array<{ title: string; content: string }>
+    externalVideoLinks: Array<{ title: string; url: string; description?: string; platform?: string }>
   }>
 }
 
@@ -92,9 +95,9 @@ const ManageCourses = () => {
       videos: Array<{ name: string; url: string; fileId: string; duration?: string }>
       pdfs: Array<{ name: string; url: string; fileId: string }>
       images: Array<{ url: string; fileId: string }>
+      textContent: Array<{ title: string; content: string }>
+      externalVideoLinks: Array<{ title: string; url: string; description?: string; platform?: string }>
     }>,
-    textContent: [] as Array<{ title: string; content: string }>,
-    externalVideoLinks: [] as Array<{ title: string; url: string; description?: string; platform?: string }>,
     keyPoints: '',
     aboutCourse: '',
     eligibility: '',
@@ -173,12 +176,14 @@ const ManageCourses = () => {
     
     // Validate folder-based media organization
     if (formData.mediaFolders.length === 0) {
-      alert('Please create at least one folder and add media content (videos, PDFs, or images)')
+      alert('Please create at least one folder and add content (videos, PDFs, images, text content, or external videos)')
       return
     }
     
     const hasContent = formData.mediaFolders.some(folder => 
-      folder.videos.length > 0 || folder.pdfs.length > 0 || folder.images.length > 0
+      folder.videos.length > 0 || folder.pdfs.length > 0 || folder.images.length > 0 ||
+      (folder.textContent && folder.textContent.length > 0) ||
+      (folder.externalVideoLinks && folder.externalVideoLinks.length > 0)
     )
     
     if (!hasContent) {
@@ -268,8 +273,6 @@ const ManageCourses = () => {
       videoFiles: [],
       images: [],
       mediaFolders: [],
-      textContent: [],
-      externalVideoLinks: [],
       keyPoints: '',
       aboutCourse: '',
       eligibility: '',
@@ -298,8 +301,6 @@ const ManageCourses = () => {
       videoFiles: course.videoFiles || [],
       images: course.images || [],
       mediaFolders: course.mediaFolders || [],
-      textContent: course.textContent || [],
-      externalVideoLinks: course.externalVideoLinks || [],
       keyPoints: course.keyPoints?.join('\n') || '',
       aboutCourse: course.aboutCourse || '',
       eligibility: course.eligibility?.join('\n') || '',
@@ -327,7 +328,9 @@ const ManageCourses = () => {
       folderName: newFolderName.trim(),
       videos: [],
       pdfs: [],
-      images: []
+      images: [],
+      textContent: [],
+      externalVideoLinks: []
     }
     setFormData({
       ...formData,
@@ -391,6 +394,36 @@ const ManageCourses = () => {
   const removeImageFromFolder = (folderIndex: number, imageIndex: number) => {
     const updatedFolders = [...formData.mediaFolders]
     updatedFolders[folderIndex].images = updatedFolders[folderIndex].images.filter((_, i) => i !== imageIndex)
+    setFormData({ ...formData, mediaFolders: updatedFolders })
+  }
+
+  const addTextContentToFolder = (folderIndex: number, textData: { title: string; content: string }) => {
+    const updatedFolders = [...formData.mediaFolders]
+    if (!updatedFolders[folderIndex].textContent) {
+      updatedFolders[folderIndex].textContent = []
+    }
+    updatedFolders[folderIndex].textContent.push(textData)
+    setFormData({ ...formData, mediaFolders: updatedFolders })
+  }
+
+  const removeTextContentFromFolder = (folderIndex: number, textIndex: number) => {
+    const updatedFolders = [...formData.mediaFolders]
+    updatedFolders[folderIndex].textContent = updatedFolders[folderIndex].textContent.filter((_, i) => i !== textIndex)
+    setFormData({ ...formData, mediaFolders: updatedFolders })
+  }
+
+  const addExternalVideoToFolder = (folderIndex: number, videoData: { title: string; url: string; description?: string; platform?: string }) => {
+    const updatedFolders = [...formData.mediaFolders]
+    if (!updatedFolders[folderIndex].externalVideoLinks) {
+      updatedFolders[folderIndex].externalVideoLinks = []
+    }
+    updatedFolders[folderIndex].externalVideoLinks.push(videoData)
+    setFormData({ ...formData, mediaFolders: updatedFolders })
+  }
+
+  const removeExternalVideoFromFolder = (folderIndex: number, videoIndex: number) => {
+    const updatedFolders = [...formData.mediaFolders]
+    updatedFolders[folderIndex].externalVideoLinks = updatedFolders[folderIndex].externalVideoLinks.filter((_, i) => i !== videoIndex)
     setFormData({ ...formData, mediaFolders: updatedFolders })
   }
 
@@ -847,7 +880,7 @@ const ManageCourses = () => {
                                         accept=".mp4,.mov,.avi,.mkv"
                                         folder={`courses/folders/${folder.folderName}/videos`}
                                         onUploadComplete={(fileData) => addVideoToFolder(folderIndex, fileData)}
-                                      />
+                        />
                                       {folder.videos.length > 0 && (
                                         <div className="mt-2 space-y-1">
                                           {folder.videos.map((video, videoIndex) => (
@@ -876,7 +909,7 @@ const ManageCourses = () => {
                                         accept=".pdf"
                                         folder={`courses/folders/${folder.folderName}/pdfs`}
                                         onUploadComplete={(fileData) => addPdfToFolder(folderIndex, fileData)}
-                                      />
+                        />
                                       {folder.pdfs.length > 0 && (
                                         <div className="mt-2 space-y-1">
                                           {folder.pdfs.map((pdf, pdfIndex) => (
@@ -905,7 +938,7 @@ const ManageCourses = () => {
                           accept=".jpg,.jpeg,.png,.webp,.gif"
                                         folder={`courses/folders/${folder.folderName}/images`}
                                         onUploadComplete={(fileData) => addImageToFolder(folderIndex, { url: fileData.url, fileId: fileData.fileId })}
-                                      />
+                        />
                                       {folder.images.length > 0 && (
                                         <div className="mt-2 grid grid-cols-3 gap-2">
                                           {folder.images.map((image, imageIndex) => (
@@ -919,12 +952,144 @@ const ManageCourses = () => {
                                     type="button"
                                                 onClick={() => removeImageFromFolder(folderIndex, imageIndex)}
                                                 className="absolute top-1 right-1 bg-red-600 text-white text-xs px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity"
-                                              >
+                                  >
                                                 ×
                                   </button>
                                 </div>
                               ))}
                             </div>
+                                      )}
+                                    </div>
+
+                                    {/* Text Content Section */}
+                                    <div>
+                                      <label className="block text-sm font-semibold text-primary mb-2">
+                                        📝 Text Content
+                                      </label>
+                                      <div className="bg-gray-50 p-3 rounded-lg mb-2 space-y-2">
+                                        <input
+                                          type="text"
+                                          placeholder="Content Title"
+                                          value={newTextContent.title}
+                                          onChange={(e) => setNewTextContent({ ...newTextContent, title: e.target.value })}
+                                          className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary/50"
+                                        />
+                                        <RichTextEditor
+                                          value={newTextContent.content}
+                                          onChange={(value) => setNewTextContent({ ...newTextContent, content: value })}
+                                          rows={5}
+                                          placeholder="Enter text content here. Use the toolbar to format text, change fonts, and add colors..."
+                                        />
+                                        <button
+                                          type="button"
+                                          onClick={() => {
+                                            if (newTextContent.title && newTextContent.content) {
+                                              addTextContentToFolder(folderIndex, { ...newTextContent })
+                                              setNewTextContent({ title: '', content: '' })
+                                            } else {
+                                              alert('Please fill in both title and content')
+                                            }
+                                          }}
+                                          className="w-full bg-primary text-white px-3 py-1.5 rounded text-sm font-semibold hover:bg-primary/90 transition-all"
+                                        >
+                                          + Add Text Content
+                                        </button>
+                                      </div>
+                                      {folder.textContent && folder.textContent.length > 0 && (
+                                        <div className="mt-2 space-y-1">
+                                          {folder.textContent.map((text, textIndex) => (
+                                            <div key={textIndex} className="flex items-start justify-between bg-gray-50 p-2 rounded text-sm">
+                                              <div className="flex-1">
+                                                <span className="font-semibold text-gray-700">{text.title}</span>
+                                                <p className="text-xs text-gray-600 mt-1 line-clamp-1">{text.content}</p>
+                                              </div>
+                                              <button
+                                                type="button"
+                                                onClick={() => removeTextContentFromFolder(folderIndex, textIndex)}
+                                                className="text-red-600 hover:text-red-800 ml-2"
+                                              >
+                                                Remove
+                                              </button>
+                                            </div>
+                                          ))}
+                                        </div>
+                                      )}
+                                    </div>
+
+                                    {/* External Video Links Section */}
+                                    <div>
+                                      <label className="block text-sm font-semibold text-primary mb-2">
+                                        🎥 External Video Links
+                                      </label>
+                                      <div className="bg-gray-50 p-3 rounded-lg mb-2 space-y-2">
+                                        <input
+                                          type="text"
+                                          placeholder="Video Title"
+                                          value={newExternalVideo.title}
+                                          onChange={(e) => setNewExternalVideo({ ...newExternalVideo, title: e.target.value })}
+                                          className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary/50"
+                                        />
+                                        <input
+                                          type="url"
+                                          placeholder="Video URL"
+                                          value={newExternalVideo.url}
+                                          onChange={(e) => setNewExternalVideo({ ...newExternalVideo, url: e.target.value })}
+                                          className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary/50"
+                                        />
+                                        <select
+                                          value={newExternalVideo.platform}
+                                          onChange={(e) => setNewExternalVideo({ ...newExternalVideo, platform: e.target.value })}
+                                          className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary/50"
+                                        >
+                                          <option value="youtube">YouTube</option>
+                                          <option value="vimeo">Vimeo</option>
+                                          <option value="other">Other</option>
+                                        </select>
+                                        <textarea
+                                          placeholder="Description (optional)"
+                                          value={newExternalVideo.description}
+                                          onChange={(e) => setNewExternalVideo({ ...newExternalVideo, description: e.target.value })}
+                                          rows={2}
+                                          className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary/50"
+                                        />
+                                        <button
+                                          type="button"
+                                          onClick={() => {
+                                            if (newExternalVideo.title && newExternalVideo.url) {
+                                              addExternalVideoToFolder(folderIndex, { ...newExternalVideo })
+                                              setNewExternalVideo({ title: '', url: '', description: '', platform: 'youtube' })
+                                            } else {
+                                              alert('Please fill in at least title and URL')
+                                            }
+                                          }}
+                                          className="w-full bg-primary text-white px-3 py-1.5 rounded text-sm font-semibold hover:bg-primary/90 transition-all"
+                                        >
+                                          + Add External Video
+                                        </button>
+                                      </div>
+                                      {folder.externalVideoLinks && folder.externalVideoLinks.length > 0 && (
+                                        <div className="mt-2 space-y-1">
+                                          {folder.externalVideoLinks.map((video, videoIndex) => (
+                                            <div key={videoIndex} className="flex items-start justify-between bg-gray-50 p-2 rounded text-sm">
+                                              <div className="flex-1">
+                                                <div className="flex items-center gap-2">
+                                                  <span className="font-semibold text-gray-700">{video.title}</span>
+                                                  <span className="text-xs px-1.5 py-0.5 rounded bg-blue-100 text-blue-700">
+                                                    {video.platform}
+                                                  </span>
+                                                </div>
+                                                <p className="text-xs text-blue-600 mt-1 truncate">{video.url}</p>
+                                              </div>
+                                              <button
+                                                type="button"
+                                                onClick={() => removeExternalVideoFromFolder(folderIndex, videoIndex)}
+                                                className="text-red-600 hover:text-red-800 ml-2"
+                                              >
+                                                Remove
+                                              </button>
+                                            </div>
+                                          ))}
+                                        </div>
                                       )}
                                     </div>
                                   </div>
@@ -937,182 +1102,6 @@ const ManageCourses = () => {
                             <FolderIcon className="h-12 w-12 text-gray-400 mx-auto mb-2" />
                             <p className="text-sm text-gray-600">No folders created yet. Create your first folder above.</p>
                             <p className="text-xs text-red-500 mt-2">* At least one folder with content is required</p>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Text Content Section */}
-                      <div className="mt-6 pt-6 border-t border-primary/20">
-                        <label className="block text-sm font-semibold text-primary mb-2">
-                          📝 Text Content (Unlimited Articles)
-                        </label>
-                        <p className="text-xs text-gray-600 mb-3">
-                          Add comprehensive text lessons, articles, notes, and written materials for students.
-                        </p>
-                        
-                        {/* Add New Text Content Form */}
-                        <div className="bg-gray-50 p-4 rounded-lg mb-3 space-y-3">
-                          <input
-                            type="text"
-                            placeholder="Content Title (e.g., Introduction to CAD)"
-                            value={newTextContent.title}
-                            onChange={(e) => setNewTextContent({ ...newTextContent, title: e.target.value })}
-                            className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary/50"
-                          />
-                          <textarea
-                            placeholder="Content text (Markdown supported)..."
-                            value={newTextContent.content}
-                            onChange={(e) => setNewTextContent({ ...newTextContent, content: e.target.value })}
-                            rows={4}
-                            className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary/50"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => {
-                              if (newTextContent.title && newTextContent.content) {
-                                setFormData({
-                                  ...formData,
-                                  textContent: [...formData.textContent, { ...newTextContent }]
-                                })
-                                setNewTextContent({ title: '', content: '' })
-                              } else {
-                                alert('Please fill in both title and content')
-                              }
-                            }}
-                            className="w-full bg-primary text-white px-4 py-2 rounded font-semibold hover:bg-primary/90 transition-all"
-                          >
-                            + Add Text Content
-                          </button>
-                        </div>
-
-                        {/* Display Added Text Content */}
-                        {formData.textContent.length > 0 && (
-                          <div className="space-y-2">
-                            <p className="text-xs text-green-600 font-semibold">
-                              ✓ {formData.textContent.length} text content(s) added
-                            </p>
-                            <div className="max-h-60 overflow-y-auto space-y-2">
-                              {formData.textContent.map((content, index) => (
-                                <div key={index} className="bg-white border border-gray-200 p-3 rounded">
-                                  <div className="flex items-start justify-between">
-                                    <div className="flex-1">
-                                      <h4 className="font-semibold text-sm text-dark">{content.title}</h4>
-                                      <p className="text-xs text-gray-600 mt-1 line-clamp-2">{content.content}</p>
-                                    </div>
-                                    <button
-                                      type="button"
-                                      onClick={() => setFormData({
-                                        ...formData,
-                                        textContent: formData.textContent.filter((_, i) => i !== index)
-                                      })}
-                                      className="text-red-600 hover:text-red-800 text-xs ml-2"
-                                    >
-                                      Remove
-                                    </button>
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* External Video Links Section */}
-                      <div className="mt-6 pt-6 border-t border-primary/20">
-                        <label className="block text-sm font-semibold text-primary mb-2">
-                          🎥 External Video Links (YouTube, Vimeo, etc.)
-                        </label>
-                        <p className="text-xs text-gray-600 mb-3">
-                          Link to external videos from YouTube, Vimeo, or other platforms. No upload limits!
-                        </p>
-                        
-                        {/* Add New External Video Form */}
-                        <div className="bg-gray-50 p-4 rounded-lg mb-3 space-y-3">
-                          <input
-                            type="text"
-                            placeholder="Video Title (e.g., Advanced CAD Techniques)"
-                            value={newExternalVideo.title}
-                            onChange={(e) => setNewExternalVideo({ ...newExternalVideo, title: e.target.value })}
-                            className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary/50"
-                          />
-                          <input
-                            type="url"
-                            placeholder="Video URL (e.g., https://youtube.com/watch?v=...)"
-                            value={newExternalVideo.url}
-                            onChange={(e) => setNewExternalVideo({ ...newExternalVideo, url: e.target.value })}
-                            className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary/50"
-                          />
-                          <select
-                            value={newExternalVideo.platform}
-                            onChange={(e) => setNewExternalVideo({ ...newExternalVideo, platform: e.target.value })}
-                            className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary/50"
-                          >
-                            <option value="youtube">YouTube</option>
-                            <option value="vimeo">Vimeo</option>
-                            <option value="other">Other</option>
-                          </select>
-                          <textarea
-                            placeholder="Description (optional)"
-                            value={newExternalVideo.description}
-                            onChange={(e) => setNewExternalVideo({ ...newExternalVideo, description: e.target.value })}
-                            rows={2}
-                            className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary/50"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => {
-                              if (newExternalVideo.title && newExternalVideo.url) {
-                                setFormData({
-                                  ...formData,
-                                  externalVideoLinks: [...formData.externalVideoLinks, { ...newExternalVideo }]
-                                })
-                                setNewExternalVideo({ title: '', url: '', description: '', platform: 'youtube' })
-                              } else {
-                                alert('Please fill in at least title and URL')
-                              }
-                            }}
-                            className="w-full bg-primary text-white px-4 py-2 rounded font-semibold hover:bg-primary/90 transition-all"
-                          >
-                            + Add External Video
-                          </button>
-                        </div>
-
-                        {/* Display Added External Videos */}
-                        {formData.externalVideoLinks.length > 0 && (
-                          <div className="space-y-2">
-                            <p className="text-xs text-green-600 font-semibold">
-                              ✓ {formData.externalVideoLinks.length} external video(s) added
-                            </p>
-                            <div className="max-h-60 overflow-y-auto space-y-2">
-                              {formData.externalVideoLinks.map((video, index) => (
-                                <div key={index} className="bg-white border border-gray-200 p-3 rounded">
-                                  <div className="flex items-start justify-between">
-                                    <div className="flex-1">
-                                      <div className="flex items-center gap-2">
-                                        <h4 className="font-semibold text-sm text-dark">{video.title}</h4>
-                                        <span className="text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700">
-                                          {video.platform}
-                                        </span>
-                                      </div>
-                                      <p className="text-xs text-blue-600 mt-1 truncate">{video.url}</p>
-                                      {video.description && (
-                                        <p className="text-xs text-gray-600 mt-1 line-clamp-1">{video.description}</p>
-                                      )}
-                                    </div>
-                                    <button
-                                      type="button"
-                                      onClick={() => setFormData({
-                                        ...formData,
-                                        externalVideoLinks: formData.externalVideoLinks.filter((_, i) => i !== index)
-                                      })}
-                                      className="text-red-600 hover:text-red-800 text-xs ml-2"
-                                    >
-                                      Remove
-                                    </button>
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
                           </div>
                         )}
                       </div>

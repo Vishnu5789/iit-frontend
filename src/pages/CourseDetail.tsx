@@ -799,8 +799,8 @@ This is an enquiry from the course detail page.
                           <span className="text-sm text-gray-600">
                             ({folder.videos.length} videos, {folder.pdfs.length} PDFs, {folder.images.length} images)
                           </span>
-                        </div>
-                      </div>
+        </div>
+      </div>
 
                       {/* Folder Content */}
                       {expandedFolders.has(folderIndex) && (
@@ -829,26 +829,26 @@ This is an enquiry from the course detail page.
                                         <source src={video.url} type="video/mp4" />
                                         Your browser does not support the video tag.
                                       </video>
-                                    </div>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+            </div>
+          )}
 
                           {/* PDFs in Folder */}
                           {folder.pdfs.length > 0 && (
-                            <div>
+            <div>
                               <h4 className="text-lg font-semibold text-dark mb-3 flex items-center gap-2">
                                 <DocumentTextIcon className="h-5 w-5 text-primary" />
                                 PDFs ({folder.pdfs.length})
                               </h4>
-                              <div className="grid grid-cols-1 gap-4">
+                <div className="grid grid-cols-1 gap-4">
                                 {folder.pdfs.map((pdf, pdfIndex) => (
                                   <div key={pdfIndex} className="border border-gray-200 rounded-lg overflow-hidden">
                                     <div className="bg-gray-50 px-4 py-2 border-b border-gray-200">
                                       <p className="font-semibold text-gray-900 text-sm">{pdf.name}</p>
-                                    </div>
+                          </div>
                                     <div className="bg-gray-100" style={{ height: '600px' }}>
                                       <iframe
                                         src={`${pdf.url}#toolbar=0&navpanes=0&scrollbar=0`}
@@ -856,21 +856,21 @@ This is an enquiry from the course detail page.
                                         title={pdf.name}
                                         onContextMenu={(e) => e.preventDefault()}
                                       />
-                                    </div>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+            </div>
+          )}
 
                           {/* Images in Folder */}
                           {folder.images.length > 0 && (
-                            <div>
+            <div>
                               <h4 className="text-lg font-semibold text-dark mb-3 flex items-center gap-2">
                                 <PhotoIcon className="h-5 w-5 text-primary" />
                                 Images ({folder.images.length})
                               </h4>
-                              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                                 {folder.images.map((image, imageIndex) => (
                                   <div 
                                     key={imageIndex} 
@@ -878,8 +878,8 @@ This is an enquiry from the course detail page.
                                     onClick={() => setSelectedImage(image.url)}
                                     onDragStart={(e) => e.preventDefault()}
                                   >
-                                    <img 
-                                      src={image.url} 
+                      <img 
+                        src={image.url} 
                                       alt={`${folder.folderName} image ${imageIndex + 1}`}
                                       className="w-full h-48 object-cover pointer-events-none"
                                       draggable={false}
@@ -919,7 +919,18 @@ This is an enquiry from the course detail page.
                         onCopy={(e) => e.preventDefault()}
                         style={{ userSelect: 'none', WebkitUserSelect: 'none', MozUserSelect: 'none' }}
                       >
-                        <MarkdownRenderer content={text.content} />
+                        {/* Check if content is HTML (from rich text editor) or Markdown */}
+                        {text.content && text.content.trim().startsWith('<') ? (
+                          <div 
+                            className="prose prose-lg max-w-none"
+                            dangerouslySetInnerHTML={{ __html: text.content }}
+                            style={{
+                              fontFamily: 'inherit'
+                            }}
+                          />
+                        ) : (
+                          <MarkdownRenderer content={text.content} />
+                        )}
                       </div>
                     </div>
                   ))}

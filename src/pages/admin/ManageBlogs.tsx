@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import { PlusIcon, PencilIcon, TrashIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import apiService from '../../services/api'
 import { API_BASE_URL } from '../../config/api.config'
+import FileUpload from '../../components/FileUpload'
+import RichTextEditor from '../../components/RichTextEditor'
 
 interface Blog {
   _id: string
@@ -13,6 +15,18 @@ interface Blog {
   readTime: string
   isPublished: boolean
   publishedDate: string
+  thumbnail?: {
+    url: string
+    fileId: string
+  }
+  image?: {
+    url: string
+    fileId: string
+  }
+  images?: Array<{
+    url: string
+    fileId: string
+  }>
 }
 
 const ManageBlogs = () => {
@@ -27,7 +41,16 @@ const ManageBlogs = () => {
     summary: '',
     content: '',
     readTime: '5 min read',
-    isPublished: true
+    isPublished: true,
+    thumbnail: {
+      url: '',
+      fileId: ''
+    },
+    image: {
+      url: '',
+      fileId: ''
+    },
+    images: [] as Array<{ url: string; fileId: string }>
   })
 
   useEffect(() => {
@@ -123,7 +146,16 @@ const ManageBlogs = () => {
       summary: '',
       content: '',
       readTime: '5 min read',
-      isPublished: true
+      isPublished: true,
+      thumbnail: {
+        url: '',
+        fileId: ''
+      },
+      image: {
+        url: '',
+        fileId: ''
+      },
+      images: []
     })
     setShowModal(true)
   }
@@ -136,7 +168,16 @@ const ManageBlogs = () => {
       summary: blog.summary,
       content: blog.content,
       readTime: blog.readTime,
-      isPublished: blog.isPublished
+      isPublished: blog.isPublished,
+      thumbnail: blog.thumbnail || {
+        url: '',
+        fileId: ''
+      },
+      image: blog.image || {
+        url: '',
+        fileId: ''
+      },
+      images: blog.images || []
     })
     setShowModal(true)
   }
@@ -293,17 +334,135 @@ const ManageBlogs = () => {
 
                   <div>
                     <label className="block text-sm font-semibold text-primary mb-2">
-                      Full Content *
+                      Blog Thumbnail <span className="text-xs text-gray-500">(Optional - Featured image for listing)</span>
                     </label>
-                    <textarea
-                      value={formData.content}
-                      onChange={(e) => setFormData({...formData, content: e.target.value})}
-                      rows={10}
-                      maxLength={10000}
-                      className="w-full px-4 py-3 border border-primary/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50"
-                      required
+                    <FileUpload
+                      label="Upload Thumbnail"
+                      accept="image/*"
+                      folder="blogs/thumbnails"
+                      onUploadComplete={(fileData) => {
+                        setFormData({
+                          ...formData,
+                          thumbnail: {
+                            url: fileData.url,
+                            fileId: fileData.fileId
+                          }
+                        });
+                      }}
+                      currentFile={formData.thumbnail?.url ? { url: formData.thumbnail.url, name: 'Blog Thumbnail' } : undefined}
+                      onRemove={() => {
+                        setFormData({
+                          ...formData,
+                          thumbnail: {
+                            url: '',
+                            fileId: ''
+                          }
+                        });
+                      }}
                     />
-                    <p className="text-xs text-dark/50 mt-1">{formData.content.length}/10000 characters</p>
+                    {formData.thumbnail?.url && (
+                      <div className="mt-3 rounded-lg overflow-hidden border border-primary/20">
+                        <img src={formData.thumbnail.url} alt="Blog thumbnail preview" className="w-full h-48 object-cover" />
+                      </div>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-primary mb-2">
+                      Main Blog Image <span className="text-xs text-gray-500">(Optional - Hero image for blog post)</span>
+                    </label>
+                    <FileUpload
+                      label="Upload Main Image"
+                      accept="image/*"
+                      folder="blogs/images"
+                      onUploadComplete={(fileData) => {
+                        setFormData({
+                          ...formData,
+                          image: {
+                            url: fileData.url,
+                            fileId: fileData.fileId
+                          }
+                        });
+                      }}
+                      currentFile={formData.image?.url ? { url: formData.image.url, name: 'Blog Main Image' } : undefined}
+                      onRemove={() => {
+                        setFormData({
+                          ...formData,
+                          image: {
+                            url: '',
+                            fileId: ''
+                          }
+                        });
+                      }}
+                    />
+                    {formData.image?.url && (
+                      <div className="mt-3 rounded-lg overflow-hidden border border-primary/20">
+                        <img src={formData.image.url} alt="Blog image preview" className="w-full h-48 object-cover" />
+                      </div>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-primary mb-2">
+                      Additional Images <span className="text-xs text-gray-500">(Optional - Multiple images for blog content)</span>
+                    </label>
+                    <FileUpload
+                      label="Add Image"
+                      accept="image/*"
+                      folder="blogs/images"
+                      onUploadComplete={(fileData) => {
+                        setFormData({
+                          ...formData,
+                          images: [...formData.images, {
+                            url: fileData.url,
+                            fileId: fileData.fileId
+                          }]
+                        });
+                      }}
+                    />
+                    {formData.images.length > 0 && (
+                      <div className="mt-3 grid grid-cols-3 gap-3">
+                        {formData.images.map((img, index) => (
+                          <div key={index} className="relative group">
+                            <img 
+                              src={img.url} 
+                              alt={`Blog image ${index + 1}`}
+                              className="w-full h-32 object-cover rounded-lg border border-primary/20"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setFormData({
+                                  ...formData,
+                                  images: formData.images.filter((_, i) => i !== index)
+                                });
+                              }}
+                              className="absolute top-2 right-2 bg-red-600 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity"
+                            >
+                              Remove
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    {formData.images.length > 0 && (
+                      <p className="text-xs text-gray-500 mt-2">
+                        {formData.images.length} image(s) added
+                      </p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-primary mb-2">
+                      Full Content * <span className="text-xs text-gray-500">(Rich text editor with font and color options)</span>
+                    </label>
+                    <RichTextEditor
+                      value={formData.content}
+                      onChange={(value) => setFormData({...formData, content: value})}
+                      rows={15}
+                      maxLength={30000}
+                      placeholder="Enter your blog content here. Use the toolbar above to format text, change fonts, and add colors..."
+                    />
                   </div>
 
                   <div className="flex items-center gap-2">

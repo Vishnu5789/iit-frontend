@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { AcademicCapIcon, NewspaperIcon, BuildingOffice2Icon, HomeIcon, UsersIcon, EnvelopeIcon, ChatBubbleLeftRightIcon, UserGroupIcon, PhotoIcon } from '@heroicons/react/24/outline'
+import { AcademicCapIcon, NewspaperIcon, BuildingOffice2Icon, HomeIcon, UsersIcon, EnvelopeIcon, ChatBubbleLeftRightIcon, UserGroupIcon, PhotoIcon, VideoCameraIcon } from '@heroicons/react/24/outline'
 import apiService from '../../services/api'
 import { API_BASE_URL } from '../../config/api.config'
 
@@ -93,6 +93,34 @@ const AdminDashboard = () => {
       icon: EnvelopeIcon,
       color: 'from-cyan-500 to-cyan-600',
       link: '/admin/contact-messages'
+    },
+    {
+      title: 'Admissions',
+      count: '📝',
+      icon: AcademicCapIcon,
+      color: 'from-indigo-500 to-indigo-600',
+      link: '/admin/admissions'
+    },
+    {
+      title: 'Webinar',
+      count: '📹',
+      icon: VideoCameraIcon,
+      color: 'from-teal-500 to-teal-600',
+      link: '/admin/webinar'
+    },
+    {
+      title: 'Webinar Registrations',
+      count: '👥',
+      icon: UsersIcon,
+      color: 'from-purple-500 to-purple-600',
+      link: '/admin/webinar-registrations'
+    },
+    {
+      title: 'Blog Subscribers',
+      count: '📧',
+      icon: EnvelopeIcon,
+      color: 'from-blue-500 to-blue-600',
+      link: '/admin/blog-subscribers'
     },
     {
       title: 'Widget',

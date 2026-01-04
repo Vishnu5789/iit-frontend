@@ -318,7 +318,7 @@ export default function CoursePlayer() {
                                 </h4>
                                 <div className="space-y-2">
                                   {folder.videos.map((video, videoIndex) => (
-                                    <div
+                    <div
                                       key={videoIndex}
                       onClick={() => handleVideoSelect(video.url)}
                                       className={`p-3 border rounded-lg cursor-pointer transition ${
@@ -353,10 +353,10 @@ export default function CoursePlayer() {
                                 </h4>
               <div className="space-y-3">
                                   {folder.pdfs.map((pdf, pdfIndex) => (
-                                    <div
+                    <div
                                       key={pdfIndex}
                                       className="border border-gray-200 rounded-lg overflow-hidden"
-                                    >
+                    >
                                       <div className="bg-gray-50 px-4 py-2 border-b border-gray-200">
                                         <p className="font-semibold text-gray-900 text-sm">{pdf.name}</p>
                           </div>
@@ -383,7 +383,7 @@ export default function CoursePlayer() {
                                 </h4>
                                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
                                   {folder.images.map((image, imageIndex) => (
-                                    <div
+                      <div
                                       key={imageIndex}
                         className="border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition cursor-pointer"
                                       onClick={() => setSelectedImage(image.url)}
