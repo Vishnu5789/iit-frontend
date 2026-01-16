@@ -362,14 +362,23 @@ export default function ManageContact() {
           <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
             <h2 className="text-xl font-bold text-dark mb-4">Google Maps Embed</h2>
             <div>
-              <label className="block text-sm font-medium text-dark mb-2">Map Embed URL</label>
+              <label className="block text-sm font-medium text-dark mb-2">Google Maps URL</label>
               <input
                 type="url"
                 value={config?.mapUrl || ''}
                 onChange={(e) => setConfig({ ...config, mapUrl: e.target.value })}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                placeholder="https://www.google.com/maps/embed?..."
+                placeholder="https://www.google.com/maps/place/..."
               />
+              <p className="text-xs text-gray-600 mt-2">
+                <strong>How to get the URL:</strong><br />
+                1. Go to <a href="https://www.google.com/maps" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Google Maps</a><br />
+                2. Search for your location<br />
+                3. Click "Share" button<br />
+                4. Click "Embed a map" tab<br />
+                5. Copy the URL from the iframe src attribute<br />
+                <span className="text-amber-600">Note: You can also paste any Google Maps URL, it will be auto-converted.</span>
+              </p>
               <p className="text-xs text-gray-500 mt-2">
                 Get embed URL from Google Maps → Share → Embed a map
               </p>

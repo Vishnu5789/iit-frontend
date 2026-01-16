@@ -7,6 +7,7 @@ import {
   PhotoIcon,
   CodeBracketIcon
 } from '@heroicons/react/24/outline'
+import apiService from '../services/api'
 
 interface RichTextEditorProps {
   value: string
@@ -57,10 +58,12 @@ export default function RichTextEditor({
   maxLength
 }: RichTextEditorProps) {
   const editorRef = useRef<HTMLDivElement>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const [showColorPicker, setShowColorPicker] = useState(false)
   const [showBgColorPicker, setShowBgColorPicker] = useState(false)
   const [selectedColor, setSelectedColor] = useState('#000000')
   const [selectedBgColor, setSelectedBgColor] = useState('#FFFFFF')
+  const [isUploadingImage, setIsUploadingImage] = useState(false)
 
   useEffect(() => {
     if (editorRef.current && value !== editorRef.current.innerHTML) {
@@ -112,9 +115,50 @@ export default function RichTextEditor({
   }
 
   const insertImage = () => {
-    const url = prompt('Enter image URL:')
-    if (url) {
-      execCommand('insertImage', url)
+    // Trigger file input click
+    fileInputRef.current?.click()
+  }
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      alert('Please select a valid image file')
+      return
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      alert('Image size should be less than 5MB')
+      return
+    }
+
+    setIsUploadingImage(true)
+
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('folder', 'courses/content-images')
+
+      const response = await apiService.uploadFile(formData)
+      
+      if (response.success && response.data.url) {
+        // Insert the uploaded image URL into the editor
+        execCommand('insertImage', response.data.url)
+      } else {
+        throw new Error('Failed to upload image')
+      }
+    } catch (error) {
+      console.error('Image upload error:', error)
+      alert('Failed to upload image. Please try again.')
+    } finally {
+      setIsUploadingImage(false)
+      // Reset file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ''
+      }
     }
   }
 
@@ -286,11 +330,25 @@ export default function RichTextEditor({
         <button
           type="button"
           onClick={insertImage}
-          className="p-1.5 hover:bg-gray-200 rounded transition-colors"
-          title="Insert Image"
+          disabled={isUploadingImage}
+          className={`p-1.5 hover:bg-gray-200 rounded transition-colors ${isUploadingImage ? 'opacity-50 cursor-not-allowed' : ''}`}
+          title={isUploadingImage ? 'Uploading...' : 'Insert Image'}
         >
-          <PhotoIcon className="h-4 w-4" />
+          {isUploadingImage ? (
+            <div className="h-4 w-4 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+          ) : (
+            <PhotoIcon className="h-4 w-4" />
+          )}
         </button>
+        
+        {/* Hidden file input for image upload */}
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          onChange={handleImageUpload}
+          className="hidden"
+        />
         <button
           type="button"
           onClick={() => execCommand('formatBlock', 'pre')}

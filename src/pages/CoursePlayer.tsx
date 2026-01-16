@@ -12,6 +12,8 @@ import {
   ChevronUpIcon
 } from '@heroicons/react/24/outline'
 import apiService from '../services/api'
+import ProtectedPdfViewer from '../components/ProtectedPdfViewer'
+import SecureImageViewer from '../components/SecureImageViewer'
 
 interface CourseContent {
   _id: string
@@ -55,6 +57,8 @@ interface CourseContent {
     videos: Array<{ name: string; url: string; fileId: string; duration?: string }>
     pdfs: Array<{ name: string; url: string; fileId: string }>
     images: Array<{ url: string; fileId: string }>
+    textContent?: Array<{ title: string; content: string }>
+    externalVideoLinks?: Array<{ title: string; url: string; description?: string; platform?: string }>
   }>
 }
 
@@ -69,7 +73,7 @@ export default function CoursePlayer() {
   const [selectedImage, setSelectedImage] = useState<string | null>(null)
   const [expandedFolders, setExpandedFolders] = useState<Set<number>>(new Set())
 
-  // Content protection: Disable right-click, text selection, and image dragging
+  // Content protection: Disable right-click, text selection, image/PDF dragging, and printing
   useEffect(() => {
     const handleContextMenu = (e: MouseEvent) => {
       e.preventDefault();
@@ -91,16 +95,37 @@ export default function CoursePlayer() {
       return false;
     };
 
+    // Prevent keyboard shortcuts for printing and saving PDFs/images
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Prevent Ctrl+P / Cmd+P (Print)
+      if ((e.ctrlKey || e.metaKey) && e.key === 'p') {
+        e.preventDefault();
+        return false;
+      }
+      // Prevent Ctrl+S / Cmd+S (Save)
+      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        e.preventDefault();
+        return false;
+      }
+      // Prevent Ctrl+Shift+P / Cmd+Shift+P (Print dialog alternative)
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'P') {
+        e.preventDefault();
+        return false;
+      }
+    };
+
     document.addEventListener('contextmenu', handleContextMenu);
     document.addEventListener('dragstart', handleDragStart);
     document.addEventListener('selectstart', handleSelectStart);
     document.addEventListener('copy', handleCopy);
+    document.addEventListener('keydown', handleKeyDown);
 
     return () => {
       document.removeEventListener('contextmenu', handleContextMenu);
       document.removeEventListener('dragstart', handleDragStart);
       document.removeEventListener('selectstart', handleSelectStart);
       document.removeEventListener('copy', handleCopy);
+      document.removeEventListener('keydown', handleKeyDown);
     };
   }, []);
 
@@ -301,7 +326,9 @@ export default function CoursePlayer() {
                             <FolderIcon className="h-6 w-6 text-primary" />
                             <span className="font-bold text-lg text-dark">{folder.folderName}</span>
                             <span className="text-sm text-gray-600">
-                              ({folder.videos.length} videos, {folder.pdfs.length} PDFs, {folder.images.length} images)
+                              ({folder.videos.length} videos, {folder.pdfs.length} PDFs, {folder.images.length} images
+                              {folder.textContent && folder.textContent.length > 0 && `, ${folder.textContent.length} text sections`}
+                              {folder.externalVideoLinks && folder.externalVideoLinks.length > 0 && `, ${folder.externalVideoLinks.length} external videos`})
                             </span>
                           </div>
                         </div>
@@ -360,14 +387,11 @@ export default function CoursePlayer() {
                                       <div className="bg-gray-50 px-4 py-2 border-b border-gray-200">
                                         <p className="font-semibold text-gray-900 text-sm">{pdf.name}</p>
                           </div>
-                                      <div className="bg-gray-100" style={{ height: '500px' }}>
-                                        <iframe
-                                          src={`${pdf.url}#toolbar=0&navpanes=0&scrollbar=0`}
-                                          className="w-full h-full border-0"
-                                          title={pdf.name}
-                                          onContextMenu={(e) => e.preventDefault()}
-                                        />
-                          </div>
+                                      <ProtectedPdfViewer 
+                                        pdfUrl={pdf.url}
+                                        pdfName={pdf.name}
+                                        height="500px"
+                                      />
                         </div>
                                   ))}
                       </div>
@@ -402,7 +426,68 @@ export default function CoursePlayer() {
                               </div>
                             )}
 
-                            {folder.videos.length === 0 && folder.pdfs.length === 0 && folder.images.length === 0 && (
+                            {/* Text Content in Folder */}
+                            {folder.textContent && folder.textContent.length > 0 && (
+                              <div>
+                                <h4 className="text-md font-semibold text-dark mb-2 flex items-center gap-2">
+                                  <DocumentTextIcon className="h-5 w-5 text-primary" />
+                                  Text Content ({folder.textContent.length})
+                                </h4>
+                                <div className="space-y-4">
+                                  {folder.textContent.map((text, textIndex) => (
+                                    <div key={textIndex} className="border border-gray-200 rounded-lg p-4 bg-white">
+                                      <h5 className="font-bold text-lg text-dark mb-3">{text.title}</h5>
+                                      <div 
+                                        className="prose prose-sm max-w-none text-gray-700"
+                                        dangerouslySetInnerHTML={{ __html: text.content }}
+                                      />
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+
+                            {/* External Video Links in Folder */}
+                            {folder.externalVideoLinks && folder.externalVideoLinks.length > 0 && (
+                              <div>
+                                <h4 className="text-md font-semibold text-dark mb-2 flex items-center gap-2">
+                                  <PlayIcon className="h-5 w-5 text-primary" />
+                                  External Videos ({folder.externalVideoLinks.length})
+                                </h4>
+                                <div className="space-y-3">
+                                  {folder.externalVideoLinks.map((video, videoIndex) => (
+                                    <div key={videoIndex} className="border border-gray-200 rounded-lg p-4 bg-white">
+                                      <div className="flex items-start justify-between gap-3">
+                                        <div className="flex-1">
+                                          <h5 className="font-bold text-dark mb-1">{video.title}</h5>
+                                          {video.description && (
+                                            <p className="text-sm text-gray-600 mb-2">{video.description}</p>
+                                          )}
+                                          {video.platform && (
+                                            <span className="inline-block px-2 py-1 bg-primary/10 text-primary text-xs rounded mb-2">
+                                              {video.platform}
+                                            </span>
+                                          )}
+                                        </div>
+                                      </div>
+                                      <a
+                                        href={video.url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="inline-flex items-center gap-2 mt-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition text-sm font-semibold"
+                                      >
+                                        <PlayIcon className="h-4 w-4" />
+                                        Watch Video
+                                      </a>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+
+                            {folder.videos.length === 0 && folder.pdfs.length === 0 && folder.images.length === 0 && 
+                             (!folder.textContent || folder.textContent.length === 0) && 
+                             (!folder.externalVideoLinks || folder.externalVideoLinks.length === 0) && (
                               <p className="text-gray-500 text-center py-4">This folder is empty.</p>
                             )}
                           </div>
@@ -419,34 +504,13 @@ export default function CoursePlayer() {
         </div>
       </div>
 
-      {/* Image Modal Viewer */}
+      {/* Secure Image Viewer - Canvas-based with watermarks */}
       {selectedImage && (
-        <div 
-          className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-4"
-          onClick={() => setSelectedImage(null)}
-          onContextMenu={(e) => e.preventDefault()}
-        >
-          <div 
-            className="relative max-w-7xl max-h-[90vh] w-full h-full flex items-center justify-center"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              onClick={() => setSelectedImage(null)}
-              className="absolute top-4 right-4 bg-white/10 hover:bg-white/20 text-white p-2 rounded-full transition-all z-10"
-              onContextMenu={(e) => e.preventDefault()}
-            >
-              <XMarkIcon className="h-6 w-6" />
-            </button>
-            <img
-              src={selectedImage}
-              alt="Course image"
-              className="max-w-full max-h-full object-contain"
-              draggable={false}
-              onContextMenu={(e) => e.preventDefault()}
-              onDragStart={(e) => e.preventDefault()}
-            />
-          </div>
-        </div>
+        <SecureImageViewer
+          imageUrl={selectedImage}
+          imageName="Course Image"
+          onClose={() => setSelectedImage(null)}
+        />
       )}
     </div>
   )

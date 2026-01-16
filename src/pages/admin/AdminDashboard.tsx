@@ -250,6 +250,12 @@ const AdminDashboard = () => {
             >
               Manage Instructors
             </button>
+            <button
+              onClick={() => navigate('/admin/resources')}
+              className="bg-gradient-to-r from-cyan-500 to-cyan-600 text-white px-6 py-4 rounded-lg font-semibold hover:shadow-lg transition-all duration-300 transform hover:scale-[1.03]"
+            >
+              Manage Resources
+            </button>
           </div>
         </div>
       </div>

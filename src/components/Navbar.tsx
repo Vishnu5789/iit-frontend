@@ -34,10 +34,6 @@ const Navbar = () => {
             link: "/",
         },
         {
-            name: "About",
-            link: "/about",
-        },
-        {
             name: "Courses",
             link: "/courses",
         },
@@ -46,12 +42,20 @@ const Navbar = () => {
             link: "/admissions",
         },
         {
-            name: "Blog",
-            link: "/blog",
+            name: "Resources",
+            link: "/resources",
+        },
+        {
+            name: "About",
+            link: "/about",
         },
         {
             name: "Industry",
             link: "/industry",
+        },
+        {
+            name: "Blog",
+            link: "/blog",
         },
         {
             name: "Contact",

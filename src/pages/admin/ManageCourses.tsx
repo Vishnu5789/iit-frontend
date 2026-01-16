@@ -486,7 +486,7 @@ const ManageCourses = () => {
                       className="px-4 py-2 text-xs font-medium text-white bg-primary hover:bg-primary/90 rounded-lg transition-all whitespace-nowrap"
                       title="Manage Quizzes & Tests"
                     >
-                      📝 Quizzes & Tests
+                      Quizzes & Tests
                     </button>
                     <div className="flex gap-2">
                       <button
@@ -528,7 +528,7 @@ const ManageCourses = () => {
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div>
                     <label className="block text-sm font-semibold text-primary mb-2">
-                      Course Title *
+                      Course Title
                     </label>
                     <input
                       type="text"
@@ -541,7 +541,7 @@ const ManageCourses = () => {
 
                   <div>
                     <label className="block text-sm font-semibold text-primary mb-2">
-                      Description *
+                      Description
                     </label>
                     <textarea
                       value={formData.description}
@@ -554,7 +554,7 @@ const ManageCourses = () => {
 
                   <div>
                     <label className="block text-sm font-semibold text-primary mb-2">
-                      About Course *
+                      About Course
                     </label>
                     <textarea
                       value={formData.aboutCourse}
@@ -569,7 +569,7 @@ const ManageCourses = () => {
 
                   <div>
                     <label className="block text-sm font-semibold text-primary mb-2">
-                      Key Points * (One per line)
+                      Key Points (One per line)
                     </label>
                     <textarea
                       value={formData.keyPoints}
@@ -584,7 +584,7 @@ const ManageCourses = () => {
 
                   <div>
                     <label className="block text-sm font-semibold text-primary mb-2">
-                      Eligibility Criteria * (One per line)
+                      Eligibility Criteria (One per line)
                     </label>
                     <textarea
                       value={formData.eligibility}
@@ -599,7 +599,7 @@ const ManageCourses = () => {
 
                   <div>
                     <label className="block text-sm font-semibold text-primary mb-2">
-                      Course Objectives * (One per line)
+                      Course Objectives (One per line)
                     </label>
                     <textarea
                       value={formData.objectives}
@@ -614,7 +614,7 @@ const ManageCourses = () => {
 
                   <div>
                     <FileUpload
-                      label="Course Syllabus (PDF/DOC) *"
+                      label="Course Syllabus (PDF/DOC)"
                       accept=".pdf,.doc,.docx"
                       folder="syllabus"
                       onUploadComplete={(fileData) => {
@@ -638,15 +638,12 @@ const ManageCourses = () => {
                         })
                       }}
                     />
-                    {!formData.syllabus.url && (
-                      <p className="text-xs text-red-500 mt-1">* Syllabus PDF is required</p>
-                    )}
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-semibold text-primary mb-2">
-                        Duration *
+                        Duration
                       </label>
                       <input
                         type="text"
@@ -660,7 +657,7 @@ const ManageCourses = () => {
 
                     <div>
                       <label className="block text-sm font-semibold text-primary mb-2">
-                        Level *
+                        Level
                       </label>
                       <select
                         value={formData.level}
@@ -680,7 +677,7 @@ const ManageCourses = () => {
 
                   <div>
                     <label className="block text-sm font-semibold text-primary mb-2">
-                      Category *
+                      Category
                     </label>
                     <select
                       value={formData.category}
@@ -699,7 +696,7 @@ const ManageCourses = () => {
                   {/* Price Fields */}
                   <div>
                     <label className="block text-sm font-semibold text-primary mb-2">
-                      Price (₹) *
+                      Price (₹)
                     </label>
                     <input
                       type="number"
@@ -737,7 +734,7 @@ const ManageCourses = () => {
                       {/* Thumbnail Upload */}
                       <div>
                         <FileUpload
-                          label="Course Thumbnail *"
+                          label="Course Thumbnail"
                           accept=".jpg,.jpeg,.png,.webp"
                           folder="courses/thumbnails"
                           onUploadComplete={(fileData) => setFormData({
@@ -750,9 +747,6 @@ const ManageCourses = () => {
                             thumbnail: { url: '', fileId: '' }
                           })}
                         />
-                        {!formData.thumbnail.url && (
-                          <p className="text-xs text-red-500 mt-1">* Course thumbnail is required</p>
-                        )}
                         {formData.thumbnail.url && (
                           <p className="text-xs text-green-600 mt-1 font-semibold">✓ Thumbnail uploaded</p>
                         )}
@@ -761,7 +755,7 @@ const ManageCourses = () => {
                       {/* Sample Videos Upload */}
                       <div>
                         <label className="block text-sm font-semibold text-primary mb-2">
-                          🎬 Sample Videos * (Preview for users before purchase)
+                          Sample Videos (Preview for users before purchase)
                         </label>
                         <p className="text-xs text-gray-600 mb-2">
                           Upload preview videos to showcase your course. Add as many as needed!
@@ -775,7 +769,6 @@ const ManageCourses = () => {
                             sampleVideos: [...formData.sampleVideos, fileData]
                           })}
                         />
-                        <p className="text-xs text-red-500 mt-1">* At least one sample video is required</p>
                         
                         {/* Display uploaded sample videos */}
                         {formData.sampleVideos.length > 0 && (
@@ -805,7 +798,7 @@ const ManageCourses = () => {
                       {/* Folder-Based Media Organization */}
                       <div className="mt-6 pt-6 border-t border-primary/20">
                         <label className="block text-sm font-semibold text-primary mb-2">
-                          📁 Course Content Folders * (Organize videos, PDFs, and images by folder)
+                          Course Content Folders (Organize videos, PDFs, and images by folder)
                         </label>
                         <p className="text-xs text-gray-600 mb-3">
                           Create folders to organize your course content. Each folder can contain videos, PDFs, and images.
@@ -873,7 +866,7 @@ const ManageCourses = () => {
                                     {/* Videos Section */}
                                     <div>
                                       <label className="block text-sm font-semibold text-primary mb-2">
-                                        🎓 Videos
+                                        Videos
                                       </label>
                         <FileUpload
                                         label="Add Video"
@@ -964,7 +957,7 @@ const ManageCourses = () => {
                                     {/* Text Content Section */}
                                     <div>
                                       <label className="block text-sm font-semibold text-primary mb-2">
-                                        📝 Text Content
+                                        Text Content
                                       </label>
                                       <div className="bg-gray-50 p-3 rounded-lg mb-2 space-y-2">
                                         <input
@@ -1019,7 +1012,7 @@ const ManageCourses = () => {
                                     {/* External Video Links Section */}
                                     <div>
                                       <label className="block text-sm font-semibold text-primary mb-2">
-                                        🎥 External Video Links
+                                        External Video Links
                                       </label>
                                       <div className="bg-gray-50 p-3 rounded-lg mb-2 space-y-2">
                                         <input
@@ -1101,19 +1094,10 @@ const ManageCourses = () => {
                           <div className="text-center py-8 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
                             <FolderIcon className="h-12 w-12 text-gray-400 mx-auto mb-2" />
                             <p className="text-sm text-gray-600">No folders created yet. Create your first folder above.</p>
-                            <p className="text-xs text-red-500 mt-2">* At least one folder with content is required</p>
                           </div>
                         )}
                       </div>
                     </div>
-                  </div>
-
-                  {/* World-Class LMS Banner */}
-                  <div className="bg-gradient-to-r from-primary to-secondary text-white p-4 rounded-lg text-center">
-                    <p className="font-bold text-sm">🏆 World-Class Learning Management System</p>
-                    <p className="text-xs mt-1">
-                      Support for 40+ Videos • 40+ PDFs • Unlimited Images • Rich Text Content • External Videos
-                    </p>
                   </div>
 
                   <div className="flex items-center gap-2">

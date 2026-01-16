@@ -978,6 +978,207 @@ class ApiService {
     });
     return this.handleResponse(response);
   }
+
+  // ============================================
+  // Secure PDF Streaming Methods
+  // ============================================
+
+  /**
+   * Get PDF metadata (total pages, dimensions, etc.)
+   */
+  async getPdfMetadata(pdfId: string): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/secure-content/pdf/${pdfId}/metadata`, {
+      method: 'GET',
+      headers: this.getHeaders(true), // Auth required
+    });
+    return this.handleResponse(response);
+  }
+
+  /**
+   * Get single PDF page as image blob
+   * Returns raw image data for canvas rendering
+   */
+  async getPdfPage(pdfId: string, pageNumber: number): Promise<Blob> {
+    const token = localStorage.getItem('token');
+    const response = await fetch(
+      `${API_BASE_URL}/secure-content/pdf/${pdfId}/page/${pageNumber}`,
+      {
+        method: 'GET',
+        headers: {
+          'Authorization': token ? `Bearer ${token}` : '',
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch page ${pageNumber}: ${response.statusText}`);
+    }
+
+    return response.blob();
+  }
+
+  /**
+   * Log PDF access for audit trail (optional)
+   */
+  async logPdfAccess(pdfId: string, pageNumber: number, action: string = 'view'): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/secure-content/pdf/${pdfId}/log-access`, {
+      method: 'POST',
+      headers: this.getHeaders(true),
+      body: JSON.stringify({ pageNumber, action }),
+    });
+    return this.handleResponse(response);
+  }
+
+  // ============================================
+  // Statistics & Analytics Methods
+  // ============================================
+
+  /**
+   * Get statistics for a specific course
+   */
+  async getCourseStats(courseId: string): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/stats/course/${courseId}`, {
+      method: 'GET',
+      headers: this.getHeaders(true), // Auth required
+    });
+    return this.handleResponse(response);
+  }
+
+  /**
+   * Get statistics for all courses
+   */
+  async getAllCoursesStats(): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/stats/courses`, {
+      method: 'GET',
+      headers: this.getHeaders(true), // Auth required
+    });
+    return this.handleResponse(response);
+  }
+
+  /**
+   * Get dashboard summary (admin)
+   */
+  async getDashboardSummary(): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/stats/dashboard`, {
+      method: 'GET',
+      headers: this.getHeaders(true), // Auth required
+    });
+    return this.handleResponse(response);
+  }
+
+  /**
+   * Get public course statistics (no auth required)
+   */
+  async getCoursePublicStats(courseId: string): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/courses/${courseId}/stats`, {
+      method: 'GET',
+      headers: this.getHeaders(false), // No auth required - public data
+    });
+    return this.handleResponse(response);
+  }
+
+  /**
+   * Upload file to S3
+   * @param formData - FormData containing file and folder
+   */
+  async uploadFile(formData: FormData): Promise<ApiResponse> {
+    const token = localStorage.getItem('token');
+    const headers: HeadersInit = {};
+    
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    const response = await fetch(`${API_BASE_URL}/upload`, {
+      method: 'POST',
+      headers: headers, // Don't set Content-Type, let browser set it with boundary
+      body: formData,
+    });
+    
+    return this.handleResponse(response);
+  }
+
+  // ==================== RESOURCES ====================
+
+  /**
+   * Get all resources
+   */
+  async getResources(params?: any): Promise<ApiResponse> {
+    const queryString = params ? '?' + new URLSearchParams(params).toString() : '';
+    const response = await fetch(`${API_BASE_URL}/resources${queryString}`, {
+      method: 'GET',
+      headers: this.getHeaders(false),
+    });
+    return this.handleResponse(response);
+  }
+
+  /**
+   * Get single resource
+   */
+  async getResource(id: string): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/resources/${id}`, {
+      method: 'GET',
+      headers: this.getHeaders(false),
+    });
+    return this.handleResponse(response);
+  }
+
+  /**
+   * Download/Access resource
+   */
+  async downloadResource(id: string): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/resources/${id}/download`, {
+      method: 'POST',
+      headers: this.getHeaders(true),
+    });
+    return this.handleResponse(response);
+  }
+
+  /**
+   * Create resource (Admin)
+   */
+  async createResource(data: any): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/resources`, {
+      method: 'POST',
+      headers: this.getHeaders(true),
+      body: JSON.stringify(data),
+    });
+    return this.handleResponse(response);
+  }
+
+  /**
+   * Update resource (Admin)
+   */
+  async updateResource(id: string, data: any): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/resources/${id}`, {
+      method: 'PUT',
+      headers: this.getHeaders(true),
+      body: JSON.stringify(data),
+    });
+    return this.handleResponse(response);
+  }
+
+  /**
+   * Delete resource (Admin)
+   */
+  async deleteResource(id: string): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/resources/${id}`, {
+      method: 'DELETE',
+      headers: this.getHeaders(true),
+    });
+    return this.handleResponse(response);
+  }
+
+  /**
+   * Get resource statistics (Admin)
+   */
+  async getResourceStats(): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/resources/admin/stats`, {
+      method: 'GET',
+      headers: this.getHeaders(true),
+    });
+    return this.handleResponse(response);
+  }
 }
 
 export default new ApiService();

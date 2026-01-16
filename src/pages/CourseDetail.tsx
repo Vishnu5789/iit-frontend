@@ -10,7 +10,6 @@ import {
   LinkIcon,
   LockClosedIcon,
   TrophyIcon,
-  XMarkIcon,
   FolderIcon,
   ChevronDownIcon,
   ChevronUpIcon,
@@ -19,6 +18,9 @@ import {
 import apiService from '../services/api';
 import toast from 'react-hot-toast';
 import MarkdownRenderer from '../components/MarkdownRenderer';
+import ProtectedPdfViewer from '../components/ProtectedPdfViewer';
+import SecureImageViewer from '../components/SecureImageViewer';
+import CourseStatsDisplay from '../components/CourseStatsDisplay';
 
 interface Course {
   _id: string;
@@ -74,6 +76,8 @@ interface Course {
     videos: Array<{ name: string; url: string; fileId: string; duration?: string }>;
     pdfs: Array<{ name: string; url: string; fileId: string }>;
     images: Array<{ url: string; fileId: string }>;
+    textContent?: Array<{ title: string; content: string }>;
+    externalVideoLinks?: Array<{ title: string; url: string; description?: string; platform?: string }>;
   }>;
 }
 
@@ -101,7 +105,7 @@ export default function CourseDetail() {
   const [submittingForm, setSubmittingForm] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
-  // Content protection: Disable right-click, text selection, and image dragging
+  // Content protection: Disable right-click, text selection, image/PDF dragging, and printing
   useEffect(() => {
     if (isEnrolled) {
       const handleContextMenu = (e: MouseEvent) => {
@@ -124,16 +128,37 @@ export default function CourseDetail() {
         return false;
       };
 
+      // Prevent keyboard shortcuts for printing and saving PDFs/images
+      const handleKeyDown = (e: KeyboardEvent) => {
+        // Prevent Ctrl+P / Cmd+P (Print)
+        if ((e.ctrlKey || e.metaKey) && e.key === 'p') {
+          e.preventDefault();
+          return false;
+        }
+        // Prevent Ctrl+S / Cmd+S (Save)
+        if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+          e.preventDefault();
+          return false;
+        }
+        // Prevent Ctrl+Shift+P / Cmd+Shift+P (Print dialog alternative)
+        if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'P') {
+          e.preventDefault();
+          return false;
+        }
+      };
+
       document.addEventListener('contextmenu', handleContextMenu);
       document.addEventListener('dragstart', handleDragStart);
       document.addEventListener('selectstart', handleSelectStart);
       document.addEventListener('copy', handleCopy);
+      document.addEventListener('keydown', handleKeyDown);
 
       return () => {
         document.removeEventListener('contextmenu', handleContextMenu);
         document.removeEventListener('dragstart', handleDragStart);
         document.removeEventListener('selectstart', handleSelectStart);
         document.removeEventListener('copy', handleCopy);
+        document.removeEventListener('keydown', handleKeyDown);
       };
     }
   }, [isEnrolled]);
@@ -449,6 +474,9 @@ This is an enquiry from the course detail page.
               <p className="text-lg mb-8 leading-relaxed max-w-3xl">
                 {course.description || `${course.title} course is one-of-a-kind. This course is structured to raise the level of expertise in design and to improve the competitiveness in the global markets.`}
               </p>
+
+              {/* Course Statistics - Inline in Header */}
+              <CourseStatsDisplay courseId={id!} variant="inline" className="mb-8" />
 
               {/* CTA Buttons */}
               <div className="flex flex-wrap items-center gap-4">
@@ -797,7 +825,9 @@ This is an enquiry from the course detail page.
                           <FolderIcon className="h-6 w-6 text-primary" />
                           <span className="font-bold text-lg text-dark">{folder.folderName}</span>
                           <span className="text-sm text-gray-600">
-                            ({folder.videos.length} videos, {folder.pdfs.length} PDFs, {folder.images.length} images)
+                            ({folder.videos.length} videos, {folder.pdfs.length} PDFs, {folder.images.length} images
+                            {folder.textContent && folder.textContent.length > 0 && `, ${folder.textContent.length} text sections`}
+                            {folder.externalVideoLinks && folder.externalVideoLinks.length > 0 && `, ${folder.externalVideoLinks.length} external videos`})
                           </span>
         </div>
       </div>
@@ -849,14 +879,11 @@ This is an enquiry from the course detail page.
                                     <div className="bg-gray-50 px-4 py-2 border-b border-gray-200">
                                       <p className="font-semibold text-gray-900 text-sm">{pdf.name}</p>
                           </div>
-                                    <div className="bg-gray-100" style={{ height: '600px' }}>
-                                      <iframe
-                                        src={`${pdf.url}#toolbar=0&navpanes=0&scrollbar=0`}
-                                        className="w-full h-full border-0"
-                                        title={pdf.name}
-                                        onContextMenu={(e) => e.preventDefault()}
-                                      />
-                      </div>
+                                    <ProtectedPdfViewer 
+                                      pdfUrl={pdf.url}
+                                      pdfName={pdf.name}
+                                      height="600px"
+                                    />
                     </div>
                   ))}
                 </div>
@@ -891,7 +918,71 @@ This is an enquiry from the course detail page.
                             </div>
                           )}
 
-                          {folder.videos.length === 0 && folder.pdfs.length === 0 && folder.images.length === 0 && (
+                          {/* Text Content in Folder */}
+                          {folder.textContent && folder.textContent.length > 0 && (
+                            <div>
+                              <h4 className="text-lg font-semibold text-dark mb-3 flex items-center gap-2">
+                                <DocumentTextIcon className="h-5 w-5 text-primary" />
+                                Text Content ({folder.textContent.length})
+                              </h4>
+                              <div className="space-y-4">
+                                {folder.textContent.map((text, textIndex) => (
+                                  <div key={textIndex} className="border border-gray-200 rounded-lg p-6 bg-white">
+                                    <h5 className="font-bold text-xl text-dark mb-4">{text.title}</h5>
+                                    <div 
+                                      className="prose prose-lg max-w-none text-gray-700"
+                                      dangerouslySetInnerHTML={{ __html: text.content }}
+                                      onContextMenu={(e) => e.preventDefault()}
+                                      onCopy={(e) => e.preventDefault()}
+                                      style={{ userSelect: 'none' }}
+                                    />
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* External Video Links in Folder */}
+                          {folder.externalVideoLinks && folder.externalVideoLinks.length > 0 && (
+                            <div>
+                              <h4 className="text-lg font-semibold text-dark mb-3 flex items-center gap-2">
+                                <PlayIcon className="h-5 w-5 text-primary" />
+                                External Videos ({folder.externalVideoLinks.length})
+                              </h4>
+                              <div className="space-y-4">
+                                {folder.externalVideoLinks.map((video, videoIndex) => (
+                                  <div key={videoIndex} className="border border-gray-200 rounded-lg p-6 bg-white">
+                                    <div className="flex items-start justify-between gap-4">
+                                      <div className="flex-1">
+                                        <h5 className="font-bold text-lg text-dark mb-2">{video.title}</h5>
+                                        {video.description && (
+                                          <p className="text-gray-600 mb-3">{video.description}</p>
+                                        )}
+                                        {video.platform && (
+                                          <span className="inline-block px-3 py-1 bg-primary/10 text-primary text-sm rounded-full font-semibold mb-3">
+                                            {video.platform}
+                                          </span>
+                                        )}
+                                      </div>
+                                    </div>
+                                    <a
+                                      href={video.url}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition font-semibold"
+                                    >
+                                      <PlayIcon className="h-5 w-5" />
+                                      Watch Video
+                                    </a>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {folder.videos.length === 0 && folder.pdfs.length === 0 && folder.images.length === 0 && 
+                           (!folder.textContent || folder.textContent.length === 0) && 
+                           (!folder.externalVideoLinks || folder.externalVideoLinks.length === 0) && (
                             <p className="text-gray-500 text-center py-4">This folder is empty.</p>
                           )}
                         </div>
@@ -1162,34 +1253,13 @@ This is an enquiry from the course detail page.
         </div>
       )}
 
-      {/* Image Modal Viewer */}
+      {/* Secure Image Viewer - Canvas-based with watermarks */}
       {selectedImage && (
-        <div 
-          className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-4"
-          onClick={() => setSelectedImage(null)}
-          onContextMenu={(e) => e.preventDefault()}
-        >
-          <div 
-            className="relative max-w-7xl max-h-[90vh] w-full h-full flex items-center justify-center"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              onClick={() => setSelectedImage(null)}
-              className="absolute top-4 right-4 bg-white/10 hover:bg-white/20 text-white p-2 rounded-full transition-all z-10"
-              onContextMenu={(e) => e.preventDefault()}
-            >
-              <XMarkIcon className="h-6 w-6" />
-            </button>
-            <img
-              src={selectedImage}
-              alt="Course image"
-              className="max-w-full max-h-full object-contain"
-              draggable={false}
-              onContextMenu={(e) => e.preventDefault()}
-              onDragStart={(e) => e.preventDefault()}
-            />
-          </div>
-        </div>
+        <SecureImageViewer
+          imageUrl={selectedImage}
+          imageName="Course Image"
+          onClose={() => setSelectedImage(null)}
+        />
       )}
     </div>
   );

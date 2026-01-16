@@ -37,6 +37,7 @@ import ManageAdmissions from './pages/admin/ManageAdmissions'
 import ManageWebinar from './pages/admin/ManageWebinar'
 import ManageWebinarRegistrations from './pages/admin/ManageWebinarRegistrations'
 import ManageBlogSubscribers from './pages/admin/ManageBlogSubscribers'
+import ManageResources from './pages/admin/ManageResources'
 import QuizTake from './pages/QuizTake'
 import QuizResults from './pages/QuizResults'
 import AuthCallback from './pages/AuthCallback'
@@ -44,6 +45,7 @@ import BlogDetail from './pages/BlogDetail'
 import BlogUnsubscribe from './pages/BlogUnsubscribe'
 import IndustryDetail from './pages/IndustryDetail'
 import Admissions from './pages/Admissions'
+import Resources from './pages/Resources'
 
 const App = () => {
   return (
@@ -81,6 +83,7 @@ const App = () => {
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/admissions" element={<Admissions />} />
+          <Route path="/resources" element={<Resources />} />
           <Route path="/courses" element={<Courses />} />
           <Route path="/courses/:id" element={<CourseDetail />} />
           <Route path="/blog" element={<Blog />} />
@@ -119,6 +122,7 @@ const App = () => {
           <Route path="/admin/webinar" element={<ManageWebinar />} />
           <Route path="/admin/webinar-registrations" element={<ManageWebinarRegistrations />} />
           <Route path="/admin/blog-subscribers" element={<ManageBlogSubscribers />} />
+          <Route path="/admin/resources" element={<ManageResources />} />
           <Route path="/quiz/:quizId" element={<QuizTake />} />
           <Route path="/quiz/:quizId/results" element={<QuizResults />} />
         </Routes>
