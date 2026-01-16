@@ -8,7 +8,7 @@ interface SecureImageViewerProps {
   onClose?: () => void;
 }
 
-export default function SecureImageViewer({ imageUrl, imageName, onClose }: SecureImageViewerProps) {
+export default function SecureImageViewer({ imageUrl, onClose }: SecureImageViewerProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [loading, setLoading] = useState(true);
   const [userEmail, setUserEmail] = useState('');

@@ -1,9 +1,7 @@
 import { useEffect, useState } from 'react';
 import { 
   UsersIcon, 
-  StarIcon, 
-  FireIcon, 
-  SparklesIcon,
+  StarIcon,
   ClockIcon,
   ChartBarIcon
 } from '@heroicons/react/24/solid';

@@ -6,7 +6,6 @@ import {
   PhotoIcon,
   ArrowLeftIcon,
   LockClosedIcon,
-  XMarkIcon,
   FolderIcon,
   ChevronDownIcon,
   ChevronUpIcon

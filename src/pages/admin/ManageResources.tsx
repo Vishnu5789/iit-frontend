@@ -5,8 +5,7 @@ import {
   PencilIcon,
   TrashIcon,
   XMarkIcon,
-  DocumentTextIcon,
-  ArrowDownTrayIcon
+  DocumentTextIcon
 } from '@heroicons/react/24/outline';
 import apiService from '../../services/api';
 import FileUpload from '../../components/FileUpload';
