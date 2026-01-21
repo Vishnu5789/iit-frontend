@@ -105,6 +105,7 @@ const ManageCourses = () => {
   })
   
   const [newTextContent, setNewTextContent] = useState({ title: '', content: '' })
+  const [editingTextContent, setEditingTextContent] = useState<{ folderIndex: number; textIndex: number } | null>(null)
   const [newExternalVideo, setNewExternalVideo] = useState({ title: '', url: '', description: '', platform: 'youtube' })
   const [newFolderName, setNewFolderName] = useState('')
   const [expandedFolders, setExpandedFolders] = useState<Set<number>>(new Set())
@@ -404,12 +405,37 @@ const ManageCourses = () => {
     }
     updatedFolders[folderIndex].textContent.push(textData)
     setFormData({ ...formData, mediaFolders: updatedFolders })
+    setNewTextContent({ title: '', content: '' })
+    setEditingTextContent(null)
+  }
+
+  const updateTextContentInFolder = (folderIndex: number, textIndex: number, textData: { title: string; content: string }) => {
+    const updatedFolders = [...formData.mediaFolders]
+    updatedFolders[folderIndex].textContent[textIndex] = textData
+    setFormData({ ...formData, mediaFolders: updatedFolders })
+    setNewTextContent({ title: '', content: '' })
+    setEditingTextContent(null)
+  }
+
+  const editTextContentInFolder = (folderIndex: number, textIndex: number) => {
+    const textContent = formData.mediaFolders[folderIndex].textContent[textIndex]
+    setNewTextContent({ title: textContent.title, content: textContent.content })
+    setEditingTextContent({ folderIndex, textIndex })
+  }
+
+  const cancelEditTextContent = () => {
+    setNewTextContent({ title: '', content: '' })
+    setEditingTextContent(null)
   }
 
   const removeTextContentFromFolder = (folderIndex: number, textIndex: number) => {
     const updatedFolders = [...formData.mediaFolders]
     updatedFolders[folderIndex].textContent = updatedFolders[folderIndex].textContent.filter((_, i) => i !== textIndex)
     setFormData({ ...formData, mediaFolders: updatedFolders })
+    // If we're editing the item being removed, cancel edit mode
+    if (editingTextContent?.folderIndex === folderIndex && editingTextContent?.textIndex === textIndex) {
+      cancelEditTextContent()
+    }
   }
 
   const addExternalVideoToFolder = (folderIndex: number, videoData: { title: string; url: string; description?: string; platform?: string }) => {
@@ -973,36 +999,63 @@ const ManageCourses = () => {
                                           rows={5}
                                           placeholder="Enter text content here. Use the toolbar to format text, change fonts, and add colors..."
                                         />
-                                        <button
-                                          type="button"
-                                          onClick={() => {
-                                            if (newTextContent.title && newTextContent.content) {
-                                              addTextContentToFolder(folderIndex, { ...newTextContent })
-                                              setNewTextContent({ title: '', content: '' })
-                                            } else {
-                                              alert('Please fill in both title and content')
-                                            }
-                                          }}
-                                          className="w-full bg-primary text-white px-3 py-1.5 rounded text-sm font-semibold hover:bg-primary/90 transition-all"
-                                        >
-                                          + Add Text Content
-                                        </button>
+                                        <div className="flex gap-2">
+                                          <button
+                                            type="button"
+                                            onClick={() => {
+                                              if (newTextContent.title && newTextContent.content) {
+                                                if (editingTextContent && editingTextContent.folderIndex === folderIndex) {
+                                                  updateTextContentInFolder(folderIndex, editingTextContent.textIndex, newTextContent)
+                                                } else {
+                                                  addTextContentToFolder(folderIndex, newTextContent)
+                                                }
+                                              } else {
+                                                alert('Please fill in both title and content')
+                                              }
+                                            }}
+                                            className="flex-1 bg-primary text-white px-3 py-1.5 rounded text-sm font-semibold hover:bg-primary/90 transition-all"
+                                          >
+                                            {editingTextContent && editingTextContent.folderIndex === folderIndex ? '✓ Update Text Content' : '+ Add Text Content'}
+                                          </button>
+                                          {editingTextContent && editingTextContent.folderIndex === folderIndex && (
+                                            <button
+                                              type="button"
+                                              onClick={cancelEditTextContent}
+                                              className="px-3 py-1.5 bg-gray-500 text-white rounded text-sm font-semibold hover:bg-gray-600 transition-all"
+                                            >
+                                              Cancel
+                                            </button>
+                                          )}
+                                        </div>
                                       </div>
                                       {folder.textContent && folder.textContent.length > 0 && (
                                         <div className="mt-2 space-y-1">
                                           {folder.textContent.map((text, textIndex) => (
-                                            <div key={textIndex} className="flex items-start justify-between bg-gray-50 p-2 rounded text-sm">
+                                            <div key={textIndex} className={`flex items-start justify-between p-2 rounded text-sm ${
+                                              editingTextContent?.folderIndex === folderIndex && editingTextContent?.textIndex === textIndex
+                                                ? 'bg-blue-50 border-2 border-blue-300'
+                                                : 'bg-gray-50'
+                                            }`}>
                                               <div className="flex-1">
                                                 <span className="font-semibold text-gray-700">{text.title}</span>
                                                 <p className="text-xs text-gray-600 mt-1 line-clamp-1">{text.content}</p>
                                               </div>
-                                              <button
-                                                type="button"
-                                                onClick={() => removeTextContentFromFolder(folderIndex, textIndex)}
-                                                className="text-red-600 hover:text-red-800 ml-2"
-                                              >
-                                                Remove
-                                              </button>
+                                              <div className="flex gap-2 ml-2">
+                                                <button
+                                                  type="button"
+                                                  onClick={() => editTextContentInFolder(folderIndex, textIndex)}
+                                                  className="text-blue-600 hover:text-blue-800 font-medium"
+                                                >
+                                                  Edit
+                                                </button>
+                                                <button
+                                                  type="button"
+                                                  onClick={() => removeTextContentFromFolder(folderIndex, textIndex)}
+                                                  className="text-red-600 hover:text-red-800 font-medium"
+                                                >
+                                                  Remove
+                                                </button>
+                                              </div>
                                             </div>
                                           ))}
                                         </div>

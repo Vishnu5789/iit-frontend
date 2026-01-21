@@ -90,8 +90,38 @@ export default function RichTextEditor({
 
   const handlePaste = (e: React.ClipboardEvent) => {
     e.preventDefault()
-    const text = e.clipboardData.getData('text/plain')
-    document.execCommand('insertText', false, text)
+    
+    // Try to get HTML content first (preserves formatting)
+    let content = e.clipboardData.getData('text/html')
+    
+    if (content) {
+      // Clean up the HTML - remove unnecessary tags and attributes
+      const tempDiv = document.createElement('div')
+      tempDiv.innerHTML = content
+      
+      // Remove script tags for security
+      const scripts = tempDiv.getElementsByTagName('script')
+      for (let i = scripts.length - 1; i >= 0; i--) {
+        scripts[i].remove()
+      }
+      
+      // Remove style tags
+      const styles = tempDiv.getElementsByTagName('style')
+      for (let i = styles.length - 1; i >= 0; i--) {
+        styles[i].remove()
+      }
+      
+      // Get cleaned HTML
+      content = tempDiv.innerHTML
+      
+      // Insert the HTML content
+      document.execCommand('insertHTML', false, content)
+    } else {
+      // Fall back to plain text if no HTML
+      const text = e.clipboardData.getData('text/plain')
+      document.execCommand('insertText', false, text)
+    }
+    
     updateContent()
   }
 

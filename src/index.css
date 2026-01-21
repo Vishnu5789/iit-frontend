@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
 
 body {
     @apply bg-light;
@@ -45,6 +46,158 @@ h1, h2, h3, h4, h5, h6 {
 /* Ensure seamless infinite scroll */
 .animate-scroll-fast {
     width: max-content;
+}
+
+/* Enhanced Prose Styling for Text Content */
+.prose {
+    color: #1c1d1f;
+}
+
+.prose h1, .prose h2, .prose h3, .prose h4, .prose h5, .prose h6 {
+    color: #1c1d1f;
+    font-weight: 700;
+    margin-top: 1.5em;
+    margin-bottom: 0.75em;
+    line-height: 1.3;
+}
+
+.prose h1 {
+    font-size: 2em;
+}
+
+.prose h2 {
+    font-size: 1.75em;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 0.5em;
+}
+
+.prose h3 {
+    font-size: 1.5em;
+}
+
+.prose h4 {
+    font-size: 1.25em;
+}
+
+.prose p {
+    margin-top: 1em;
+    margin-bottom: 1em;
+    line-height: 1.75;
+    color: #2d2f31;
+}
+
+.prose strong {
+    color: #1c1d1f;
+    font-weight: 700;
+}
+
+.prose em {
+    font-style: italic;
+}
+
+.prose a {
+    color: #5624d0;
+    text-decoration: underline;
+    font-weight: 500;
+}
+
+.prose a:hover {
+    color: #401b9c;
+}
+
+.prose ul, .prose ol {
+    margin-top: 1em;
+    margin-bottom: 1em;
+    padding-left: 1.75em;
+}
+
+.prose li {
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+    line-height: 1.75;
+    color: #2d2f31;
+}
+
+.prose ul > li {
+    list-style-type: disc;
+}
+
+.prose ol > li {
+    list-style-type: decimal;
+}
+
+.prose blockquote {
+    border-left: 4px solid #5624d0;
+    padding-left: 1em;
+    margin: 1.5em 0;
+    font-style: italic;
+    color: #6a6f73;
+    background-color: #f7f9fa;
+    padding: 1em 1em 1em 1.5em;
+    border-radius: 4px;
+}
+
+.prose code {
+    background-color: #f7f9fa;
+    color: #e74c3c;
+    padding: 0.2em 0.4em;
+    border-radius: 4px;
+    font-size: 0.875em;
+    font-family: 'Courier New', monospace;
+}
+
+.prose pre {
+    background-color: #2d2f31;
+    color: #f7f9fa;
+    padding: 1em;
+    border-radius: 8px;
+    overflow-x: auto;
+    margin: 1.5em 0;
+}
+
+.prose pre code {
+    background-color: transparent;
+    color: inherit;
+    padding: 0;
+    font-size: 0.875em;
+}
+
+.prose img {
+    border-radius: 8px;
+    margin: 1.5em 0;
+    max-width: 100%;
+    height: auto;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.prose table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.5em 0;
+}
+
+.prose th {
+    background-color: #5624d0;
+    color: white;
+    font-weight: 700;
+    padding: 0.75em;
+    text-align: left;
+    border: 1px solid #ddd;
+}
+
+.prose td {
+    padding: 0.75em;
+    border: 1px solid #ddd;
+}
+
+.prose tr:nth-child(even) {
+    background-color: #f7f9fa;
+}
+
+.prose hr {
+    border: none;
+    border-top: 2px solid #e0e0e0;
+    margin: 2em 0;
 }
 
 

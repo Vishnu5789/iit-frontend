@@ -13,6 +13,8 @@ import {
 import apiService from '../services/api'
 import ProtectedPdfViewer from '../components/ProtectedPdfViewer'
 import SecureImageViewer from '../components/SecureImageViewer'
+import MarkdownRenderer from '../components/MarkdownRenderer'
+import { prepareContentForRendering } from '../utils/contentCleaner'
 
 interface CourseContent {
   _id: string
@@ -433,15 +435,26 @@ export default function CoursePlayer() {
                                   Text Content ({folder.textContent.length})
                                 </h4>
                                 <div className="space-y-4">
-                                  {folder.textContent.map((text, textIndex) => (
-                                    <div key={textIndex} className="border border-gray-200 rounded-lg p-4 bg-white">
-                                      <h5 className="font-bold text-lg text-dark mb-3">{text.title}</h5>
-                                      <div 
-                                        className="prose prose-sm max-w-none text-gray-700"
-                                        dangerouslySetInnerHTML={{ __html: text.content }}
-                                      />
-                                    </div>
-                                  ))}
+                                  {folder.textContent.map((text, textIndex) => {
+                                    const { content, isHTML } = prepareContentForRendering(text.content)
+                                    return (
+                                      <div key={textIndex} className="border border-gray-200 rounded-lg p-6 bg-white shadow-sm">
+                                        <h5 className="font-bold text-xl text-dark mb-4 border-b border-gray-100 pb-3">{text.title}</h5>
+                                        {/* Render based on content type */}
+                                        {isHTML ? (
+                                          <div 
+                                            className="prose prose-lg max-w-none"
+                                            dangerouslySetInnerHTML={{ __html: content }}
+                                            style={{
+                                              fontFamily: 'inherit'
+                                            }}
+                                          />
+                                        ) : (
+                                          <MarkdownRenderer content={content} />
+                                        )}
+                                      </div>
+                                    )
+                                  })}
                                 </div>
                               </div>
                             )}

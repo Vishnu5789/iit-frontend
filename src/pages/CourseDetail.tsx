@@ -21,6 +21,7 @@ import MarkdownRenderer from '../components/MarkdownRenderer';
 import ProtectedPdfViewer from '../components/ProtectedPdfViewer';
 import SecureImageViewer from '../components/SecureImageViewer';
 import CourseStatsDisplay from '../components/CourseStatsDisplay';
+import { prepareContentForRendering } from '../utils/contentCleaner';
 
 interface Course {
   _id: string;
@@ -926,18 +927,32 @@ This is an enquiry from the course detail page.
                                 Text Content ({folder.textContent.length})
                               </h4>
                               <div className="space-y-4">
-                                {folder.textContent.map((text, textIndex) => (
-                                  <div key={textIndex} className="border border-gray-200 rounded-lg p-6 bg-white">
-                                    <h5 className="font-bold text-xl text-dark mb-4">{text.title}</h5>
-                                    <div 
-                                      className="prose prose-lg max-w-none text-gray-700"
-                                      dangerouslySetInnerHTML={{ __html: text.content }}
-                                      onContextMenu={(e) => e.preventDefault()}
-                                      onCopy={(e) => e.preventDefault()}
-                                      style={{ userSelect: 'none' }}
-                                    />
-                                  </div>
-                                ))}
+                                {folder.textContent.map((text, textIndex) => {
+                                  const { content, isHTML } = prepareContentForRendering(text.content)
+                                  return (
+                                    <div key={textIndex} className="border border-gray-200 rounded-lg p-6 bg-white shadow-sm">
+                                      <h5 className="font-bold text-xl text-dark mb-4 border-b border-gray-100 pb-3">{text.title}</h5>
+                                      {/* Render based on content type */}
+                                      {isHTML ? (
+                                        <div 
+                                          className="prose prose-lg max-w-none"
+                                          dangerouslySetInnerHTML={{ __html: content }}
+                                          onContextMenu={(e) => e.preventDefault()}
+                                          onCopy={(e) => e.preventDefault()}
+                                          style={{ userSelect: 'none', fontFamily: 'inherit' }}
+                                        />
+                                      ) : (
+                                        <div
+                                          onContextMenu={(e) => e.preventDefault()}
+                                          onCopy={(e) => e.preventDefault()}
+                                          style={{ userSelect: 'none' }}
+                                        >
+                                          <MarkdownRenderer content={content} />
+                                        </div>
+                                      )}
+                                    </div>
+                                  )
+                                })}
                               </div>
                             </div>
                           )}
@@ -1002,29 +1017,32 @@ This is an enquiry from the course detail page.
               <h3 className="text-2xl font-bold text-dark mb-4">Text Content</h3>
               {course.textContent && course.textContent.length > 0 ? (
                 <div className="space-y-6">
-                  {course.textContent.map((text, index) => (
-                    <div key={index} className="border-l-4 border-primary pl-6 py-2">
-                      <h4 className="text-xl font-semibold text-gray-900 mb-3">{text.title}</h4>
-                      <div 
-                        className="text-gray-700 leading-relaxed" 
-                        onCopy={(e) => e.preventDefault()}
-                        style={{ userSelect: 'none', WebkitUserSelect: 'none', MozUserSelect: 'none' }}
-                      >
-                        {/* Check if content is HTML (from rich text editor) or Markdown */}
-                        {text.content && text.content.trim().startsWith('<') ? (
-                          <div 
-                            className="prose prose-lg max-w-none"
-                            dangerouslySetInnerHTML={{ __html: text.content }}
-                            style={{
-                              fontFamily: 'inherit'
-                            }}
-                          />
-                        ) : (
-                          <MarkdownRenderer content={text.content} />
-                        )}
+                  {course.textContent.map((text, index) => {
+                    const { content, isHTML } = prepareContentForRendering(text.content)
+                    return (
+                      <div key={index} className="border-l-4 border-primary pl-6 py-2">
+                        <h4 className="text-xl font-semibold text-gray-900 mb-3">{text.title}</h4>
+                        <div 
+                          className="text-gray-700 leading-relaxed" 
+                          onCopy={(e) => e.preventDefault()}
+                          style={{ userSelect: 'none', WebkitUserSelect: 'none', MozUserSelect: 'none' }}
+                        >
+                          {/* Render based on content type */}
+                          {isHTML ? (
+                            <div 
+                              className="prose prose-lg max-w-none"
+                              dangerouslySetInnerHTML={{ __html: content }}
+                              style={{
+                                fontFamily: 'inherit'
+                              }}
+                            />
+                          ) : (
+                            <MarkdownRenderer content={content} />
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    )
+                  })}
                 </div>
               ) : (
                 <p className="text-gray-600">No text content available for this course yet.</p>
