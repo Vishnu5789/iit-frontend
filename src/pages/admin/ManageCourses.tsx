@@ -1030,7 +1030,15 @@ const ManageCourses = () => {
                                       </div>
                                       {folder.textContent && folder.textContent.length > 0 && (
                                         <div className="mt-2 space-y-1">
-                                          {folder.textContent.map((text, textIndex) => (
+                                          {folder.textContent.map((text, textIndex) => {
+                                            // Strip HTML tags for preview
+                                            const stripHtml = (html: string) => {
+                                              const tmp = document.createElement('div');
+                                              tmp.innerHTML = html;
+                                              return tmp.textContent || tmp.innerText || '';
+                                            };
+                                            
+                                            return (
                                             <div key={textIndex} className={`flex items-start justify-between p-2 rounded text-sm ${
                                               editingTextContent?.folderIndex === folderIndex && editingTextContent?.textIndex === textIndex
                                                 ? 'bg-blue-50 border-2 border-blue-300'
@@ -1038,7 +1046,7 @@ const ManageCourses = () => {
                                             }`}>
                                               <div className="flex-1">
                                                 <span className="font-semibold text-gray-700">{text.title}</span>
-                                                <p className="text-xs text-gray-600 mt-1 line-clamp-1">{text.content}</p>
+                                                <p className="text-xs text-gray-600 mt-1 line-clamp-1">{stripHtml(text.content)}</p>
                                               </div>
                                               <div className="flex gap-2 ml-2">
                                                 <button
@@ -1057,7 +1065,8 @@ const ManageCourses = () => {
                                                 </button>
                                               </div>
                                             </div>
-                                          ))}
+                                            );
+                                          })}
                                         </div>
                                       )}
                                     </div>

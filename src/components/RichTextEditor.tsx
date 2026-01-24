@@ -111,6 +111,43 @@ export default function RichTextEditor({
         styles[i].remove()
       }
       
+      // Convert deprecated <font> tags to <span> with inline styles
+      const fontTags = tempDiv.getElementsByTagName('font')
+      for (let i = fontTags.length - 1; i >= 0; i--) {
+        const font = fontTags[i]
+        const span = document.createElement('span')
+        
+        // Preserve color attribute
+        const color = font.getAttribute('color')
+        if (color) {
+          span.style.color = color
+        }
+        
+        // Preserve size attribute (convert to approximate px)
+        const size = font.getAttribute('size')
+        if (size) {
+          const sizeMap: { [key: string]: string } = {
+            '1': '10px', '2': '13px', '3': '16px', '4': '18px',
+            '5': '24px', '6': '32px', '7': '48px'
+          }
+          span.style.fontSize = sizeMap[size] || '16px'
+        }
+        
+        // Preserve face attribute (font-family)
+        const face = font.getAttribute('face')
+        if (face) {
+          span.style.fontFamily = face
+        }
+        
+        // Move all child nodes to span
+        while (font.firstChild) {
+          span.appendChild(font.firstChild)
+        }
+        
+        // Replace font tag with span
+        font.parentNode?.replaceChild(span, font)
+      }
+      
       // Get cleaned HTML
       content = tempDiv.innerHTML
       

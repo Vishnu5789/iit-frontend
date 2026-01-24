@@ -11,6 +11,7 @@ interface SecureImageViewerProps {
 export default function SecureImageViewer({ imageUrl, onClose }: SecureImageViewerProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const [userEmail, setUserEmail] = useState('');
 
   useEffect(() => {
@@ -18,6 +19,7 @@ export default function SecureImageViewer({ imageUrl, onClose }: SecureImageView
     if (user?.email) {
       setUserEmail(user.email);
     }
+    console.log('Loading image from URL:', imageUrl);
     loadImage();
   }, [imageUrl]);
 
@@ -44,24 +46,26 @@ export default function SecureImageViewer({ imageUrl, onClose }: SecureImageView
 
   const loadImage = async () => {
     setLoading(true);
+    setError(false);
     try {
-      // Fetch image as blob to prevent direct URL access
-      const response = await fetch(imageUrl);
-      const blob = await response.blob();
-      const blobUrl = URL.createObjectURL(blob);
-
       const img = new Image();
+      
       img.onload = () => {
         renderImageWithWatermark(img);
-        URL.revokeObjectURL(blobUrl);
         setLoading(false);
       };
-      img.onerror = () => {
+      
+      img.onerror = (e) => {
+        console.error('Image load error:', e);
+        setError(true);
         setLoading(false);
       };
-      img.src = blobUrl;
+      
+      // Load image directly (CORS should be handled by S3 config)
+      img.src = imageUrl;
     } catch (error) {
       console.error('Failed to load image:', error);
+      setError(true);
       setLoading(false);
     }
   };
@@ -73,15 +77,32 @@ export default function SecureImageViewer({ imageUrl, onClose }: SecureImageView
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    // Set canvas size to image size
-    canvas.width = img.width;
-    canvas.height = img.height;
+    // Calculate scaled dimensions to fit viewport
+    const maxWidth = window.innerWidth * 0.9;
+    const maxHeight = window.innerHeight * 0.9;
+    
+    let width = img.width;
+    let height = img.height;
+    
+    // Scale down if image is too large
+    if (width > maxWidth || height > maxHeight) {
+      const widthRatio = maxWidth / width;
+      const heightRatio = maxHeight / height;
+      const ratio = Math.min(widthRatio, heightRatio);
+      
+      width = width * ratio;
+      height = height * ratio;
+    }
 
-    // Draw image
-    ctx.drawImage(img, 0, 0);
+    // Set canvas size to scaled dimensions
+    canvas.width = width;
+    canvas.height = height;
+
+    // Draw image scaled to canvas size
+    ctx.drawImage(img, 0, 0, width, height);
 
     // Add watermark
-    addWatermark(ctx, canvas.width, canvas.height);
+    addWatermark(ctx, width, height);
   };
 
   const addWatermark = (ctx: CanvasRenderingContext2D, width: number, height: number) => {
@@ -136,7 +157,19 @@ export default function SecureImageViewer({ imageUrl, onClose }: SecureImageView
     >
       {loading && (
         <div className="absolute inset-0 flex items-center justify-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-white"></div>
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-white mx-auto mb-4"></div>
+            <p className="text-white text-lg">Loading image...</p>
+          </div>
+        </div>
+      )}
+
+      {error && (
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="text-center text-white">
+            <p className="text-xl mb-2">❌ Failed to load image</p>
+            <p className="text-sm text-white/70">Please try again or contact support</p>
+          </div>
         </div>
       )}
 
@@ -160,10 +193,11 @@ export default function SecureImageViewer({ imageUrl, onClose }: SecureImageView
         {/* Canvas with image */}
         <canvas
           ref={canvasRef}
-          className="max-w-full max-h-full object-contain shadow-2xl"
+          className="max-w-full max-h-full object-contain shadow-2xl bg-white rounded-lg"
           style={{ 
             userSelect: 'none',
-            pointerEvents: 'none'
+            pointerEvents: 'none',
+            display: loading || error ? 'none' : 'block'
           }}
           onContextMenu={(e) => e.preventDefault()}
         />
