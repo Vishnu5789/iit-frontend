@@ -111,6 +111,16 @@ const FileUpload = ({ label, accept, folder = 'courses', onUploadComplete, curre
     if (!file) return
 
     try {
+      // Validate image file size (max 15MB for images)
+      const isImage = file.type.startsWith('image/')
+      const MAX_IMAGE_SIZE = 15 * 1024 * 1024; // 15MB
+      
+      if (isImage && file.size > MAX_IMAGE_SIZE) {
+        alert(`Image size should be less than 15MB. Your file is ${Math.round(file.size / 1024 / 1024)}MB`)
+        e.target.value = ''
+        return
+      }
+
       setUploading(true)
       setProgress(5)
 

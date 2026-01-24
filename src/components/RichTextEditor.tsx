@@ -196,9 +196,9 @@ export default function RichTextEditor({
       return
     }
 
-    // Validate file size (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      alert('Image size should be less than 5MB')
+    // Validate file size (max 15MB)
+    if (file.size > 15 * 1024 * 1024) {
+      alert('Image size should be less than 15MB')
       return
     }
 
