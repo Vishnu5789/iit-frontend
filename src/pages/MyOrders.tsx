@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ShoppingBagIcon, ClockIcon } from '@heroicons/react/24/outline';
 import apiService from '../services/api';
+import toast from 'react-hot-toast';
 
 interface Order {
   _id: string;
@@ -38,11 +39,18 @@ export default function MyOrders() {
     try {
       setIsLoading(true);
       const response = await apiService.getOrders();
+      
+      console.log('Orders API Response:', response); // Debug log
+      
       if (response.success && response.data) {
         setOrders(response.data);
+      } else {
+        setOrders([]);
       }
     } catch (error: any) {
       console.error('Error fetching orders:', error);
+      toast.error('Failed to load orders. Please try again.');
+      setOrders([]);
     } finally {
       setIsLoading(false);
     }
@@ -74,7 +82,7 @@ export default function MyOrders() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-primary/5 via-white to-secondary/5 flex items-center justify-center">
+      <div className="min-h-screen bg-light flex items-center justify-center pt-20">
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary mx-auto"></div>
           <p className="mt-4 text-gray-600">Loading orders...</p>
@@ -84,7 +92,7 @@ export default function MyOrders() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-white to-secondary/5">
+    <div className="min-h-screen bg-light">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 pt-32">
         <h1 className="text-4xl font-bold text-gray-900 mb-8 flex items-center gap-3">
           <ShoppingBagIcon className="h-10 w-10 text-primary" />
@@ -92,13 +100,13 @@ export default function MyOrders() {
         </h1>
 
         {orders.length === 0 ? (
-          <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border border-primary/10 p-12 text-center">
+          <div className="bg-white rounded-xl shadow-md p-12 text-center">
             <ShoppingBagIcon className="h-24 w-24 text-gray-300 mx-auto mb-4" />
             <h2 className="text-2xl font-bold text-gray-700 mb-2">No orders yet</h2>
             <p className="text-gray-500 mb-6">Start learning by purchasing some courses!</p>
             <button
               onClick={() => navigate('/courses')}
-              className="bg-gradient-to-r from-primary to-secondary text-white py-3 px-8 rounded-lg font-semibold hover:shadow-lg transition-all"
+              className="bg-primary text-white py-3 px-8 rounded-lg font-semibold hover:bg-primary/90 transition-all"
             >
               Browse Courses
             </button>
@@ -108,7 +116,7 @@ export default function MyOrders() {
             {orders.map((order) => (
               <div
                 key={order._id}
-                className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border border-primary/10 p-6 hover:shadow-xl transition-all cursor-pointer"
+                className="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition-all cursor-pointer"
                 onClick={() => navigate(`/order-confirmation/${order._id}`)}
               >
                 <div className="flex flex-col md:flex-row justify-between gap-4 mb-4">

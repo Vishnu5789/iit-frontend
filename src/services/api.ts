@@ -1179,6 +1179,23 @@ class ApiService {
     });
     return this.handleResponse(response);
   }
+
+  /**
+   * Course Page Configuration
+   */
+  async getCoursePageConfig(): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/course-page/config`);
+    return this.handleResponse(response);
+  }
+
+  async updateCoursePageConfig(data: any): Promise<ApiResponse> {
+    const response = await fetch(`${API_BASE_URL}/course-page/config`, {
+      method: 'PUT',
+      headers: this.getHeaders(true),
+      body: JSON.stringify(data),
+    });
+    return this.handleResponse(response);
+  }
 }
 
 export default new ApiService();

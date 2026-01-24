@@ -82,6 +82,7 @@ interface Course {
   }>;
 }
 
+
 export default function CourseDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -752,16 +753,6 @@ This is an enquiry from the course detail page.
                   📁 Course Content
                 </button>
                 <button
-                  onClick={() => setActiveTab('textContent')}
-                  className={`px-6 py-3 rounded-lg font-semibold transition-all ${
-                    activeTab === 'textContent'
-                      ? 'bg-white text-dark shadow-md'
-                      : 'text-gray-600 hover:text-dark hover:bg-white/50'
-                  }`}
-                >
-                  Text Content
-                </button>
-                <button
                   onClick={() => setActiveTab('externalLinks')}
                   className={`px-6 py-3 rounded-lg font-semibold transition-all ${
                     activeTab === 'externalLinks'
@@ -1007,45 +998,6 @@ This is an enquiry from the course detail page.
                 </div>
               ) : (
                 <p className="text-gray-600">No course content available yet.</p>
-              )}
-            </div>
-          )}
-
-          {/* Text Content Tab */}
-          {activeTab === 'textContent' && (
-            <div onContextMenu={(e) => e.preventDefault()} onCopy={(e) => e.preventDefault()}>
-              <h3 className="text-2xl font-bold text-dark mb-4">Text Content</h3>
-              {course.textContent && course.textContent.length > 0 ? (
-                <div className="space-y-6">
-                  {course.textContent.map((text, index) => {
-                    const { content, isHTML } = prepareContentForRendering(text.content)
-                    return (
-                      <div key={index} className="border-l-4 border-primary pl-6 py-2">
-                        <h4 className="text-xl font-semibold text-gray-900 mb-3">{text.title}</h4>
-                        <div 
-                          className="text-gray-700 leading-relaxed" 
-                          onCopy={(e) => e.preventDefault()}
-                          style={{ userSelect: 'none', WebkitUserSelect: 'none', MozUserSelect: 'none' }}
-                        >
-                          {/* Render based on content type */}
-                          {isHTML ? (
-                            <div 
-                              className="prose prose-lg max-w-none"
-                              dangerouslySetInnerHTML={{ __html: content }}
-                              style={{
-                                fontFamily: 'inherit'
-                              }}
-                            />
-                          ) : (
-                            <MarkdownRenderer content={content} />
-                          )}
-                        </div>
-                      </div>
-                    )
-                  })}
-                </div>
-              ) : (
-                <p className="text-gray-600">No text content available for this course yet.</p>
               )}
             </div>
           )}

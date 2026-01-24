@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { ArrowRightOnRectangleIcon, Bars3Icon, XMarkIcon, ShoppingCartIcon, ShoppingBagIcon, AcademicCapIcon } from '@heroicons/react/24/outline'
+import { ArrowRightOnRectangleIcon, Bars3Icon, XMarkIcon, ShoppingCartIcon, ShoppingBagIcon, AcademicCapIcon, UserCircleIcon } from '@heroicons/react/24/outline'
 import apiService from '../services/api'
 
 const Navbar = () => {
@@ -128,6 +128,13 @@ const Navbar = () => {
                         {isAuthenticated && (
                             <>
                                 <button
+                                    onClick={() => navigate('/profile')}
+                                    className="p-2 text-light/70 hover:text-light transition-colors cursor-pointer"
+                                    title="My Profile"
+                                >
+                                    <UserCircleIcon className="h-5 w-5" />
+                                </button>
+                                <button
                                     onClick={() => navigate('/my-courses')}
                                     className="p-2 text-light/70 hover:text-light transition-colors cursor-pointer"
                                     title="My Courses"
@@ -214,6 +221,14 @@ const Navbar = () => {
                             <div className="flex flex-col gap-2 mt-4 px-4">
                                 {isAuthenticated ? (
                                     <>
+                                        <button
+                                            onClick={() => handleNavClick('/profile')}
+                                            className="flex items-center justify-center gap-2 border border-light/30 hover:bg-light/10 duration-200 text-light
+                                            px-4 py-2 rounded cursor-pointer text-sm font-medium"
+                                        >
+                                            <UserCircleIcon className="h-4 w-4" />
+                                            My Profile
+                                        </button>
                                         <button
                                             onClick={() => handleNavClick('/my-courses')}
                                             className="flex items-center justify-center gap-2 border border-light/30 hover:bg-light/10 duration-200 text-light

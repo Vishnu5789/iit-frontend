@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { AcademicCapIcon, NewspaperIcon, BuildingOffice2Icon, HomeIcon, UsersIcon, EnvelopeIcon, ChatBubbleLeftRightIcon, UserGroupIcon, PhotoIcon, VideoCameraIcon } from '@heroicons/react/24/outline'
+import { AcademicCapIcon, NewspaperIcon, BuildingOffice2Icon, HomeIcon, UsersIcon, EnvelopeIcon, ChatBubbleLeftRightIcon, UserGroupIcon, PhotoIcon, VideoCameraIcon, DocumentTextIcon } from '@heroicons/react/24/outline'
 import apiService from '../../services/api'
 import { API_BASE_URL } from '../../config/api.config'
 
@@ -142,6 +142,13 @@ const AdminDashboard = () => {
       icon: PhotoIcon,
       color: 'from-rose-500 to-rose-600',
       link: '/admin/hero-slides'
+    },
+    {
+      title: 'Course Page',
+      count: '📄',
+      icon: DocumentTextIcon,
+      color: 'from-amber-500 to-amber-600',
+      link: '/admin/course-page'
     }
   ]
 
@@ -255,6 +262,12 @@ const AdminDashboard = () => {
               className="bg-gradient-to-r from-cyan-500 to-cyan-600 text-white px-6 py-4 rounded-lg font-semibold hover:shadow-lg transition-all duration-300 transform hover:scale-[1.03]"
             >
               Manage Resources
+            </button>
+            <button
+              onClick={() => navigate('/admin/course-page')}
+              className="bg-gradient-to-r from-amber-500 to-amber-600 text-white px-6 py-4 rounded-lg font-semibold hover:shadow-lg transition-all duration-300 transform hover:scale-[1.03]"
+            >
+              Manage Course Page
             </button>
           </div>
         </div>
