@@ -2,15 +2,10 @@
 @plugin "@tailwindcss/typography";
 
 body {
-    @apply bg-light dark:bg-gray-900;
+    @apply bg-light;
     font-family: 'Space Grotesk', sans-serif;
     letter-spacing: 0.025em;
     color: #1c1d1f;
-    transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-.dark body {
-    color: #e5e7eb;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -206,16 +201,6 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 
-/* Dark Mode Global Styles */
-.dark {
-    color-scheme: dark;
-}
-
-/* Smooth transitions for dark mode */
-* {
-    @apply transition-colors duration-300;
-}
-
 @theme {
     /* Udemy-inspired "Engineering is Future" Theme */
     --color-primary: #5624d0;        /* Deep Purple - Udemy signature */
@@ -232,71 +217,4 @@ h1, h2, h3, h4, h5, h6 {
     --gradient-primary: linear-gradient(135deg, #5624d0 0%, #8710d8 100%);
     --gradient-secondary: linear-gradient(135deg, #00d9ff 0%, #0077ff 100%);
     --gradient-dark: linear-gradient(135deg, #1c1d1f 0%, #2d2f31 100%);
-}
-
-/* Dark Mode Prose Styling */
-.dark .prose {
-    color: #e5e7eb;
-}
-
-.dark .prose h1,
-.dark .prose h2,
-.dark .prose h3,
-.dark .prose h4,
-.dark .prose h5,
-.dark .prose h6 {
-    color: #f3f4f6;
-}
-
-.dark .prose h2 {
-    border-bottom-color: #374151;
-}
-
-.dark .prose p {
-    color: #d1d5db;
-}
-
-.dark .prose strong {
-    color: #f3f4f6;
-}
-
-.dark .prose a {
-    color: #8b5cf6;
-}
-
-.dark .prose a:hover {
-    color: #a78bfa;
-}
-
-.dark .prose li {
-    color: #d1d5db;
-}
-
-.dark .prose blockquote {
-    border-left-color: #8b5cf6;
-    background-color: #1f2937;
-    color: #9ca3af;
-}
-
-.dark .prose code {
-    background-color: #1f2937;
-    color: #f87171;
-}
-
-.dark .prose pre {
-    background-color: #111827;
-}
-
-.dark .prose th {
-    background-color: #7c3aed;
-    color: white;
-}
-
-.dark .prose td {
-    border-color: #374151;
-    color: #d1d5db;
-}
-
-.dark .prose tr:nth-child(even) {
-    background-color: #1f2937;
 }

@@ -1,15 +1,10 @@
 <!doctype html>
-<html lang="en" class="">
+<html lang="en">
   <head>
     <script>
-      // Prevent flash of wrong theme on page load
-      (function() {
-        const theme = localStorage.getItem('theme');
-        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        if (theme === 'dark' || (!theme && prefersDark)) {
-          document.documentElement.classList.add('dark');
-        }
-      })();
+      // Clear any old theme data and ensure light mode
+      localStorage.removeItem('theme');
+      document.documentElement.classList.remove('dark');
     </script>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/assets/icon.svg" />
