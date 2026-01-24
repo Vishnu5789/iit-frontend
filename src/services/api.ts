@@ -123,9 +123,8 @@ class ApiService {
   }
 
   async updateProfile(profileData: {
-    fullName?: string;
-    bio?: string;
-    profileImage?: string;
+    name: string;
+    phone?: string;
   }): Promise<ApiResponse> {
     const response = await fetch(`${API_BASE_URL}/auth/profile`, {
       method: 'PUT',
