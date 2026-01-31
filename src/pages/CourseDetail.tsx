@@ -1114,10 +1114,6 @@ This is an enquiry from the course detail page.
                           {/* Subfolders in Folder */}
                           {folder.subfolders && folder.subfolders.length > 0 && (
                             <div className="mt-6">
-                              <h4 className="text-lg font-semibold text-dark mb-3 flex items-center gap-2">
-                                <FolderIcon className="h-5 w-5 text-primary" />
-                                Subfolders ({folder.subfolders.length})
-                              </h4>
                               <div className="space-y-3 ml-4">
                                 {folder.subfolders.map((subfolder, subfolderIndex) => {
                                   const subfolderKey = `${folderIndex}-${subfolderIndex}`;
