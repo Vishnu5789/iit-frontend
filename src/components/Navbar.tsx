@@ -34,24 +34,24 @@ const Navbar = () => {
             link: "/",
         },
         {
-            name: "Courses",
-            link: "/courses",
+            name: "About",
+            link: "/about",
         },
         {
-            name: "Admissions",
-            link: "/admissions",
+            name: "Courses",
+            link: "/courses",
         },
         {
             name: "Resources",
             link: "/resources",
         },
         {
-            name: "About",
-            link: "/about",
-        },
-        {
             name: "Industry",
             link: "/industry",
+        },
+        {
+            name: "Admissions",
+            link: "/admissions",
         },
         {
             name: "Blog",

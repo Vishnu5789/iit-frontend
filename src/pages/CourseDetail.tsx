@@ -93,6 +93,7 @@ export default function CourseDetail() {
   const [error, setError] = useState('');
   const [isEnrolled, setIsEnrolled] = useState(false);
   const [quizzes, setQuizzes] = useState<any[]>([]);
+  const [freeQuizzes, setFreeQuizzes] = useState<any[]>([]);
   const [certificates, setCertificates] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState<'folders' | 'textContent' | 'externalLinks' | 'quizzes' | 'certificates'>('folders');
   const [expandedFolders, setExpandedFolders] = useState<Set<number>>(new Set());
@@ -169,6 +170,7 @@ export default function CourseDetail() {
     console.log('🎯 CourseDetail mounted/updated, Course ID:', id);
     fetchCourse();
     checkEnrollment();
+    fetchFreeQuizzes();
   }, [id]);
 
   useEffect(() => {
@@ -261,6 +263,20 @@ export default function CourseDetail() {
     }
   };
 
+  const fetchFreeQuizzes = async () => {
+    try {
+      console.log('🆓 Fetching free quizzes for course:', id);
+      const response = await apiService.getFreeQuizzes(id!);
+      console.log('🆓 Free quizzes response:', response);
+      if (response.success) {
+        console.log('🆓 Free quizzes data:', response.data);
+        setFreeQuizzes(response.data || []);
+      }
+    } catch (error: any) {
+      console.error('❌ Error fetching free quizzes:', error);
+    }
+  };
+
   const fetchCertificates = async () => {
     try {
       const response = await apiService.getUserCertificates();
@@ -348,6 +364,18 @@ export default function CourseDetail() {
     } finally {
       setAddingToCart(false);
     }
+  };
+
+  const handleAttemptFreeQuiz = (quizId: string) => {
+    // Check if user is logged in
+    if (!apiService.isAuthenticated()) {
+      toast.error('Please login to attempt this free quiz');
+      navigate('/login', { state: { from: `/courses/${id}`, quizId } });
+      return;
+    }
+    
+    // Navigate to quiz
+    navigate(`/quiz/${quizId}`, { state: { courseId: id } });
   };
 
   const handleEnquirySubmit = async (e: React.FormEvent) => {
@@ -624,21 +652,6 @@ This is an enquiry from the course detail page.
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="space-y-8">
           
-          {/* Key Points Section */}
-          {course.keyPoints && course.keyPoints.length > 0 && (
-            <div className="bg-white rounded-xl shadow-md p-8">
-              <h2 className="text-3xl font-bold text-dark mb-6 border-b border-gray-200 pb-4">Key Points</h2>
-              <ul className="space-y-4">
-                {course.keyPoints.map((point, index) => (
-                  <li key={index} className="flex items-start gap-3">
-                    <span className="h-2 w-2 bg-dark rounded-full mt-2 flex-shrink-0"></span>
-                    <span className="text-gray-700 leading-relaxed">{point}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-
           {/* About Course Section */}
           <div className="bg-white rounded-xl shadow-md p-8">
             <h2 className="text-3xl font-bold text-dark mb-6 border-b border-gray-200 pb-4">About This Course</h2>
@@ -678,40 +691,20 @@ This is an enquiry from the course detail page.
             </div>
           )}
 
-          {/* Syllabus Section */}
-          <div className="bg-white rounded-xl shadow-md p-8">
-            <h2 className="text-3xl font-bold text-dark mb-6 border-b border-gray-200 pb-4">Course Syllabus</h2>
-            {course.syllabus?.url ? (
-              <div className="space-y-4">
-                <p className="text-gray-700 mb-4">
-                  Download the complete course syllabus to understand the detailed curriculum, topics covered, and learning outcomes.
-                </p>
-                <div className="flex items-center justify-between bg-gray-50 p-6 rounded-lg border border-gray-200">
-                  <div className="flex items-center gap-4">
-                    <div className="p-3 bg-primary/10 rounded-lg">
-                      <svg className="h-8 w-8 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                      </svg>
-                    </div>
-                    <div>
-                      <p className="font-semibold text-gray-900">{course.title} Syllabus</p>
-                      <p className="text-sm text-gray-500">{course.syllabus.name || 'Syllabus.pdf'}</p>
-                    </div>
-                  </div>
-                  <a
-                    href={course.syllabus.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-dark transition-all font-semibold"
-                  >
-                    Download
-                  </a>
-                </div>
-              </div>
-            ) : (
-              <p className="text-gray-600">Syllabus will be provided upon enrollment.</p>
-            )}
-          </div>
+          {/* Key Points Section */}
+          {course.keyPoints && course.keyPoints.length > 0 && (
+            <div className="bg-white rounded-xl shadow-md p-8">
+              <h2 className="text-3xl font-bold text-dark mb-6 border-b border-gray-200 pb-4">Key Points</h2>
+              <ul className="space-y-4">
+                {course.keyPoints.map((point, index) => (
+                  <li key={index} className="flex items-start gap-3">
+                    <span className="h-2 w-2 bg-dark rounded-full mt-2 flex-shrink-0"></span>
+                    <span className="text-gray-700 leading-relaxed">{point}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
 
           {/* Objectives Section */}
           {course.objectives && course.objectives.length > 0 && (
@@ -727,6 +720,129 @@ This is an enquiry from the course detail page.
                   </li>
                 ))}
               </ul>
+            </div>
+          )}
+
+          {/* Syllabus Section */}
+          <div className="bg-white rounded-xl shadow-md p-8">
+            <h2 className="text-3xl font-bold text-dark mb-6 border-b border-gray-200 pb-4">Course Syllabus</h2>
+            
+            {/* Display both PDF and Text syllabus if available */}
+            {((course as any).syllabusText || course.syllabus?.url) ? (
+              <div className="space-y-6">
+                {/* Text Syllabus */}
+                {(course as any).syllabusText && (
+                  <div>
+                    <h3 className="text-lg font-semibold text-dark mb-3 flex items-center gap-2">
+                      📝 Syllabus Content
+                    </h3>
+                    <div 
+                      className="prose prose-lg max-w-none text-gray-700 bg-gray-50 rounded-lg p-6"
+                      dangerouslySetInnerHTML={{ __html: (course as any).syllabusText }}
+                    />
+                  </div>
+                )}
+
+                {/* PDF Syllabus */}
+                {course.syllabus?.url && (
+                  <div>
+                    <h3 className="text-lg font-semibold text-dark mb-3 flex items-center gap-2">
+                      📄 Downloadable Syllabus
+                    </h3>
+                    <p className="text-gray-700 mb-4">
+                      Download the complete course syllabus PDF for offline reference.
+                    </p>
+                    <div className="flex items-center justify-between bg-gray-50 p-6 rounded-lg border border-gray-200">
+                      <div className="flex items-center gap-4">
+                        <div className="p-3 bg-primary/10 rounded-lg">
+                          <svg className="h-8 w-8 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                          </svg>
+                        </div>
+                        <div>
+                          <p className="font-semibold text-gray-900">{course.title} Syllabus</p>
+                          <p className="text-sm text-gray-500">{course.syllabus.name || 'Syllabus.pdf'}</p>
+                        </div>
+                      </div>
+                      <a
+                        href={course.syllabus.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-dark transition-all font-semibold"
+                      >
+                        Download
+                      </a>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <p className="text-gray-600">Syllabus will be provided upon enrollment.</p>
+            )}
+          </div>
+
+          {/* Free Quizzes Section - Available to all users */}
+          {!isEnrolled && freeQuizzes.length > 0 && (
+            <div className="bg-white rounded-xl shadow-md p-8">
+              <div className="mb-6">
+                <h2 className="text-3xl font-bold text-dark mb-2">Free Quizzes</h2>
+                <p className="text-gray-600">Test your knowledge with these free assessment tests. Login required to attempt.</p>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {freeQuizzes.map((quiz) => (
+                  <div key={quiz._id} className="bg-white rounded-lg shadow-md p-6 border border-gray-200 hover:shadow-xl hover:border-primary transition-all">
+                    <div className="flex justify-between items-start mb-4">
+                      <div className="flex-1">
+                        <div className="mb-2">
+                          <h4 className="font-bold text-dark text-lg">{quiz.title}</h4>
+                        </div>
+                        <p className="text-sm text-medium line-clamp-2">{quiz.description}</p>
+                      </div>
+                      <span className={`px-2 py-1 rounded text-xs font-semibold ml-3 ${
+                        quiz.type === 'quiz' ? 'bg-blue-100 text-blue-700' :
+                        quiz.type === 'test' ? 'bg-purple-100 text-purple-700' :
+                        'bg-red-100 text-red-700'
+                      }`}>
+                        {quiz.type === 'quiz' ? 'Quiz' : quiz.type === 'test' ? 'Test' : 'Exam'}
+                      </span>
+                    </div>
+                    
+                    <div className="space-y-2 mb-4 text-sm text-gray-600">
+                      <div className="flex items-center gap-2">
+                        <ClockIcon className="w-4 h-4" />
+                        <span>{quiz.timeLimit} minutes</span>
+                      </div>
+                      <div>📝 {quiz.questions?.length || 0} questions • {quiz.totalPoints} points</div>
+                      <div>✅ Passing: {quiz.passingScore}%</div>
+                      <div>🔄 {quiz.attemptsAllowed === -1 ? 'Unlimited attempts' : `${quiz.attemptsAllowed} attempts allowed`}</div>
+                    </div>
+                    
+                    <button
+                      onClick={() => handleAttemptFreeQuiz(quiz._id)}
+                      className="w-full bg-primary text-white px-4 py-3 rounded-lg font-semibold hover:bg-primary/90 transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2"
+                    >
+                      {apiService.isAuthenticated() ? (
+                        <>
+                          <PlayIcon className="h-5 w-5" />
+                          Start Quiz
+                        </>
+                      ) : (
+                        <>
+                          <LockClosedIcon className="h-5 w-5" />
+                          Login to Attempt
+                        </>
+                      )}
+                    </button>
+                  </div>
+                ))}
+              </div>
+              
+              <div className="mt-6 bg-blue-50 rounded-lg p-4 border border-blue-200">
+                <p className="text-sm text-gray-700">
+                  <strong>Want access to premium content?</strong> Enroll in this course to access exclusive videos, PDFs, assignments, and paid assessments with certificates.
+                </p>
+              </div>
             </div>
           )}
 
@@ -817,8 +933,7 @@ This is an enquiry from the course detail page.
                           <FolderIcon className="h-6 w-6 text-primary" />
                           <span className="font-bold text-lg text-dark">{folder.folderName}</span>
                           <span className="text-sm text-gray-600">
-                            ({folder.videos.length} videos, {folder.pdfs.length} PDFs, {folder.images.length} images
-                            {folder.textContent && folder.textContent.length > 0 && `, ${folder.textContent.length} text sections`}
+                            ({folder.textContent && folder.textContent.length > 0 ? `${folder.textContent.length} text sections, ` : ''}{folder.images.length} images, {folder.pdfs.length} PDFs, {folder.videos.length} videos
                             {folder.externalVideoLinks && folder.externalVideoLinks.length > 0 && `, ${folder.externalVideoLinks.length} external videos`})
                           </span>
         </div>
@@ -827,89 +942,6 @@ This is an enquiry from the course detail page.
                       {/* Folder Content */}
                       {expandedFolders.has(folderIndex) && (
                         <div className="bg-white p-4 space-y-6">
-                          {/* Videos in Folder */}
-                          {folder.videos.length > 0 && (
-                            <div>
-                              <h4 className="text-lg font-semibold text-dark mb-3 flex items-center gap-2">
-                                <PlayIcon className="h-5 w-5 text-primary" />
-                                Videos ({folder.videos.length})
-                              </h4>
-                              <div className="grid grid-cols-1 gap-4">
-                                {folder.videos.map((video, videoIndex) => (
-                                  <div key={videoIndex} className="border border-gray-200 rounded-lg overflow-hidden">
-                                    <div className="bg-gray-50 px-4 py-2 border-b border-gray-200">
-                                      <p className="font-semibold text-gray-900 text-sm">{video.name}</p>
-                                    </div>
-                                    <div className="bg-black">
-                                      <video
-                                        controls
-                                        controlsList="nodownload noplaybackrate"
-                                        disablePictureInPicture
-                                        className="w-full aspect-video"
-                                        onContextMenu={(e) => e.preventDefault()}
-                                      >
-                                        <source src={video.url} type="video/mp4" />
-                                        Your browser does not support the video tag.
-                                      </video>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-            </div>
-          )}
-
-                          {/* PDFs in Folder */}
-                          {folder.pdfs.length > 0 && (
-            <div>
-                              <h4 className="text-lg font-semibold text-dark mb-3 flex items-center gap-2">
-                                <DocumentTextIcon className="h-5 w-5 text-primary" />
-                                PDFs ({folder.pdfs.length})
-                              </h4>
-                <div className="grid grid-cols-1 gap-4">
-                                {folder.pdfs.map((pdf, pdfIndex) => (
-                                  <div key={pdfIndex} className="border border-gray-200 rounded-lg overflow-hidden">
-                                    <div className="bg-gray-50 px-4 py-2 border-b border-gray-200">
-                                      <p className="font-semibold text-gray-900 text-sm">{pdf.name}</p>
-                          </div>
-                                    <ProtectedPdfViewer 
-                                      pdfUrl={pdf.url}
-                                      pdfName={pdf.name}
-                                      height="600px"
-                                    />
-                    </div>
-                  ))}
-                </div>
-            </div>
-          )}
-
-                          {/* Images in Folder */}
-                          {folder.images.length > 0 && (
-            <div>
-                              <h4 className="text-lg font-semibold text-dark mb-3 flex items-center gap-2">
-                                <PhotoIcon className="h-5 w-5 text-primary" />
-                                Images ({folder.images.length})
-                              </h4>
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                                {folder.images.map((image, imageIndex) => (
-                                  <div 
-                                    key={imageIndex} 
-                                    className="border border-gray-200 rounded-lg overflow-hidden hover:border-primary hover:shadow-lg transition-all cursor-pointer"
-                                    onClick={() => setSelectedImage(image.url)}
-                                    onDragStart={(e) => e.preventDefault()}
-                                  >
-                      <img 
-                        src={image.url} 
-                                      alt={`${folder.folderName} image ${imageIndex + 1}`}
-                                      className="w-full h-48 object-cover pointer-events-none"
-                                      draggable={false}
-                                      onContextMenu={(e) => e.preventDefault()}
-                                    />
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          )}
-
                           {/* Text Content in Folder */}
                           {folder.textContent && folder.textContent.length > 0 && (
                             <div>
@@ -947,6 +979,89 @@ This is an enquiry from the course detail page.
                               </div>
                             </div>
                           )}
+
+                          {/* Images in Folder */}
+                          {folder.images.length > 0 && (
+            <div>
+                              <h4 className="text-lg font-semibold text-dark mb-3 flex items-center gap-2">
+                                <PhotoIcon className="h-5 w-5 text-primary" />
+                                Images ({folder.images.length})
+                              </h4>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                                {folder.images.map((image, imageIndex) => (
+                                  <div 
+                                    key={imageIndex} 
+                                    className="border border-gray-200 rounded-lg overflow-hidden hover:border-primary hover:shadow-lg transition-all cursor-pointer"
+                                    onClick={() => setSelectedImage(image.url)}
+                                    onDragStart={(e) => e.preventDefault()}
+                                  >
+                      <img 
+                        src={image.url} 
+                                      alt={`${folder.folderName} image ${imageIndex + 1}`}
+                                      className="w-full h-48 object-cover pointer-events-none"
+                                      draggable={false}
+                                      onContextMenu={(e) => e.preventDefault()}
+                                    />
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* PDFs in Folder */}
+                          {folder.pdfs.length > 0 && (
+            <div>
+                              <h4 className="text-lg font-semibold text-dark mb-3 flex items-center gap-2">
+                                <DocumentTextIcon className="h-5 w-5 text-primary" />
+                                PDFs ({folder.pdfs.length})
+                              </h4>
+                <div className="grid grid-cols-1 gap-4">
+                                {folder.pdfs.map((pdf, pdfIndex) => (
+                                  <div key={pdfIndex} className="border border-gray-200 rounded-lg overflow-hidden">
+                                    <div className="bg-gray-50 px-4 py-2 border-b border-gray-200">
+                                      <p className="font-semibold text-gray-900 text-sm">{pdf.name}</p>
+                          </div>
+                                    <ProtectedPdfViewer 
+                                      pdfUrl={pdf.url}
+                                      pdfName={pdf.name}
+                                      height="600px"
+                                    />
+                    </div>
+                  ))}
+                </div>
+            </div>
+          )}
+
+                          {/* Videos in Folder */}
+                          {folder.videos.length > 0 && (
+                            <div>
+                              <h4 className="text-lg font-semibold text-dark mb-3 flex items-center gap-2">
+                                <PlayIcon className="h-5 w-5 text-primary" />
+                                Videos ({folder.videos.length})
+                              </h4>
+                              <div className="grid grid-cols-1 gap-4">
+                                {folder.videos.map((video, videoIndex) => (
+                                  <div key={videoIndex} className="border border-gray-200 rounded-lg overflow-hidden">
+                                    <div className="bg-gray-50 px-4 py-2 border-b border-gray-200">
+                                      <p className="font-semibold text-gray-900 text-sm">{video.name}</p>
+                                    </div>
+                                    <div className="bg-black">
+                                      <video
+                                        controls
+                                        controlsList="nodownload noplaybackrate"
+                                        disablePictureInPicture
+                                        className="w-full aspect-video"
+                                        onContextMenu={(e) => e.preventDefault()}
+                                      >
+                                        <source src={video.url} type="video/mp4" />
+                                        Your browser does not support the video tag.
+                                      </video>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+            </div>
+          )}
 
                           {/* External Video Links in Folder */}
                           {folder.externalVideoLinks && folder.externalVideoLinks.length > 0 && (

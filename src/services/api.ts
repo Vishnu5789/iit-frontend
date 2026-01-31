@@ -627,6 +627,16 @@ class ApiService {
     return this.handleResponse(response);
   }
 
+  async getFreeQuizzes(courseId: string): Promise<ApiResponse> {
+    // No auth required - public endpoint for free quizzes
+    const response = await fetch(`${API_BASE_URL}/quizzes/course/${courseId}/free`, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    return this.handleResponse(response);
+  }
+
   async getAdminCourseQuizzes(courseId: string): Promise<ApiResponse> {
     const response = await fetch(`${API_BASE_URL}/quizzes/admin/course/${courseId}`, {
       headers: this.getHeaders(true),

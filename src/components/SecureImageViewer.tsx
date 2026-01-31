@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { XMarkIcon } from '@heroicons/react/24/outline';
+import { XMarkIcon, MagnifyingGlassPlusIcon, MagnifyingGlassMinusIcon } from '@heroicons/react/24/outline';
 import apiService from '../services/api';
 
 interface SecureImageViewerProps {
@@ -10,9 +10,15 @@ interface SecureImageViewerProps {
 
 export default function SecureImageViewer({ imageUrl, onClose }: SecureImageViewerProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [userEmail, setUserEmail] = useState('');
+  const [zoom, setZoom] = useState(1);
+  const [imageData, setImageData] = useState<HTMLImageElement | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
     const user = apiService.getUser();
@@ -51,7 +57,8 @@ export default function SecureImageViewer({ imageUrl, onClose }: SecureImageView
       const img = new Image();
       
       img.onload = () => {
-        renderImageWithWatermark(img);
+        setImageData(img);
+        renderImageWithWatermark(img, zoom, position);
         setLoading(false);
       };
       
@@ -70,7 +77,14 @@ export default function SecureImageViewer({ imageUrl, onClose }: SecureImageView
     }
   };
 
-  const renderImageWithWatermark = (img: HTMLImageElement) => {
+  // Re-render when zoom or position changes
+  useEffect(() => {
+    if (imageData && !loading && !error) {
+      renderImageWithWatermark(imageData, zoom, position);
+    }
+  }, [zoom, position, imageData]);
+
+  const renderImageWithWatermark = (img: HTMLImageElement, currentZoom: number, currentPosition: { x: number; y: number }) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
@@ -81,28 +95,89 @@ export default function SecureImageViewer({ imageUrl, onClose }: SecureImageView
     const maxWidth = window.innerWidth * 0.9;
     const maxHeight = window.innerHeight * 0.9;
     
-    let width = img.width;
-    let height = img.height;
+    let baseWidth = img.width;
+    let baseHeight = img.height;
     
     // Scale down if image is too large
-    if (width > maxWidth || height > maxHeight) {
-      const widthRatio = maxWidth / width;
-      const heightRatio = maxHeight / height;
+    if (baseWidth > maxWidth || baseHeight > maxHeight) {
+      const widthRatio = maxWidth / baseWidth;
+      const heightRatio = maxHeight / baseHeight;
       const ratio = Math.min(widthRatio, heightRatio);
       
-      width = width * ratio;
-      height = height * ratio;
+      baseWidth = baseWidth * ratio;
+      baseHeight = baseHeight * ratio;
     }
 
-    // Set canvas size to scaled dimensions
-    canvas.width = width;
-    canvas.height = height;
+    // Apply zoom
+    const width = baseWidth * currentZoom;
+    const height = baseHeight * currentZoom;
 
-    // Draw image scaled to canvas size
-    ctx.drawImage(img, 0, 0, width, height);
+    // Set canvas size to scaled dimensions
+    canvas.width = baseWidth;
+    canvas.height = baseHeight;
+
+    // Clear canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Apply transformations
+    ctx.save();
+    ctx.translate(canvas.width / 2, canvas.height / 2);
+    ctx.scale(currentZoom, currentZoom);
+    ctx.translate(-canvas.width / 2 + currentPosition.x, -canvas.height / 2 + currentPosition.y);
+
+    // Draw image
+    ctx.drawImage(img, 0, 0, baseWidth, baseHeight);
+
+    ctx.restore();
 
     // Add watermark
-    addWatermark(ctx, width, height);
+    addWatermark(ctx, baseWidth, baseHeight);
+  };
+
+  const handleZoomIn = () => {
+    setZoom(prev => Math.min(prev + 0.25, 3));
+  };
+
+  const handleZoomOut = () => {
+    setZoom(prev => Math.max(prev - 0.25, 0.5));
+    // Reset position when zooming out to prevent being stuck off-screen
+    if (zoom <= 1) {
+      setPosition({ x: 0, y: 0 });
+    }
+  };
+
+  const handleResetZoom = () => {
+    setZoom(1);
+    setPosition({ x: 0, y: 0 });
+  };
+
+  const handleWheel = (e: React.WheelEvent) => {
+    e.preventDefault();
+    if (e.deltaY < 0) {
+      handleZoomIn();
+    } else {
+      handleZoomOut();
+    }
+  };
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (zoom > 1) {
+      setIsDragging(true);
+      setDragStart({ x: e.clientX - position.x, y: e.clientY - position.y });
+    }
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (isDragging && zoom > 1) {
+      setPosition({
+        x: e.clientX - dragStart.x,
+        y: e.clientY - dragStart.y
+      });
+    }
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
   };
 
   const addWatermark = (ctx: CanvasRenderingContext2D, width: number, height: number) => {
@@ -174,8 +249,15 @@ export default function SecureImageViewer({ imageUrl, onClose }: SecureImageView
       )}
 
       <div 
+        ref={containerRef}
         className="relative max-w-7xl max-h-[90vh] w-full h-full flex items-center justify-center"
         onClick={(e) => e.stopPropagation()}
+        onWheel={handleWheel}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseUp}
+        style={{ cursor: zoom > 1 ? (isDragging ? 'grabbing' : 'grab') : 'default' }}
       >
         {/* Close button */}
         <button
@@ -185,10 +267,44 @@ export default function SecureImageViewer({ imageUrl, onClose }: SecureImageView
           <XMarkIcon className="h-6 w-6" />
         </button>
 
+        {/* Zoom controls */}
+        <div className="absolute top-4 right-20 flex gap-2 z-10">
+          <button
+            onClick={handleZoomIn}
+            disabled={zoom >= 3}
+            className="bg-white/10 hover:bg-white/20 text-white p-3 rounded-full transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            title="Zoom In (Scroll Up)"
+          >
+            <MagnifyingGlassPlusIcon className="h-5 w-5" />
+          </button>
+          <button
+            onClick={handleResetZoom}
+            className="bg-white/10 hover:bg-white/20 text-white px-4 py-3 rounded-full transition-all text-sm font-semibold"
+            title="Reset Zoom"
+          >
+            {Math.round(zoom * 100)}%
+          </button>
+          <button
+            onClick={handleZoomOut}
+            disabled={zoom <= 0.5}
+            className="bg-white/10 hover:bg-white/20 text-white p-3 rounded-full transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            title="Zoom Out (Scroll Down)"
+          >
+            <MagnifyingGlassMinusIcon className="h-5 w-5" />
+          </button>
+        </div>
+
         {/* Protected badge */}
         <div className="absolute top-4 left-4 bg-red-600 text-white px-4 py-2 rounded-lg text-xs font-bold shadow-lg z-10">
           🔒 PROTECTED - NO DOWNLOADS
         </div>
+
+        {/* Zoom hint */}
+        {zoom === 1 && !loading && !error && (
+          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-white/90 text-gray-800 px-4 py-2 rounded-lg text-xs shadow-lg z-10">
+            💡 Use scroll wheel to zoom • Click and drag to pan when zoomed
+          </div>
+        )}
 
         {/* Canvas with image */}
         <canvas

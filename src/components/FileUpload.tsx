@@ -7,16 +7,24 @@ interface FileUploadProps {
   label: string
   accept: string
   folder?: string
-  onUploadComplete: (fileData: { url: string; fileId: string; name: string }) => void
-  currentFile?: { url: string; name?: string }
+  onUploadComplete: (fileData: { url: string; fileId: string; name: string; size?: number }) => void
+  currentFile?: { url: string; name?: string; size?: number }
   onRemove?: () => void
 }
 
 const FileUpload = ({ label, accept, folder = 'courses', onUploadComplete, currentFile, onRemove }: FileUploadProps) => {
   const [uploading, setUploading] = useState(false)
   const [progress, setProgress] = useState(0)
+  const [uploadedFileSize, setUploadedFileSize] = useState<number | null>(null)
   
   const LARGE_FILE_THRESHOLD = 50 * 1024 * 1024; // 50MB
+
+  // Helper function to format file size
+  const formatFileSize = (bytes: number): string => {
+    if (bytes < 1024) return bytes + ' B'
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(2) + ' KB'
+    return (bytes / (1024 * 1024)).toFixed(2) + ' MB'
+  }
 
   // Direct S3 upload for large files
   const uploadDirectToS3 = async (file: File) => {
@@ -62,10 +70,12 @@ const FileUpload = ({ label, accept, folder = 'courses', onUploadComplete, curre
       setProgress(100)
 
       // Return the file data
+      setUploadedFileSize(file.size)
       onUploadComplete({
         url: presignedData.data.url,
         fileId: presignedData.data.fileId,
-        name: file.name
+        name: file.name,
+        size: file.size
       })
 
     } catch (error) {
@@ -95,10 +105,12 @@ const FileUpload = ({ label, accept, folder = 'courses', onUploadComplete, curre
     const data = await response.json()
 
     if (data.success) {
+      setUploadedFileSize(file.size)
       onUploadComplete({
         url: data.data.url,
         fileId: data.data.fileId,
-        name: data.data.name
+        name: data.data.name,
+        size: file.size
       })
       setProgress(100)
     } else {
@@ -123,6 +135,7 @@ const FileUpload = ({ label, accept, folder = 'courses', onUploadComplete, curre
 
       setUploading(true)
       setProgress(5)
+      setUploadedFileSize(file.size) // Store file size during upload
 
       // Use direct S3 upload for files larger than threshold
       if (file.size > LARGE_FILE_THRESHOLD) {
@@ -135,6 +148,7 @@ const FileUpload = ({ label, accept, folder = 'courses', onUploadComplete, curre
     } catch (error: any) {
       console.error('Upload error:', error)
       alert(error.message || 'Upload failed. Please try again.')
+      setUploadedFileSize(null)
     } finally {
       setUploading(false)
       setProgress(0)
@@ -158,9 +172,16 @@ const FileUpload = ({ label, accept, folder = 'courses', onUploadComplete, curre
             )}
             <div>
               <p className="text-sm font-medium text-dark">{currentFile.name || 'Uploaded file'}</p>
-              <a href={currentFile.url} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline">
-                View file
-              </a>
+              <div className="flex items-center gap-2">
+                <a href={currentFile.url} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline">
+                  View file
+                </a>
+                {(currentFile.size || uploadedFileSize) && (
+                  <span className="text-xs text-gray-500">
+                    • {formatFileSize(currentFile.size || uploadedFileSize || 0)}
+                  </span>
+                )}
+              </div>
             </div>
           </div>
           {onRemove && (

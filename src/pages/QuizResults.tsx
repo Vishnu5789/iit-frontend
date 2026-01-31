@@ -115,31 +115,61 @@ const QuizResults = () => {
         {answers && answers.length > 0 && (
           <div className="bg-white rounded-xl shadow-md p-6">
             <h2 className="text-2xl font-bold text-dark mb-6">Answer Review</h2>
-            <div className="space-y-4">
+            <div className="space-y-6">
               {answers.map((answer: any, index: number) => (
                 <div
                   key={index}
-                  className={`p-4 rounded-lg border-2 ${
+                  className={`p-5 rounded-lg border-2 ${
                     answer.isCorrect
                       ? 'bg-green-50 border-green-200'
                       : 'bg-red-50 border-red-200'
                   }`}
                 >
-                  <div className="flex items-start gap-3 mb-2">
+                  <div className="flex items-start gap-3 mb-3">
                     {answer.isCorrect ? (
                       <CheckCircleIcon className="w-6 h-6 text-green-600 flex-shrink-0 mt-1" />
                     ) : (
                       <XCircleIcon className="w-6 h-6 text-red-600 flex-shrink-0 mt-1" />
                     )}
                     <div className="flex-1">
-                      <p className="font-semibold text-dark mb-1">
+                      <p className="font-semibold text-dark mb-2">
                         Question {index + 1}
                       </p>
-                      <p className={`text-sm ${
-                        answer.isCorrect ? 'text-green-700' : 'text-red-700'
-                      }`}>
-                        {answer.isCorrect ? 'Correct' : 'Incorrect'} • {answer.pointsEarned} points earned
-                      </p>
+                      {answer.questionText && (
+                        <p className="text-gray-700 mb-3 text-base">
+                          {answer.questionText}
+                        </p>
+                      )}
+                      <div className="space-y-2 text-sm">
+                        <p className={`font-semibold ${
+                          answer.isCorrect ? 'text-green-700' : 'text-red-700'
+                        }`}>
+                          {answer.isCorrect ? '✓ Correct' : '✗ Incorrect'} • {answer.pointsEarned} / {answer.totalPoints || 1} points
+                        </p>
+                        
+                        {answer.userAnswer && (
+                          <div className="bg-white p-3 rounded border border-gray-200">
+                            <p className="text-gray-600 text-xs font-semibold mb-1">Your Answer:</p>
+                            <p className="text-gray-800">{answer.userAnswer}</p>
+                          </div>
+                        )}
+                        
+                        {!answer.isCorrect && answer.correctAnswer && (
+                          <div className="bg-green-100 p-3 rounded border border-green-300">
+                            <p className="text-green-700 text-xs font-semibold mb-1">Correct Answer:</p>
+                            <p className="text-green-900 font-medium">{answer.correctAnswer}</p>
+                          </div>
+                        )}
+                        
+                        {answer.explanation && (
+                          <div className="bg-blue-50 p-3 rounded border border-blue-200 mt-2">
+                            <p className="text-blue-700 text-xs font-semibold mb-1 flex items-center gap-1">
+                              💡 Explanation:
+                            </p>
+                            <p className="text-blue-900">{answer.explanation}</p>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>

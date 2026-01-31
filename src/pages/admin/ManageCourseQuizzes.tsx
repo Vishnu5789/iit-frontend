@@ -15,6 +15,7 @@ interface Quiz {
   totalPoints: number;
   attemptsAllowed: number;
   isActive: boolean;
+  isFree: boolean;
   order: number;
 }
 
@@ -37,6 +38,7 @@ const ManageCourseQuizzes = () => {
     shuffleQuestions: false,
     showCorrectAnswers: true,
     isActive: true,
+    isFree: false,
     order: 0,
     questions: [] as any[]
   });
@@ -54,6 +56,8 @@ const ManageCourseQuizzes = () => {
     points: 1,
     explanation: ''
   });
+
+  const [editingQuestionIndex, setEditingQuestionIndex] = useState<number | null>(null);
 
   useEffect(() => {
     fetchCourse();
@@ -99,6 +103,7 @@ const ManageCourseQuizzes = () => {
         shuffleQuestions: false,
         showCorrectAnswers: true,
         isActive: quiz.isActive,
+        isFree: quiz.isFree,
         order: quiz.order,
         questions: quiz.questions || []
       });
@@ -114,6 +119,7 @@ const ManageCourseQuizzes = () => {
         shuffleQuestions: false,
         showCorrectAnswers: true,
         isActive: true,
+        isFree: false,
         order: quizzes.length,
         questions: []
       });
@@ -141,9 +147,10 @@ const ManageCourseQuizzes = () => {
       points: 1,
       explanation: ''
     });
+    setEditingQuestionIndex(null);
   };
 
-  const handleAddQuestion = () => {
+  const handleAddOrUpdateQuestion = () => {
     if (!currentQuestion.questionText.trim()) {
       toast.error('Please enter a question');
       return;
@@ -171,13 +178,48 @@ const ManageCourseQuizzes = () => {
       }
     }
 
-    setFormData({
-      ...formData,
-      questions: [...formData.questions, { ...currentQuestion, order: formData.questions.length }]
-    });
+    if (editingQuestionIndex !== null) {
+      // Update existing question
+      const updatedQuestions = [...formData.questions];
+      updatedQuestions[editingQuestionIndex] = { ...currentQuestion, order: editingQuestionIndex };
+      setFormData({
+        ...formData,
+        questions: updatedQuestions
+      });
+      toast.success('Question updated');
+    } else {
+      // Add new question
+      setFormData({
+        ...formData,
+        questions: [...formData.questions, { ...currentQuestion, order: formData.questions.length }]
+      });
+      toast.success('Question added');
+    }
     
     resetCurrentQuestion();
-    toast.success('Question added');
+  };
+
+  const handleEditQuestion = (index: number) => {
+    const question = formData.questions[index];
+    setCurrentQuestion({
+      questionText: question.questionText,
+      questionType: question.questionType,
+      options: question.options || [
+        { text: '', isCorrect: false },
+        { text: '', isCorrect: false },
+        { text: '', isCorrect: false },
+        { text: '', isCorrect: false }
+      ],
+      correctAnswer: question.correctAnswer || '',
+      points: question.points || 1,
+      explanation: question.explanation || ''
+    });
+    setEditingQuestionIndex(index);
+    
+    // Scroll to the question form
+    setTimeout(() => {
+      document.getElementById('question-form')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
   };
 
   const handleRemoveQuestion = (index: number) => {
@@ -298,7 +340,14 @@ const ManageCourseQuizzes = () => {
               >
                 <div className="flex justify-between items-start mb-4">
                   <div className="flex-1">
-                    <h3 className="font-bold text-dark text-lg mb-2">{quiz.title}</h3>
+                    <div className="flex items-center gap-2 mb-2">
+                      <h3 className="font-bold text-dark text-lg">{quiz.title}</h3>
+                      {quiz.isFree && (
+                        <span className="px-2 py-1 rounded text-xs font-semibold bg-blue-100 text-blue-700">
+                          FREE
+                        </span>
+                      )}
+                    </div>
                     <p className="text-sm text-medium line-clamp-2">{quiz.description}</p>
                   </div>
                   <div className="flex gap-2">
@@ -477,7 +526,12 @@ const ManageCourseQuizzes = () => {
                       </div>
                       <div className="space-y-3 max-h-96 overflow-y-auto border border-gray-200 rounded-lg p-3 bg-gray-50">
                         {formData.questions.map((q, index) => (
-                          <div key={index} className="bg-white p-4 rounded-lg shadow-sm flex justify-between items-start border border-gray-200">
+                          <div 
+                            key={index} 
+                            className={`bg-white p-4 rounded-lg shadow-sm flex justify-between items-start border-2 ${
+                              editingQuestionIndex === index ? 'border-primary' : 'border-gray-200'
+                            }`}
+                          >
                             <div className="flex-1">
                               <p className="font-medium text-dark">
                                 {index + 1}. {q.questionText}
@@ -485,14 +539,30 @@ const ManageCourseQuizzes = () => {
                               <p className="text-sm text-gray-600 mt-1">
                                 Type: {q.questionType} • Points: {q.points}
                               </p>
+                              {q.explanation && (
+                                <p className="text-xs text-gray-500 mt-1 italic">
+                                  💡 Explanation: {q.explanation.substring(0, 50)}{q.explanation.length > 50 ? '...' : ''}
+                                </p>
+                              )}
                             </div>
-                            <button
-                              type="button"
-                              onClick={() => handleRemoveQuestion(index)}
-                              className="text-red-600 hover:text-red-700 ml-3"
-                            >
-                              <TrashIcon className="w-5 h-5" />
-                            </button>
+                            <div className="flex gap-2 ml-3">
+                              <button
+                                type="button"
+                                onClick={() => handleEditQuestion(index)}
+                                className="text-primary hover:text-primary/80"
+                                title="Edit question"
+                              >
+                                <PencilIcon className="w-5 h-5" />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleRemoveQuestion(index)}
+                                className="text-red-600 hover:text-red-700"
+                                title="Delete question"
+                              >
+                                <TrashIcon className="w-5 h-5" />
+                              </button>
+                            </div>
                           </div>
                         ))}
                       </div>
@@ -500,10 +570,23 @@ const ManageCourseQuizzes = () => {
                   )}
 
                   {/* Add New Question */}
-                  <div className="bg-primary/5 border-2 border-primary/20 p-4 rounded-lg space-y-4">
+                  <div id="question-form" className="bg-primary/5 border-2 border-primary/20 p-4 rounded-lg space-y-4">
                     <div className="flex items-center justify-between">
-                      <h4 className="font-semibold text-dark">Add New Question</h4>
-                      <span className="text-xs text-primary font-medium">No limit on questions!</span>
+                      <h4 className="font-semibold text-dark">
+                        {editingQuestionIndex !== null ? `Edit Question #${editingQuestionIndex + 1}` : 'Add New Question'}
+                      </h4>
+                      <div className="flex items-center gap-2">
+                        {editingQuestionIndex !== null && (
+                          <button
+                            type="button"
+                            onClick={resetCurrentQuestion}
+                            className="text-xs text-gray-600 hover:text-gray-800 underline"
+                          >
+                            Cancel Edit
+                          </button>
+                        )}
+                        <span className="text-xs text-primary font-medium">No limit on questions!</span>
+                      </div>
                     </div>
                     
                     <div>
@@ -605,18 +688,62 @@ const ManageCourseQuizzes = () => {
                       </div>
                     )}
 
+                    {/* Explanation Field */}
+                    <div>
+                      <label className="block text-sm font-medium text-dark mb-2">
+                        Explanation <span className="text-gray-400">(Optional - shown after submission)</span>
+                      </label>
+                      <textarea
+                        value={currentQuestion.explanation}
+                        onChange={(e) => setCurrentQuestion({ ...currentQuestion, explanation: e.target.value })}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                        placeholder="Provide an explanation for the correct answer..."
+                        rows={3}
+                      />
+                      <p className="text-xs text-gray-500 mt-1">
+                        💡 This will be shown to students after they submit their answer
+                      </p>
+                    </div>
+
                     <button
                       type="button"
-                      onClick={handleAddQuestion}
+                      onClick={handleAddOrUpdateQuestion}
                       className="w-full bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/90 transition-all font-medium"
                     >
-                      Add Question
+                      {editingQuestionIndex !== null ? 'Update Question' : 'Add Question'}
                     </button>
                   </div>
                 </div>
 
-                {/* Active Status */}
-                <div className="border-t pt-6">
+                {/* Quiz Access Settings */}
+                <div className="border-t pt-6 space-y-4">
+                  <h3 className="text-lg font-bold text-dark">Quiz Access</h3>
+                  
+                  {/* Free/Paid Toggle */}
+                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-lg p-4">
+                    <div className="flex items-center gap-3 mb-2">
+                      <input
+                        type="checkbox"
+                        id="isFree"
+                        checked={formData.isFree}
+                        onChange={(e) => setFormData({ ...formData, isFree: e.target.checked })}
+                        className="w-5 h-5 text-blue-600 rounded"
+                      />
+                      <label htmlFor="isFree" className="text-sm font-bold text-dark cursor-pointer">
+                        Free Quiz (Accessible to all users with login)
+                      </label>
+                    </div>
+                    <div className="ml-8 text-xs text-gray-700 space-y-1">
+                      <p>
+                        <strong>Unchecked (Paid/Premium):</strong> Only enrolled students can attempt this quiz
+                      </p>
+                      <p>
+                        <strong>Checked (Free):</strong> Any logged-in user can attempt this quiz (no enrollment required)
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Active Status */}
                   <div className="flex items-center gap-3">
                     <input
                       type="checkbox"
@@ -629,7 +756,7 @@ const ManageCourseQuizzes = () => {
                       ✅ Set as Active (visible to students)
                     </label>
                   </div>
-                  <p className="text-xs text-gray-500 mt-2 ml-8">
+                  <p className="text-xs text-gray-500 ml-8">
                     Inactive quizzes will not be visible to students
                   </p>
                 </div>
