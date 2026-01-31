@@ -79,6 +79,14 @@ interface Course {
     images: Array<{ url: string; fileId: string }>;
     textContent?: Array<{ title: string; content: string }>;
     externalVideoLinks?: Array<{ title: string; url: string; description?: string; platform?: string }>;
+    subfolders?: Array<{
+      folderName: string;
+      videos: Array<{ name: string; url: string; fileId: string; duration?: string }>;
+      pdfs: Array<{ name: string; url: string; fileId: string }>;
+      images: Array<{ url: string; fileId: string }>;
+      textContent?: Array<{ title: string; content: string }>;
+      externalVideoLinks?: Array<{ title: string; url: string; description?: string; platform?: string }>;
+    }>;
   }>;
 }
 
@@ -97,6 +105,7 @@ export default function CourseDetail() {
   const [certificates, setCertificates] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState<'folders' | 'textContent' | 'externalLinks' | 'quizzes' | 'certificates'>('folders');
   const [expandedFolders, setExpandedFolders] = useState<Set<number>>(new Set());
+  const [expandedSubfolders, setExpandedSubfolders] = useState<Set<string>>(new Set());
   const [formData, setFormData] = useState({
     firstName: '',
     email: '',
@@ -934,7 +943,8 @@ This is an enquiry from the course detail page.
                           <span className="font-bold text-lg text-dark">{folder.folderName}</span>
                           <span className="text-sm text-gray-600">
                             ({folder.textContent && folder.textContent.length > 0 ? `${folder.textContent.length} text sections, ` : ''}{folder.images.length} images, {folder.pdfs.length} PDFs, {folder.videos.length} videos
-                            {folder.externalVideoLinks && folder.externalVideoLinks.length > 0 && `, ${folder.externalVideoLinks.length} external videos`})
+                            {folder.externalVideoLinks && folder.externalVideoLinks.length > 0 && `, ${folder.externalVideoLinks.length} external videos`}
+                            {folder.subfolders && folder.subfolders.length > 0 && `, ${folder.subfolders.length} subfolders`})
                           </span>
         </div>
       </div>
@@ -1101,9 +1111,218 @@ This is an enquiry from the course detail page.
                             </div>
                           )}
 
+                          {/* Subfolders in Folder */}
+                          {folder.subfolders && folder.subfolders.length > 0 && (
+                            <div className="mt-6">
+                              <h4 className="text-lg font-semibold text-dark mb-3 flex items-center gap-2">
+                                <FolderIcon className="h-5 w-5 text-primary" />
+                                Subfolders ({folder.subfolders.length})
+                              </h4>
+                              <div className="space-y-3 ml-4">
+                                {folder.subfolders.map((subfolder, subfolderIndex) => {
+                                  const subfolderKey = `${folderIndex}-${subfolderIndex}`;
+                                  return (
+                                    <div key={subfolderIndex} className="border border-gray-300 rounded-lg overflow-hidden bg-gray-50">
+                                      {/* Subfolder Header */}
+                                      <div 
+                                        className="bg-primary/5 px-4 py-2 flex items-center justify-between cursor-pointer hover:bg-primary/10 transition-colors"
+                                        onClick={() => {
+                                          const newExpanded = new Set(expandedSubfolders);
+                                          if (newExpanded.has(subfolderKey)) {
+                                            newExpanded.delete(subfolderKey);
+                                          } else {
+                                            newExpanded.add(subfolderKey);
+                                          }
+                                          setExpandedSubfolders(newExpanded);
+                                        }}
+                                      >
+                                        <div className="flex items-center gap-2">
+                                          {expandedSubfolders.has(subfolderKey) ? (
+                                            <ChevronUpIcon className="h-4 w-4 text-primary" />
+                                          ) : (
+                                            <ChevronDownIcon className="h-4 w-4 text-primary" />
+                                          )}
+                                          <FolderIcon className="h-5 w-5 text-primary" />
+                                          <span className="font-semibold text-dark">{subfolder.folderName}</span>
+                                          <span className="text-xs text-gray-600">
+                                            ({subfolder.textContent && subfolder.textContent.length > 0 ? `${subfolder.textContent.length} text, ` : ''}{subfolder.images.length} images, {subfolder.pdfs.length} PDFs, {subfolder.videos.length} videos{subfolder.externalVideoLinks && subfolder.externalVideoLinks.length > 0 && `, ${subfolder.externalVideoLinks.length} ext videos`})
+                                          </span>
+                                        </div>
+                                      </div>
+
+                                      {/* Subfolder Content */}
+                                      {expandedSubfolders.has(subfolderKey) && (
+                                        <div className="bg-white p-4 space-y-4">
+                                          {/* Text Content in Subfolder */}
+                                          {subfolder.textContent && subfolder.textContent.length > 0 && (
+                                            <div>
+                                              <h5 className="text-md font-semibold text-dark mb-2 flex items-center gap-2">
+                                                <DocumentTextIcon className="h-4 w-4 text-primary" />
+                                                Text Content ({subfolder.textContent.length})
+                                              </h5>
+                                              <div className="space-y-3">
+                                                {subfolder.textContent.map((text, textIndex) => {
+                                                  const { content, isHTML } = prepareContentForRendering(text.content);
+                                                  return (
+                                                    <div key={textIndex} className="border border-gray-200 rounded-lg p-4 bg-white shadow-sm">
+                                                      <h6 className="font-bold text-lg text-dark mb-3 border-b border-gray-100 pb-2">{text.title}</h6>
+                                                      {isHTML ? (
+                                                        <div 
+                                                          className="prose prose-lg max-w-none"
+                                                          dangerouslySetInnerHTML={{ __html: content }}
+                                                          onContextMenu={(e) => e.preventDefault()}
+                                                          onCopy={(e) => e.preventDefault()}
+                                                          style={{ userSelect: 'none', fontFamily: 'inherit' }}
+                                                        />
+                                                      ) : (
+                                                        <div
+                                                          onContextMenu={(e) => e.preventDefault()}
+                                                          onCopy={(e) => e.preventDefault()}
+                                                          style={{ userSelect: 'none' }}
+                                                        >
+                                                          <MarkdownRenderer content={content} />
+                                                        </div>
+                                                      )}
+                                                    </div>
+                                                  );
+                                                })}
+                                              </div>
+                                            </div>
+                                          )}
+
+                                          {/* Images in Subfolder */}
+                                          {subfolder.images.length > 0 && (
+                                            <div>
+                                              <h5 className="text-md font-semibold text-dark mb-2 flex items-center gap-2">
+                                                <PhotoIcon className="h-4 w-4 text-primary" />
+                                                Images ({subfolder.images.length})
+                                              </h5>
+                                              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                                                {subfolder.images.map((image, imageIndex) => (
+                                                  <div 
+                                                    key={imageIndex} 
+                                                    className="border border-gray-200 rounded-lg overflow-hidden hover:border-primary hover:shadow-lg transition-all cursor-pointer"
+                                                    onClick={() => setSelectedImage(image.url)}
+                                                    onDragStart={(e) => e.preventDefault()}
+                                                  >
+                                                    <img 
+                                                      src={image.url} 
+                                                      alt={`${subfolder.folderName} image ${imageIndex + 1}`}
+                                                      className="w-full h-40 object-cover pointer-events-none"
+                                                      draggable={false}
+                                                      onContextMenu={(e) => e.preventDefault()}
+                                                    />
+                                                  </div>
+                                                ))}
+                                              </div>
+                                            </div>
+                                          )}
+
+                                          {/* PDFs in Subfolder */}
+                                          {subfolder.pdfs.length > 0 && (
+                                            <div>
+                                              <h5 className="text-md font-semibold text-dark mb-2 flex items-center gap-2">
+                                                <DocumentTextIcon className="h-4 w-4 text-primary" />
+                                                PDFs ({subfolder.pdfs.length})
+                                              </h5>
+                                              <div className="grid grid-cols-1 gap-3">
+                                                {subfolder.pdfs.map((pdf, pdfIndex) => (
+                                                  <div key={pdfIndex} className="border border-gray-200 rounded-lg overflow-hidden">
+                                                    <div className="bg-gray-50 px-4 py-2 border-b border-gray-200">
+                                                      <p className="font-semibold text-gray-900 text-sm">{pdf.name}</p>
+                                                    </div>
+                                                    <ProtectedPdfViewer 
+                                                      pdfUrl={pdf.url}
+                                                      pdfName={pdf.name}
+                                                      height="500px"
+                                                    />
+                                                  </div>
+                                                ))}
+                                              </div>
+                                            </div>
+                                          )}
+
+                                          {/* Videos in Subfolder */}
+                                          {subfolder.videos.length > 0 && (
+                                            <div>
+                                              <h5 className="text-md font-semibold text-dark mb-2 flex items-center gap-2">
+                                                <PlayIcon className="h-4 w-4 text-primary" />
+                                                Videos ({subfolder.videos.length})
+                                              </h5>
+                                              <div className="grid grid-cols-1 gap-3">
+                                                {subfolder.videos.map((video, videoIndex) => (
+                                                  <div key={videoIndex} className="border border-gray-200 rounded-lg overflow-hidden">
+                                                    <div className="bg-gray-50 px-4 py-2 border-b border-gray-200">
+                                                      <p className="font-semibold text-gray-900 text-sm">{video.name}</p>
+                                                    </div>
+                                                    <div className="bg-black">
+                                                      <video
+                                                        controls
+                                                        controlsList="nodownload noplaybackrate"
+                                                        disablePictureInPicture
+                                                        className="w-full aspect-video"
+                                                        onContextMenu={(e) => e.preventDefault()}
+                                                      >
+                                                        <source src={video.url} type="video/mp4" />
+                                                        Your browser does not support the video tag.
+                                                      </video>
+                                                    </div>
+                                                  </div>
+                                                ))}
+                                              </div>
+                                            </div>
+                                          )}
+
+                                          {/* External Video Links in Subfolder */}
+                                          {subfolder.externalVideoLinks && subfolder.externalVideoLinks.length > 0 && (
+                                            <div>
+                                              <h5 className="text-md font-semibold text-dark mb-2 flex items-center gap-2">
+                                                <PlayIcon className="h-4 w-4 text-primary" />
+                                                External Videos ({subfolder.externalVideoLinks.length})
+                                              </h5>
+                                              <div className="space-y-3">
+                                                {subfolder.externalVideoLinks.map((video, videoIndex) => (
+                                                  <div key={videoIndex} className="border border-gray-200 rounded-lg p-4 bg-white">
+                                                    <div className="flex items-start justify-between gap-4">
+                                                      <div className="flex-1">
+                                                        <h6 className="font-bold text-md text-dark mb-2">{video.title}</h6>
+                                                        {video.description && (
+                                                          <p className="text-gray-600 mb-2 text-sm">{video.description}</p>
+                                                        )}
+                                                        {video.platform && (
+                                                          <span className="inline-block px-2 py-1 bg-primary/10 text-primary text-xs rounded-full font-semibold mb-2">
+                                                            {video.platform}
+                                                          </span>
+                                                        )}
+                                                      </div>
+                                                    </div>
+                                                    <a
+                                                      href={video.url}
+                                                      target="_blank"
+                                                      rel="noopener noreferrer"
+                                                      className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition font-semibold text-sm"
+                                                    >
+                                                      <PlayIcon className="h-4 w-4" />
+                                                      Watch Video
+                                                    </a>
+                                                  </div>
+                                                ))}
+                                              </div>
+                                            </div>
+                                          )}
+                                        </div>
+                                      )}
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          )}
+
                           {folder.videos.length === 0 && folder.pdfs.length === 0 && folder.images.length === 0 && 
                            (!folder.textContent || folder.textContent.length === 0) && 
-                           (!folder.externalVideoLinks || folder.externalVideoLinks.length === 0) && (
+                           (!folder.externalVideoLinks || folder.externalVideoLinks.length === 0) &&
+                           (!folder.subfolders || folder.subfolders.length === 0) && (
                             <p className="text-gray-500 text-center py-4">This folder is empty.</p>
                           )}
                         </div>
