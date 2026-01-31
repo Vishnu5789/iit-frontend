@@ -108,10 +108,6 @@ export default function SecureImageViewer({ imageUrl, onClose }: SecureImageView
       baseHeight = baseHeight * ratio;
     }
 
-    // Apply zoom
-    const width = baseWidth * currentZoom;
-    const height = baseHeight * currentZoom;
-
     // Set canvas size to scaled dimensions
     canvas.width = baseWidth;
     canvas.height = baseHeight;
