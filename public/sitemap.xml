@@ -3,64 +3,64 @@
   
   <!-- Home Page -->
   <url>
-    <loc>https://iit-frontend-ql6n.vercel.app/</loc>
-    <lastmod>2025-01-01</lastmod>
+    <loc>https://isaactechie.com/</loc>
+    <lastmod>2026-02-02</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   
   <!-- About Page -->
   <url>
-    <loc>https://iit-frontend-ql6n.vercel.app/about</loc>
-    <lastmod>2025-01-01</lastmod>
+    <loc>https://isaactechie.com/about</loc>
+    <lastmod>2026-02-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   
   <!-- Courses Page -->
   <url>
-    <loc>https://iit-frontend-ql6n.vercel.app/courses</loc>
-    <lastmod>2025-01-01</lastmod>
+    <loc>https://isaactechie.com/courses</loc>
+    <lastmod>2026-02-02</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   
   <!-- Blog Page -->
   <url>
-    <loc>https://iit-frontend-ql6n.vercel.app/blog</loc>
-    <lastmod>2025-01-01</lastmod>
+    <loc>https://isaactechie.com/blog</loc>
+    <lastmod>2026-02-02</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   
   <!-- Industry Page -->
   <url>
-    <loc>https://iit-frontend-ql6n.vercel.app/industry</loc>
-    <lastmod>2025-01-01</lastmod>
+    <loc>https://isaactechie.com/industry</loc>
+    <lastmod>2026-02-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   
   <!-- Contact Page -->
   <url>
-    <loc>https://iit-frontend-ql6n.vercel.app/contact</loc>
-    <lastmod>2025-01-01</lastmod>
+    <loc>https://isaactechie.com/contact</loc>
+    <lastmod>2026-02-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   
   <!-- Login Page -->
   <url>
-    <loc>https://iit-frontend-ql6n.vercel.app/login</loc>
-    <lastmod>2025-01-01</lastmod>
+    <loc>https://isaactechie.com/login</loc>
+    <lastmod>2026-02-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   
   <!-- Signup Page -->
   <url>
-    <loc>https://iit-frontend-ql6n.vercel.app/signup</loc>
-    <lastmod>2025-01-01</lastmod>
+    <loc>https://isaactechie.com/signup</loc>
+    <lastmod>2026-02-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
