@@ -1,9 +1,21 @@
 {
-    "rewrites": [
-      { "source": "/(.*)", "destination": "/index.html" }
-    ],
-    "env": {
-      "VITE_HOMEPAGE_ASSETS_URL": "https://iit-file-storage.s3.us-east-1.amazonaws.com/homepage"
+  "redirects": [
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "iit-frontend-ql6n.vercel.app"
+        }
+      ],
+      "destination": "https://isaactechie.com/$1",
+      "permanent": true
     }
+  ],
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/index.html" }
+  ],
+  "env": {
+    "VITE_HOMEPAGE_ASSETS_URL": "https://iit-file-storage.s3.us-east-1.amazonaws.com/homepage"
   }
-  
+}
